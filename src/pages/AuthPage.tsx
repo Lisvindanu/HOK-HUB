@@ -1,18 +1,14 @@
 import { useState } from 'react';
-import { X, User, Mail, LogIn, UserPlus, Loader2 } from 'lucide-react';
-import { registerContributor, loginContributor } from '../../api/tierLists';
-import { useContributorStore } from '../../store/tierListStore';
+import { User, Mail, LogIn, UserPlus, Loader2 } from 'lucide-react';
+import { registerContributor, loginContributor } from '../api/tierLists';
+import { useContributorStore } from '../store/tierListStore';
+import { useNavigate } from '@tanstack/react-router';
 
-interface AuthModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  defaultTab?: 'login' | 'register';
-}
-
-export function AuthModal({ isOpen, onClose, defaultTab = 'login' }: AuthModalProps) {
-  const [activeTab, setActiveTab] = useState<'login' | 'register'>(defaultTab);
+export function AuthPage() {
+  const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const { setContributor } = useContributorStore();
 
@@ -37,9 +33,8 @@ export function AuthModal({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
       const { contributor, token } = await loginContributor(loginEmail.trim());
       setContributor(contributor.id, contributor.name, token);
 
-      // Reset form
-      setLoginEmail('');
-      onClose();
+      // Redirect to home or previous page
+      navigate({ to: '/' });
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -65,10 +60,8 @@ export function AuthModal({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
 
       setContributor(contributor.id, contributor.name, token);
 
-      // Reset form
-      setRegisterName('');
-      setRegisterEmail('');
-      onClose();
+      // Redirect to home
+      navigate({ to: '/' });
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -76,79 +69,55 @@ export function AuthModal({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
     }
   };
 
-  const handleClose = () => {
-    setError('');
-    setLoginEmail('');
-    setRegisterName('');
-    setRegisterEmail('');
-    onClose();
-  };
-
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-        onClick={handleClose}
-      />
-
-      {/* Modal */}
-      <div className="relative w-full max-w-md bg-dark-300 border border-white/10 rounded-2xl shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/10">
-          <h2 className="text-2xl font-bold">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-md mx-auto">
+        <div className="card-hover p-8">
+          {/* Header */}
+          <div className="flex items-center justify-center mb-6">
+            <div className="p-3 bg-primary-500/20 rounded-full">
+              <User className="w-12 h-12 text-primary-400" />
+            </div>
+          </div>
+          <h1 className="text-3xl font-display font-bold mb-2 text-center">
             {activeTab === 'login' ? 'Welcome Back' : 'Join HoK Hub'}
-          </h2>
-          <button
-            onClick={handleClose}
-            className="p-2 hover:bg-white/5 rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+          </h1>
+          <p className="text-gray-400 text-center mb-8">
+            {activeTab === 'login'
+              ? 'Login to track your contributions and tier lists'
+              : 'Create an account to start contributing'}
+          </p>
 
-        {/* Tabs */}
-        <div className="flex border-b border-white/10">
-          <button
-            onClick={() => {
-              setActiveTab('login');
-              setError('');
-            }}
-            className={`flex-1 py-4 font-semibold transition-colors relative ${
-              activeTab === 'login'
-                ? 'text-primary-400'
-                : 'text-gray-400 hover:text-gray-300'
-            }`}
-          >
-            <LogIn className="w-5 h-5 inline-block mr-2" />
-            Login
-            {activeTab === 'login' && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-400" />
-            )}
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab('register');
-              setError('');
-            }}
-            className={`flex-1 py-4 font-semibold transition-colors relative ${
-              activeTab === 'register'
-                ? 'text-primary-400'
-                : 'text-gray-400 hover:text-gray-300'
-            }`}
-          >
-            <UserPlus className="w-5 h-5 inline-block mr-2" />
-            Register
-            {activeTab === 'register' && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-400" />
-            )}
-          </button>
-        </div>
+          {/* Tabs */}
+          <div className="flex gap-2 mb-6 p-1 bg-dark-50 rounded-lg">
+            <button
+              onClick={() => {
+                setActiveTab('login');
+                setError('');
+              }}
+              className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
+                activeTab === 'login'
+                  ? 'bg-primary-500 text-white shadow-lg'
+                  : 'text-gray-400 hover:text-gray-300'
+              }`}
+            >
+              Login
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab('register');
+                setError('');
+              }}
+              className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
+                activeTab === 'register'
+                  ? 'bg-primary-500 text-white shadow-lg'
+                  : 'text-gray-400 hover:text-gray-300'
+              }`}
+            >
+              Register
+            </button>
+          </div>
 
-        {/* Content */}
-        <div className="p-6">
           {/* Login Form */}
           {activeTab === 'login' && (
             <form onSubmit={handleLogin} className="space-y-5">
@@ -165,6 +134,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
                     placeholder="your@email.com"
                     className="w-full pl-11 pr-4 py-3 bg-dark-50 border border-white/10 rounded-lg focus:outline-none focus:border-primary-500 text-white"
                     disabled={isLoading}
+                    autoFocus
                   />
                 </div>
               </div>
@@ -177,7 +147,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
 
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || !loginEmail.trim()}
                 className="w-full btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
@@ -192,17 +162,6 @@ export function AuthModal({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
                   </>
                 )}
               </button>
-
-              <p className="text-center text-sm text-gray-400">
-                Don't have an account?{' '}
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('register')}
-                  className="text-primary-400 hover:text-primary-300 font-semibold"
-                >
-                  Register here
-                </button>
-              </p>
             </form>
           )}
 
@@ -222,6 +181,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
                     placeholder="Your name"
                     className="w-full pl-11 pr-4 py-3 bg-dark-50 border border-white/10 rounded-lg focus:outline-none focus:border-primary-500 text-white"
                     disabled={isLoading}
+                    autoFocus
                   />
                 </div>
               </div>
@@ -254,7 +214,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
 
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || !registerName.trim()}
                 className="w-full btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
@@ -269,19 +229,15 @@ export function AuthModal({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
                   </>
                 )}
               </button>
-
-              <p className="text-center text-sm text-gray-400">
-                Already have an account?{' '}
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('login')}
-                  className="text-primary-400 hover:text-primary-300 font-semibold"
-                >
-                  Login here
-                </button>
-              </p>
             </form>
           )}
+
+          {/* Footer Info */}
+          <div className="mt-6 pt-6 border-t border-white/10">
+            <p className="text-xs text-gray-500 text-center">
+              By continuing, you agree to track your contributions and allow your name to appear on the leaderboard
+            </p>
+          </div>
         </div>
       </div>
     </div>

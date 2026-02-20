@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Upload, CheckCircle, AlertCircle, Info, Plus, X, Search, Shield, Sword, Zap, Wand2, Target, HeartPulse, Swords, Users, TrendingUp, Sprout, Map, Send, LogIn } from 'lucide-react';
 import { useHeroes } from '../hooks/useHeroes';
 import { useContributorStore } from '../store/tierListStore';
-import { AuthModal } from '../components/auth/AuthModal';
+import { useNavigate, Link } from '@tanstack/react-router';
 
 type ContributionType = 'skin' | 'hero' | 'series';
 
@@ -57,13 +57,13 @@ const TIERS = ['Epic', 'Legendary', 'Limited', 'Rare', 'Common'];
 export function ContributePage() {
   const { data: heroes, isLoading } = useHeroes();
   const { contributorId, contributorName, token } = useContributorStore();
+  const navigate = useNavigate();
   const [contributionType, setContributionType] = useState<ContributionType>('skin');
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [heroSearch, setHeroSearch] = useState('');
   const [showHeroPicker, setShowHeroPicker] = useState(false);
   const [activeSeriesSkinPicker, setActiveSeriesSkinPicker] = useState<number | null>(null);
-  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const [skinForm, setSkinForm] = useState<SkinFormData>({
     heroId: 0,
@@ -169,7 +169,7 @@ export function ContributePage() {
 
     // Check if user is logged in
     if (!contributorId || !token) {
-      setAuthModalOpen(true);
+      navigate({ to: '/auth' });
       return;
     }
 
@@ -351,13 +351,13 @@ export function ContributePage() {
               <p className="text-gray-300 mb-4">
                 You need to be logged in to submit contributions. This helps us track your contributions and give you credit on the leaderboard!
               </p>
-              <button
-                onClick={() => setAuthModalOpen(true)}
+              <Link
+                to="/auth"
                 className="btn-primary inline-flex items-center gap-2"
               >
                 <LogIn className="w-4 h-4" />
                 Login / Register
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -824,13 +824,6 @@ export function ContributePage() {
           </div>
         </div>
       </div>
-
-      {/* Auth Modal */}
-      <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-        defaultTab="register"
-      />
     </div>
   );
 }

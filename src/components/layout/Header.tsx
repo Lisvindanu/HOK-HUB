@@ -1,7 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { Menu, X, Home, Users, BarChart3, Palette, Shield, Crown, UserPlus, Trophy, User, LogOut, LogIn } from 'lucide-react';
 import { useState } from 'react';
-import { AuthModal } from '../auth/AuthModal';
 import { useContributorStore } from '../../store/tierListStore';
 
 const navigation = [
@@ -17,7 +16,6 @@ const navigation = [
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [authModalOpen, setAuthModalOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { contributorName, clearContributor } = useContributorStore();
 
@@ -104,13 +102,13 @@ export function Header() {
                 )}
               </div>
             ) : (
-              <button
-                onClick={() => setAuthModalOpen(true)}
+              <Link
+                to="/auth"
                 className="ml-2 flex items-center space-x-2 px-4 py-2 rounded-lg bg-primary-500/20 text-primary-400 hover:bg-primary-500/30 transition-all duration-200"
               >
                 <LogIn className="w-4 h-4" />
                 <span className="font-medium">Login</span>
-              </button>
+              </Link>
             )}
           </div>
 
@@ -174,28 +172,20 @@ export function Header() {
                     </button>
                   </>
                 ) : (
-                  <button
-                    onClick={() => {
-                      setAuthModalOpen(true);
-                      setMobileMenuOpen(false);
-                    }}
+                  <Link
+                    to="/auth"
                     className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg bg-primary-500/20 text-primary-400 hover:bg-primary-500/30 transition-all duration-200"
+                    onClick={() => setMobileMenuOpen(false)}
                   >
                     <LogIn className="w-5 h-5" />
                     <span className="font-medium">Login / Register</span>
-                  </button>
+                  </Link>
                 )}
               </div>
             </div>
           </div>
         )}
       </nav>
-
-      {/* Auth Modal */}
-      <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-      />
     </header>
   );
 }

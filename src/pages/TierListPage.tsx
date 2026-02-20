@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useHeroes } from '../hooks/useHeroes';
 import { Loading } from '../components/ui/Loading';
 import { Link } from '@tanstack/react-router';
-import { Plus, Save, X, RotateCcw, Users, List as ListIcon, ThumbsUp, Calendar, TrendingUp, Filter } from 'lucide-react';
+import { Plus, Save, X, RotateCcw, Users, List as ListIcon, ThumbsUp, Calendar, TrendingUp, Filter, Share2, Check } from 'lucide-react';
 import type { Hero } from '../types/hero';
 import {
   DndContext,
@@ -118,6 +118,7 @@ export function TierListPage() {
   const [tierListTitle, setTierListTitle] = useState('');
   const [creatorName, setCreatorName] = useState(storedName || '');
   const [isSaving, setIsSaving] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // Update creator name when logged in user changes
   useEffect(() => {
@@ -159,6 +160,18 @@ export function TierListPage() {
       }
     } catch (error) {
       alert((error as Error).message);
+    }
+  };
+
+  // Handle copy share link
+  const handleCopyLink = async (tierListId: string) => {
+    const url = `${window.location.origin}/tier-list?id=${tierListId}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedId(tierListId);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (error) {
+      alert('Failed to copy link');
     }
   };
 
@@ -573,16 +586,32 @@ export function TierListPage() {
                           {new Date(tierList.createdAt).toLocaleDateString()}
                         </span>
                       </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleVote(tierList.id);
-                        }}
-                        className="flex items-center gap-1 px-3 py-1 bg-dark-100 hover:bg-primary-500/20 border border-white/10 rounded-lg transition-colors group"
-                      >
-                        <ThumbsUp className="w-4 h-4 text-gray-400 group-hover:text-primary-400 transition-colors" />
-                        <span className="text-white font-semibold">{tierList.votes}</span>
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCopyLink(tierList.id);
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1 bg-dark-100 hover:bg-blue-500/20 border border-white/10 rounded-lg transition-colors group"
+                          title="Copy share link"
+                        >
+                          {copiedId === tierList.id ? (
+                            <Check className="w-4 h-4 text-green-400" />
+                          ) : (
+                            <Share2 className="w-4 h-4 text-gray-400 group-hover:text-blue-400 transition-colors" />
+                          )}
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleVote(tierList.id);
+                          }}
+                          className="flex items-center gap-1 px-3 py-1 bg-dark-100 hover:bg-primary-500/20 border border-white/10 rounded-lg transition-colors group"
+                        >
+                          <ThumbsUp className="w-4 h-4 text-gray-400 group-hover:text-primary-400 transition-colors" />
+                          <span className="text-white font-semibold">{tierList.votes}</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -657,13 +686,32 @@ export function TierListPage() {
                 <span className="text-gray-500">
                   {new Date(selectedTierList.createdAt).toLocaleDateString()}
                 </span>
-                <button
-                  onClick={() => handleVote(selectedTierList.id)}
-                  className="ml-auto flex items-center gap-2 px-4 py-2 bg-dark-200 hover:bg-primary-500/20 border border-white/10 rounded-lg transition-colors group"
-                >
-                  <ThumbsUp className="w-5 h-5 text-gray-400 group-hover:text-primary-400 transition-colors" />
-                  <span className="text-white font-bold">{selectedTierList.votes}</span>
-                </button>
+                <div className="ml-auto flex items-center gap-2">
+                  <button
+                    onClick={() => handleCopyLink(selectedTierList.id)}
+                    className="flex items-center gap-2 px-4 py-2 bg-dark-200 hover:bg-blue-500/20 border border-white/10 rounded-lg transition-colors group"
+                    title="Copy share link"
+                  >
+                    {copiedId === selectedTierList.id ? (
+                      <>
+                        <Check className="w-5 h-5 text-green-400" />
+                        <span className="text-green-400 font-semibold">Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Share2 className="w-5 h-5 text-gray-400 group-hover:text-blue-400 transition-colors" />
+                        <span className="text-white font-semibold">Share</span>
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleVote(selectedTierList.id)}
+                    className="flex items-center gap-2 px-4 py-2 bg-dark-200 hover:bg-primary-500/20 border border-white/10 rounded-lg transition-colors group"
+                  >
+                    <ThumbsUp className="w-5 h-5 text-gray-400 group-hover:text-primary-400 transition-colors" />
+                    <span className="text-white font-bold">{selectedTierList.votes}</span>
+                  </button>
+                </div>
               </div>
             </div>
 

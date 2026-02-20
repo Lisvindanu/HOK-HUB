@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { Upload, CheckCircle, AlertCircle, Info, Plus, X, Search, Shield, Sword, Zap, Wand2, Target, HeartPulse, Swords, Users, TrendingUp, Sprout, Map, Send } from 'lucide-react';
+import { Upload, CheckCircle, AlertCircle, Info, Plus, X, Search, Shield, Sword, Zap, Wand2, Target, HeartPulse, Swords, Users, TrendingUp, Sprout, Map, Send, LogIn } from 'lucide-react';
 import { useHeroes } from '../hooks/useHeroes';
+import { useContributorStore } from '../store/tierListStore';
+import { AuthModal } from '../components/auth/AuthModal';
 
 type ContributionType = 'skin' | 'hero' | 'series';
 
@@ -54,12 +56,14 @@ const TIERS = ['Epic', 'Legendary', 'Limited', 'Rare', 'Common'];
 
 export function ContributePage() {
   const { data: heroes, isLoading } = useHeroes();
+  const { contributorId, contributorName, token } = useContributorStore();
   const [contributionType, setContributionType] = useState<ContributionType>('skin');
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [heroSearch, setHeroSearch] = useState('');
   const [showHeroPicker, setShowHeroPicker] = useState(false);
   const [activeSeriesSkinPicker, setActiveSeriesSkinPicker] = useState<number | null>(null);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const [skinForm, setSkinForm] = useState<SkinFormData>({
     heroId: 0,
@@ -163,17 +167,27 @@ export function ContributePage() {
   const handleSubmit = async () => {
     setErrorMessage('');
 
+    // Check if user is logged in
+    if (!contributorId || !token) {
+      setAuthModalOpen(true);
+      return;
+    }
+
     if (!validateForm()) {
       return;
     }
 
     setSubmitStatus('submitting');
 
+    const API_BASE_URL = import.meta.env.DEV ? '' : 'https://hokapi.project-n.site';
+
     let contributionData: any;
 
     if (contributionType === 'skin') {
       contributionData = {
         type: 'skin',
+        contributorId,
+        contributorName,
         data: {
           heroId: skinForm.heroId,
           heroName: skinForm.heroName,
@@ -191,6 +205,8 @@ export function ContributePage() {
     } else if (contributionType === 'hero') {
       contributionData = {
         type: 'hero',
+        contributorId,
+        contributorName,
         data: {
           heroId: Math.floor(Math.random() * 1000) + 500,
           name: heroForm.name.toUpperCase(),
@@ -204,6 +220,8 @@ export function ContributePage() {
     } else if (contributionType === 'series') {
       contributionData = {
         type: 'series',
+        contributorId,
+        contributorName,
         data: {
           seriesName: seriesForm.seriesName,
           ...(seriesForm.description && { description: seriesForm.description }),
@@ -216,10 +234,11 @@ export function ContributePage() {
     }
 
     try {
-      const response = await fetch('http://167.253.158.192:8090/api/contribute', {
+      const response = await fetch(`${API_BASE_URL}/api/contribute`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(contributionData)
       });
@@ -319,6 +338,47 @@ export function ContributePage() {
           Help us complete the Honor of Kings database!
         </p>
       </div>
+
+      {/* Login Notice */}
+      {!contributorId && (
+        <div className="mb-8 bg-primary-500/10 border border-primary-500/20 rounded-lg p-5 md:p-6">
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-primary-500/20 rounded-lg">
+              <LogIn className="w-6 h-6 text-primary-400" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-bold text-white mb-2">Login Required</h3>
+              <p className="text-gray-300 mb-4">
+                You need to be logged in to submit contributions. This helps us track your contributions and give you credit on the leaderboard!
+              </p>
+              <button
+                onClick={() => setAuthModalOpen(true)}
+                className="btn-primary inline-flex items-center gap-2"
+              >
+                <LogIn className="w-4 h-4" />
+                Login / Register
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Logged In User Info */}
+      {contributorId && (
+        <div className="mb-8 bg-green-500/10 border border-green-500/20 rounded-lg p-5 md:p-6">
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-green-500/20 rounded-lg">
+              <CheckCircle className="w-6 h-6 text-green-400" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-bold text-white mb-1">Welcome back, {contributorName}!</h3>
+              <p className="text-gray-300">
+                Your contributions will be credited to your account and tracked on the leaderboard.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Info Banner */}
       <div className="mb-8 bg-blue-500/10 border border-blue-500/20 rounded-lg p-5 md:p-6">
@@ -764,6 +824,13 @@ export function ContributePage() {
           </div>
         </div>
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        defaultTab="register"
+      />
     </div>
   );
 }

@@ -34,14 +34,10 @@ export interface Contributor {
 
 // Tier Lists
 export async function fetchTierLists(): Promise<TierList[]> {
-  // TODO: Enable when hokapi has this endpoint
-  // const response = await fetch(`${API_BASE_URL}/api/tier-lists`);
-  // if (!response.ok) throw new Error('Failed to fetch tier lists');
-  // const data = await response.json();
-  // return data.tierLists;
-
-  // Temporary: return empty array
-  return [];
+  const response = await fetch(`${API_BASE_URL}/api/tier-lists`);
+  if (!response.ok) throw new Error('Failed to fetch tier lists');
+  const data = await response.json();
+  return data.tierLists;
 }
 
 export async function createTierList(params: {
@@ -49,45 +45,89 @@ export async function createTierList(params: {
   creatorName: string;
   creatorId?: string | null;
   tiers: TierListData;
+  token?: string;
 }): Promise<TierList> {
-  // TODO: Enable when hokapi has this endpoint
-  // const response = await fetch(`${API_BASE_URL}/api/tier-lists`, {
-  //   method: 'POST',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify(params),
-  // });
-  // if (!response.ok) {
-  //   const error = await response.json();
-  //   throw new Error(error.error || 'Failed to create tier list');
-  // }
-  // const data = await response.json();
-  // return data.tierList;
+  const headers: HeadersInit = { 'Content-Type': 'application/json' };
+  if (params.token) {
+    headers['Authorization'] = `Bearer ${params.token}`;
+  }
 
-  // Temporary: return mock data
-  throw new Error('Tier list submission will be available soon!');
+  const response = await fetch(`${API_BASE_URL}/api/tier-lists`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      title: params.title,
+      creatorName: params.creatorName,
+      tiers: params.tiers,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to create tier list');
+  }
+
+  const data = await response.json();
+  return data.tierList;
 }
 
-export async function voteTierList(tierListId: string, voterId?: string): Promise<TierList> {
-  // TODO: Enable when hokapi has this endpoint
-  throw new Error('Voting will be available soon!');
+export async function voteTierList(tierListId: string, token?: string): Promise<TierList> {
+  const headers: HeadersInit = {};
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/tier-lists/${tierListId}/vote`, {
+    method: 'POST',
+    headers,
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to vote');
+  }
+
+  const data = await response.json();
+  return data.tierList;
 }
 
 // Contributors
 export async function fetchContributors(): Promise<Contributor[]> {
-  // TODO: Enable when hokapi has this endpoint
-  // const response = await fetch(`${API_BASE_URL}/api/contributors`);
-  // if (!response.ok) throw new Error('Failed to fetch contributors');
-  // const data = await response.json();
-  // return data.contributors;
-
-  // Temporary: return empty array
-  return [];
+  const response = await fetch(`${API_BASE_URL}/api/contributors`);
+  if (!response.ok) throw new Error('Failed to fetch contributors');
+  const data = await response.json();
+  return data.contributors;
 }
 
 export async function registerContributor(params: {
   name: string;
   email?: string;
-}): Promise<Contributor> {
-  // TODO: Enable when hokapi has this endpoint
-  throw new Error('Contributor registration will be available soon!');
+}): Promise<{ contributor: Contributor; token: string }> {
+  const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to register');
+  }
+
+  return await response.json();
+}
+
+export async function loginContributor(email: string): Promise<{ contributor: Contributor; token: string }> {
+  const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to login');
+  }
+
+  return await response.json();
 }

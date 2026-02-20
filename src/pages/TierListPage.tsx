@@ -17,6 +17,7 @@ import {
   type DragStartEvent
 } from '@dnd-kit/core';
 import { createTierList, fetchTierLists, voteTierList, type TierListData, type TierList } from '../api/tierLists';
+import { useContributorStore } from '../store/tierListStore';
 
 const TIER_CONFIG = {
   'S+': { color: 'from-red-500 to-orange-500', bgColor: 'bg-red-500/10', borderColor: 'border-red-500/30', textColor: 'text-red-400' },
@@ -94,6 +95,7 @@ function DroppableTier({ tier, heroes, children }: { tier: TierKey | 'pool'; her
 
 export function TierListPage() {
   const { data: heroes, isLoading } = useHeroes();
+  const { contributorName: storedName, token } = useContributorStore();
   const [mode, setMode] = useState<'create' | 'view'>('view');
 
   // Community tier lists state
@@ -114,26 +116,31 @@ export function TierListPage() {
   const [activeDragHero, setActiveDragHero] = useState<Hero | null>(null);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [tierListTitle, setTierListTitle] = useState('');
-  const [creatorName, setCreatorName] = useState('');
+  const [creatorName, setCreatorName] = useState(storedName || '');
   const [isSaving, setIsSaving] = useState(false);
 
+  // Update creator name when logged in user changes
+  useEffect(() => {
+    if (storedName && !creatorName) {
+      setCreatorName(storedName);
+    }
+  }, [storedName, creatorName]);
+
   // Fetch community tier lists
-  // TODO: Enable this when VPS API has /api/tier-lists endpoint
   useEffect(() => {
     if (mode === 'view') {
-      // loadTierLists(); // Disabled temporarily
-      setIsLoadingTierLists(false);
+      loadTierLists();
     }
   }, [mode]);
 
   const loadTierLists = async () => {
     setIsLoadingTierLists(true);
     try {
-      // const lists = await fetchTierLists(); // Disabled temporarily
-      // setCommunityTierLists(lists);
-      setCommunityTierLists([]); // Empty for now
+      const lists = await fetchTierLists();
+      setCommunityTierLists(lists);
     } catch (error) {
       console.error('Failed to load tier lists:', error);
+      setCommunityTierLists([]);
     } finally {
       setIsLoadingTierLists(false);
     }
@@ -142,7 +149,7 @@ export function TierListPage() {
   // Handle vote
   const handleVote = async (tierListId: string) => {
     try {
-      const updated = await voteTierList(tierListId);
+      const updated = await voteTierList(tierListId, token || undefined);
       // Update local state
       setCommunityTierLists(prev =>
         prev.map(tl => tl.id === tierListId ? updated : tl)
@@ -250,16 +257,22 @@ export function TierListPage() {
 
     setIsSaving(true);
     try {
-      await createTierList({
+      const newTierList = await createTierList({
         title: tierListTitle.trim(),
         creatorName: creatorName.trim(),
         tiers: tierAssignments,
+        token: token || undefined,
       });
+
+      // Add to community tier lists
+      setCommunityTierLists(prev => [newTierList, ...prev]);
 
       alert('Tier list saved successfully!');
       setShowSaveModal(false);
       setTierListTitle('');
-      setCreatorName('');
+      if (!storedName) {
+        setCreatorName(''); // Only clear if not logged in
+      }
       handleReset();
       setMode('view');
     } catch (error) {

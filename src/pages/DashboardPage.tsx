@@ -5,6 +5,8 @@ import { Loading } from '../components/ui/Loading';
 import { ProfileSection } from '../components/dashboard/ProfileSection';
 import { StatsSection } from '../components/dashboard/StatsSection';
 import { PasswordSection } from '../components/dashboard/PasswordSection';
+import { ContributionsSection } from '../components/dashboard/ContributionsSection';
+import { TierListsSection } from '../components/dashboard/TierListsSection';
 
 type ActiveSection = 'profile' | 'password' | 'contributions' | 'tierlists';
 
@@ -78,18 +80,8 @@ export function DashboardPage() {
           <div className="card-hover p-6">
             {activeSection === 'profile' && <ProfileSection user={user} />}
             {activeSection === 'password' && <PasswordSection />}
-            {activeSection === 'contributions' && (
-              <div>
-                <h2 className="text-2xl font-bold mb-4">My Contributions</h2>
-                <p className="text-gray-400">Contributions list coming soon...</p>
-              </div>
-            )}
-            {activeSection === 'tierlists' && (
-              <div>
-                <h2 className="text-2xl font-bold mb-4">My Tier Lists</h2>
-                <p className="text-gray-400">Tier lists coming soon...</p>
-              </div>
-            )}
+            {activeSection === 'contributions' && <ContributionsSection />}
+            {activeSection === 'tierlists' && <TierListsSection />}
           </div>
         </div>
       </div>

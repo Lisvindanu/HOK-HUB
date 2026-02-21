@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, Mail, LogIn, UserPlus, Loader2 } from 'lucide-react';
+import { User, Mail, LogIn, UserPlus, Loader2, Lock } from 'lucide-react';
 import { registerContributor, loginContributor } from '../api/tierLists';
 import { useContributorStore } from '../store/tierListStore';
 import { useNavigate } from '@tanstack/react-router';
@@ -14,10 +14,12 @@ export function AuthPage() {
 
   // Login form
   const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
 
   // Register form
   const [registerName, setRegisterName] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
+  const [registerPassword, setRegisterPassword] = useState('');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,9 +30,14 @@ export function AuthPage() {
       return;
     }
 
+    if (!loginPassword) {
+      setError('Please enter your password');
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const { contributor, token } = await loginContributor(loginEmail.trim());
+      const { contributor, token } = await loginContributor(loginEmail.trim(), loginPassword);
       setContributor(contributor.id, contributor.name, token);
 
       // Redirect to home or previous page
@@ -51,11 +58,22 @@ export function AuthPage() {
       return;
     }
 
+    if (!registerEmail.trim()) {
+      setError('Please enter your email');
+      return;
+    }
+
+    if (!registerPassword || registerPassword.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
     setIsLoading(true);
     try {
       const { contributor, token } = await registerContributor({
         name: registerName.trim(),
-        email: registerEmail.trim() || undefined,
+        email: registerEmail.trim(),
+        password: registerPassword,
       });
 
       setContributor(contributor.id, contributor.name, token);
@@ -139,6 +157,23 @@ export function AuthPage() {
                 </div>
               </div>
 
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="password"
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    className="w-full pl-11 pr-4 py-3 bg-dark-50 border border-white/10 rounded-lg focus:outline-none focus:border-primary-500 text-white"
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+
               {error && (
                 <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
                   <p className="text-sm text-red-400">{error}</p>
@@ -147,7 +182,7 @@ export function AuthPage() {
 
               <button
                 type="submit"
-                disabled={isLoading || !loginEmail.trim()}
+                disabled={isLoading || !loginEmail.trim() || !loginPassword}
                 className="w-full btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
@@ -188,7 +223,7 @@ export function AuthPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-300 mb-2">
-                  Email Address <span className="text-gray-500">(optional)</span>
+                  Email Address <span className="text-red-400">*</span>
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -201,8 +236,25 @@ export function AuthPage() {
                     disabled={isLoading}
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">
+                  Password <span className="text-red-400">*</span>
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="password"
+                    value={registerPassword}
+                    onChange={(e) => setRegisterPassword(e.target.value)}
+                    placeholder="At least 6 characters"
+                    className="w-full pl-11 pr-4 py-3 bg-dark-50 border border-white/10 rounded-lg focus:outline-none focus:border-primary-500 text-white"
+                    disabled={isLoading}
+                  />
+                </div>
                 <p className="mt-1.5 text-xs text-gray-500">
-                  Email is optional but recommended for account recovery
+                  Minimum 6 characters required
                 </p>
               </div>
 
@@ -214,7 +266,7 @@ export function AuthPage() {
 
               <button
                 type="submit"
-                disabled={isLoading || !registerName.trim()}
+                disabled={isLoading || !registerName.trim() || !registerEmail.trim() || !registerPassword || registerPassword.length < 6}
                 className="w-full btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (

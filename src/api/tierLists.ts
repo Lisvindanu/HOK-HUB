@@ -101,7 +101,8 @@ export async function fetchContributors(): Promise<Contributor[]> {
 
 export async function registerContributor(params: {
   name: string;
-  email?: string;
+  email: string;
+  password: string;
 }): Promise<{ contributor: Contributor; token: string }> {
   const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
     method: 'POST',
@@ -117,11 +118,11 @@ export async function registerContributor(params: {
   return await response.json();
 }
 
-export async function loginContributor(email: string): Promise<{ contributor: Contributor; token: string }> {
+export async function loginContributor(email: string, password: string): Promise<{ contributor: Contributor; token: string }> {
   const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email }),
+    body: JSON.stringify({ email, password }),
   });
 
   if (!response.ok) {

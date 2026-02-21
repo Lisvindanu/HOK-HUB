@@ -5,7 +5,7 @@ interface Contribution {
   id: string;
   contributorId?: string;
   contributorName?: string;
-  type: 'skin' | 'hero' | 'series';
+  type: 'skin' | 'hero' | 'series' | 'counter';
   data: any;
   submittedAt?: string;
   createdAt?: string;
@@ -14,7 +14,7 @@ interface Contribution {
 
 interface HistoryEntry {
   id: string;
-  type: 'skin' | 'hero' | 'series';
+  type: 'skin' | 'hero' | 'series' | 'counter';
   action: 'approved' | 'rejected';
   submittedAt: string;
   reviewedAt: string;
@@ -30,7 +30,7 @@ interface Contributor {
   totalVotes: number;
 }
 
-type TypeFilter = 'all' | 'skin' | 'hero' | 'series';
+type TypeFilter = 'all' | 'skin' | 'hero' | 'series' | 'counter';
 
 export function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -402,7 +402,7 @@ export function AdminDashboard() {
           <div className="flex items-center gap-3 mb-4">
             <Filter className="w-5 h-5 text-gray-400" />
             <span className="text-sm text-gray-400">Filter by type:</span>
-            {(['all', 'skin', 'hero', 'series'] as TypeFilter[]).map((type) => (
+            {(['all', 'skin', 'hero', 'series', 'counter'] as TypeFilter[]).map((type) => (
               <button
                 key={type}
                 onClick={() => setTypeFilter(type)}
@@ -436,6 +436,7 @@ export function AdminDashboard() {
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                           contribution.type === 'skin' ? 'bg-green-500/20 text-green-400' :
                           contribution.type === 'hero' ? 'bg-blue-500/20 text-blue-400' :
+                          contribution.type === 'counter' ? 'bg-orange-500/20 text-orange-400' :
                           'bg-purple-500/20 text-purple-400'
                         }`}>
                           {contribution.type.toUpperCase()}
@@ -457,6 +458,8 @@ export function AdminDashboard() {
                           ? `${contribution.data.skin?.skinName} (${contribution.data.heroName})`
                           : contribution.type === 'hero'
                           ? contribution.data.name
+                          : contribution.type === 'counter'
+                          ? `${contribution.data.action === 'add' ? 'Add' : 'Remove'} ${contribution.data.targetHeroName} ${contribution.data.relationshipType === 'strongAgainst' ? 'to Strong Against' : contribution.data.relationshipType === 'weakAgainst' ? 'to Weak Against' : 'to Best Partners'} for ${contribution.data.heroName}`
                           : contribution.data.seriesName}
                       </h3>
                       <div className="text-xs text-gray-500">ID: {contribution.id}</div>
@@ -530,12 +533,53 @@ export function AdminDashboard() {
                 <div>{new Date(selectedContribution.submittedAt || selectedContribution.createdAt || '').toLocaleString()}</div>
               </div>
 
-              <div>
-                <label className="text-sm text-gray-400">Data (JSON)</label>
-                <pre className="mt-2 p-4 bg-dark-50 rounded-lg text-sm overflow-x-auto">
-                  {JSON.stringify(selectedContribution.data, null, 2)}
-                </pre>
-              </div>
+              {selectedContribution.type === 'counter' ? (
+                <div className="space-y-3">
+                  <div className="p-4 bg-dark-50 rounded-lg">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-xs text-gray-500">Hero</label>
+                        <div className="font-semibold">{selectedContribution.data.heroName}</div>
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">Action</label>
+                        <div className={`font-semibold ${selectedContribution.data.action === 'add' ? 'text-green-400' : 'text-red-400'}`}>
+                          {selectedContribution.data.action === 'add' ? 'ADD' : 'REMOVE'}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">Relationship</label>
+                        <div className="font-semibold">
+                          {selectedContribution.data.relationshipType === 'strongAgainst' ? 'Strong Against' :
+                           selectedContribution.data.relationshipType === 'weakAgainst' ? 'Weak Against' : 'Best Partner'}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">Target Hero</label>
+                        <div className="flex items-center gap-2">
+                          {selectedContribution.data.targetHeroIcon && (
+                            <img src={selectedContribution.data.targetHeroIcon} alt="" className="w-6 h-6 rounded" />
+                          )}
+                          <span className="font-semibold">{selectedContribution.data.targetHeroName}</span>
+                        </div>
+                      </div>
+                    </div>
+                    {selectedContribution.data.description && (
+                      <div className="mt-3 pt-3 border-t border-white/10">
+                        <label className="text-xs text-gray-500">Reason</label>
+                        <div className="text-sm text-gray-300">{selectedContribution.data.description}</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <label className="text-sm text-gray-400">Data (JSON)</label>
+                  <pre className="mt-2 p-4 bg-dark-50 rounded-lg text-sm overflow-x-auto">
+                    {JSON.stringify(selectedContribution.data, null, 2)}
+                  </pre>
+                </div>
+              )}
 
               <div className="flex gap-3 pt-4 border-t border-white/10">
                 <button

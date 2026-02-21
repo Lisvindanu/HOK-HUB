@@ -25,10 +25,11 @@ const STATUS_CONFIG = {
   },
 };
 
-const TYPE_CONFIG = {
+const TYPE_CONFIG: Record<string, { label: string; color: string; bgColor: string }> = {
   skin: { label: 'Skin', color: 'text-purple-400', bgColor: 'bg-purple-500/10' },
   hero: { label: 'Hero', color: 'text-blue-400', bgColor: 'bg-blue-500/10' },
   series: { label: 'Series', color: 'text-orange-400', bgColor: 'bg-orange-500/10' },
+  counter: { label: 'Counter', color: 'text-amber-400', bgColor: 'bg-amber-500/10' },
 };
 
 function ContributionCard({ contribution }: { contribution: Contribution }) {
@@ -47,6 +48,16 @@ function ContributionCard({ contribution }: { contribution: Contribution }) {
     }
     if (contribution.type === 'series') {
       return data.seriesName as string || 'Unknown Series';
+    }
+    if (contribution.type === 'counter') {
+      const action = data.action as string;
+      const heroName = data.heroName as string;
+      const targetHeroName = data.targetHeroName as string;
+      const relationshipType = data.relationshipType as string;
+      const typeLabel = relationshipType === 'strongAgainst' ? 'Strong Against'
+        : relationshipType === 'weakAgainst' ? 'Weak Against'
+        : 'Best Partner';
+      return `${action === 'add' ? 'Add' : 'Remove'} ${targetHeroName} to ${heroName}'s ${typeLabel}`;
     }
     return 'Unknown';
   };

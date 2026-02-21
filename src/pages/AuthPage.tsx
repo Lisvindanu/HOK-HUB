@@ -37,7 +37,7 @@ export function AuthPage() {
     setIsLoading(true);
     try {
       const { contributor, token } = await loginContributor(loginEmail.trim(), loginPassword);
-      login(token, contributor.id);
+      login(token, { id: contributor.id, name: contributor.name, email: contributor.email || '' });
 
       // Redirect to home or previous page
       navigate({ to: '/' });
@@ -75,7 +75,7 @@ export function AuthPage() {
         password: registerPassword,
       });
 
-      login(token, contributor.id);
+      login(token, { id: contributor.id, name: contributor.name, email: contributor.email || '' });
 
       // Redirect to home
       navigate({ to: '/' });

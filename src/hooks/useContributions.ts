@@ -6,7 +6,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://hokapi.projec
 export interface Contribution {
   id: string;
   contributorId: string;
-  type: 'skin' | 'hero' | 'series';
+  type: 'skin' | 'hero' | 'series' | 'counter';
   data: Record<string, unknown>;
   status: 'pending' | 'approved' | 'rejected';
   createdAt: string;

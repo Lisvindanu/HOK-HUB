@@ -3,8 +3,8 @@ import { Link } from '@tanstack/react-router';
 import { useUserTierLists, type TierList } from '../../hooks/useTierLists';
 
 function TierListCard({ tierList }: { tierList: TierList }) {
-  const heroCount = Object.values(tierList.data).flat().length;
-  const tierCount = Object.keys(tierList.data).filter(k => tierList.data[k].length > 0).length;
+  const heroCount = Object.values(tierList.tiers || {}).flat().length;
+  const tierCount = Object.keys(tierList.tiers || {}).filter(k => (tierList.tiers[k] || []).length > 0).length;
 
   return (
     <div className="p-4 rounded-lg border border-white/10 bg-dark-50 hover:border-primary-500/50 transition-all">

@@ -7,7 +7,7 @@ export interface TierList {
   id: string;
   title: string;
   creatorName: string;
-  data: Record<string, string[]>;
+  tiers: Record<string, (string | number)[]>;
   votes: number;
   votedBy: string[];
   createdAt: string;

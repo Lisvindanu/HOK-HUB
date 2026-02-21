@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Upload, CheckCircle, AlertCircle, Info, Plus, X, Search, Shield, Sword, Zap, Wand2, Target, HeartPulse, Swords, Users, TrendingUp, Sprout, Map, Send, LogIn } from 'lucide-react';
 import { useHeroes } from '../hooks/useHeroes';
-import { useContributorStore } from '../store/tierListStore';
+import { useAuth } from '../contexts/AuthContext';
+import { useUser } from '../hooks/useUser';
 import { useNavigate, Link } from '@tanstack/react-router';
 
 type ContributionType = 'skin' | 'hero' | 'series';
@@ -56,7 +57,8 @@ const TIERS = ['Epic', 'Legendary', 'Limited', 'Rare', 'Common'];
 
 export function ContributePage() {
   const { data: heroes, isLoading } = useHeroes();
-  const { contributorId, contributorName, token } = useContributorStore();
+  const { token, contributorId } = useAuth();
+  const { data: user } = useUser();
   const navigate = useNavigate();
   const [contributionType, setContributionType] = useState<ContributionType>('skin');
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
@@ -187,7 +189,7 @@ export function ContributePage() {
       contributionData = {
         type: 'skin',
         contributorId,
-        contributorName,
+        contributorName: user?.name || '',
         data: {
           heroId: skinForm.heroId,
           heroName: skinForm.heroName,
@@ -206,7 +208,7 @@ export function ContributePage() {
       contributionData = {
         type: 'hero',
         contributorId,
-        contributorName,
+        contributorName: user?.name || '',
         data: {
           heroId: Math.floor(Math.random() * 1000) + 500,
           name: heroForm.name.toUpperCase(),
@@ -221,7 +223,7 @@ export function ContributePage() {
       contributionData = {
         type: 'series',
         contributorId,
-        contributorName,
+        contributorName: user?.name || '',
         data: {
           seriesName: seriesForm.seriesName,
           ...(seriesForm.description && { description: seriesForm.description }),
@@ -371,7 +373,7 @@ export function ContributePage() {
               <CheckCircle className="w-6 h-6 text-green-400" />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-bold text-white mb-1">Welcome back, {contributorName}!</h3>
+              <h3 className="text-lg font-bold text-white mb-1">Welcome back, {user?.name}!</h3>
               <p className="text-gray-300">
                 Your contributions will be credited to your account and tracked on the leaderboard.
               </p>

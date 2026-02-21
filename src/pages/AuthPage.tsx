@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { User, Mail, LogIn, UserPlus, Loader2, Lock } from 'lucide-react';
 import { registerContributor, loginContributor } from '../api/tierLists';
-import { useContributorStore } from '../store/tierListStore';
+import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from '@tanstack/react-router';
 
 export function AuthPage() {
@@ -9,8 +9,7 @@ export function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-
-  const { setContributor } = useContributorStore();
+  const { login } = useAuth();
 
   // Login form
   const [loginEmail, setLoginEmail] = useState('');
@@ -38,7 +37,7 @@ export function AuthPage() {
     setIsLoading(true);
     try {
       const { contributor, token } = await loginContributor(loginEmail.trim(), loginPassword);
-      setContributor(contributor.id, contributor.name, token);
+      login(token, contributor.id);
 
       // Redirect to home or previous page
       navigate({ to: '/' });
@@ -76,7 +75,7 @@ export function AuthPage() {
         password: registerPassword,
       });
 
-      setContributor(contributor.id, contributor.name, token);
+      login(token, contributor.id);
 
       // Redirect to home
       navigate({ to: '/' });

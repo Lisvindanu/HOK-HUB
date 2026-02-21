@@ -1,7 +1,8 @@
 import { Link } from '@tanstack/react-router';
-import { Menu, X, Home, Users, BarChart3, Palette, Shield, Crown, UserPlus, Trophy, User, LogOut, LogIn } from 'lucide-react';
+import { Menu, X, Home, Users, BarChart3, Palette, Shield, Crown, UserPlus, Trophy, LogOut, LogIn, LayoutDashboard } from 'lucide-react';
 import { useState } from 'react';
-import { useContributorStore } from '../../store/tierListStore';
+import { useAuth } from '../../contexts/AuthContext';
+import { useUser } from '../../hooks/useUser';
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
@@ -17,10 +18,11 @@ const navigation = [
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const { contributorName, clearContributor } = useContributorStore();
+  const { isAuthenticated, logout: authLogout } = useAuth();
+  const { data: user } = useUser();
 
   const handleLogout = () => {
-    clearContributor();
+    authLogout();
     setUserMenuOpen(false);
   };
 
@@ -55,7 +57,7 @@ export function Header() {
             ))}
 
             {/* Auth Button / User Menu */}
-            {contributorName ? (
+            {isAuthenticated && user ? (
               <div className="relative ml-2">
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
@@ -63,10 +65,10 @@ export function Header() {
                 >
                   <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-blue-600 rounded-full flex items-center justify-center">
                     <span className="text-sm font-bold">
-                      {contributorName.charAt(0).toUpperCase()}
+                      {user.name.charAt(0).toUpperCase()}
                     </span>
                   </div>
-                  <span className="font-medium">{contributorName}</span>
+                  <span className="font-medium">{user.name}</span>
                 </button>
 
                 {userMenuOpen && (
@@ -78,9 +80,17 @@ export function Header() {
                     <div className="absolute right-0 mt-2 w-56 bg-dark-300 border border-white/10 rounded-lg shadow-xl z-50 overflow-hidden">
                       <div className="p-4 border-b border-white/10">
                         <p className="text-sm text-gray-400">Signed in as</p>
-                        <p className="font-semibold text-white truncate">{contributorName}</p>
+                        <p className="font-semibold text-white truncate">{user.name}</p>
                       </div>
                       <div className="p-2">
+                        <Link
+                          to="/dashboard"
+                          className="flex items-center gap-3 px-3 py-2 text-gray-300 hover:text-white hover:bg-dark-50 rounded-lg transition-colors"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <LayoutDashboard className="w-4 h-4" />
+                          <span>Dashboard</span>
+                        </Link>
                         <Link
                           to="/contributors"
                           className="flex items-center gap-3 px-3 py-2 text-gray-300 hover:text-white hover:bg-dark-50 rounded-lg transition-colors"
@@ -147,17 +157,17 @@ export function Header() {
 
               {/* Mobile Auth */}
               <div className="pt-3 mt-3 border-t border-white/5">
-                {contributorName ? (
+                {isAuthenticated && user ? (
                   <>
                     <div className="px-4 py-3 mb-2">
                       <p className="text-xs text-gray-400 mb-1">Signed in as</p>
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-blue-600 rounded-full flex items-center justify-center">
                           <span className="text-sm font-bold">
-                            {contributorName.charAt(0).toUpperCase()}
+                            {user.name.charAt(0).toUpperCase()}
                           </span>
                         </div>
-                        <span className="font-semibold text-white">{contributorName}</span>
+                        <span className="font-semibold text-white">{user.name}</span>
                       </div>
                     </div>
                     <button

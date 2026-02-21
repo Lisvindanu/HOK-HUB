@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TierListRouteImport } from './routes/tier-list'
 import { Route as SkinsRouteImport } from './routes/skins'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CountersRouteImport } from './routes/counters'
 import { Route as ContributorsRouteImport } from './routes/contributors'
 import { Route as ContributeRouteImport } from './routes/contribute'
@@ -29,6 +30,11 @@ const TierListRoute = TierListRouteImport.update({
 const SkinsRoute = SkinsRouteImport.update({
   id: '/skins',
   path: '/skins',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CountersRoute = CountersRouteImport.update({
@@ -85,6 +91,7 @@ export interface FileRoutesByFullPath {
   '/contribute': typeof ContributeRoute
   '/contributors': typeof ContributorsRoute
   '/counters': typeof CountersRoute
+  '/dashboard': typeof DashboardRoute
   '/skins': typeof SkinsRoute
   '/tier-list': typeof TierListRoute
   '/heroes/$heroId': typeof HeroesHeroIdRoute
@@ -98,6 +105,7 @@ export interface FileRoutesByTo {
   '/contribute': typeof ContributeRoute
   '/contributors': typeof ContributorsRoute
   '/counters': typeof CountersRoute
+  '/dashboard': typeof DashboardRoute
   '/skins': typeof SkinsRoute
   '/tier-list': typeof TierListRoute
   '/heroes/$heroId': typeof HeroesHeroIdRoute
@@ -112,6 +120,7 @@ export interface FileRoutesById {
   '/contribute': typeof ContributeRoute
   '/contributors': typeof ContributorsRoute
   '/counters': typeof CountersRoute
+  '/dashboard': typeof DashboardRoute
   '/skins': typeof SkinsRoute
   '/tier-list': typeof TierListRoute
   '/heroes/$heroId': typeof HeroesHeroIdRoute
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/contribute'
     | '/contributors'
     | '/counters'
+    | '/dashboard'
     | '/skins'
     | '/tier-list'
     | '/heroes/$heroId'
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
     | '/contribute'
     | '/contributors'
     | '/counters'
+    | '/dashboard'
     | '/skins'
     | '/tier-list'
     | '/heroes/$heroId'
@@ -153,6 +164,7 @@ export interface FileRouteTypes {
     | '/contribute'
     | '/contributors'
     | '/counters'
+    | '/dashboard'
     | '/skins'
     | '/tier-list'
     | '/heroes/$heroId'
@@ -167,6 +179,7 @@ export interface RootRouteChildren {
   ContributeRoute: typeof ContributeRoute
   ContributorsRoute: typeof ContributorsRoute
   CountersRoute: typeof CountersRoute
+  DashboardRoute: typeof DashboardRoute
   SkinsRoute: typeof SkinsRoute
   TierListRoute: typeof TierListRoute
   HeroesHeroIdRoute: typeof HeroesHeroIdRoute
@@ -187,6 +200,13 @@ declare module '@tanstack/react-router' {
       path: '/skins'
       fullPath: '/skins'
       preLoaderRoute: typeof SkinsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/counters': {
@@ -263,6 +283,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContributeRoute: ContributeRoute,
   ContributorsRoute: ContributorsRoute,
   CountersRoute: CountersRoute,
+  DashboardRoute: DashboardRoute,
   SkinsRoute: SkinsRoute,
   TierListRoute: TierListRoute,
   HeroesHeroIdRoute: HeroesHeroIdRoute,

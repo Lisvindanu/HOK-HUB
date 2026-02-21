@@ -1,219 +1,214 @@
 import { Link } from '@tanstack/react-router';
-import { ArrowRight, Sparkles, BarChart3, Users, Palette, Shield } from 'lucide-react';
+import { ArrowRight, ArrowDown, Users, Crown, Palette, Shield } from 'lucide-react';
 import { useHeroes } from '../hooks/useHeroes';
-import { HeroCard } from '../components/hero/HeroCard';
-import { Loading } from '../components/ui/Loading';
 import { motion } from 'framer-motion';
-import { useEffect, useRef } from 'react';
-import { animate, stagger } from 'animejs';
 
 export function HomePage() {
-  const { data: heroes, isLoading } = useHeroes();
-  const heroSectionRef = useRef<HTMLDivElement>(null);
-  const featuresRef = useRef<HTMLDivElement>(null);
-  const statsRef = useRef<HTMLDivElement>(null);
+  const { data: heroes } = useHeroes();
 
   const features = [
     {
       icon: Users,
       title: 'Hero Database',
-      description: 'Browse all 111 heroes with detailed stats, skills, and information',
+      description: 'Complete database of all 111 heroes with detailed stats and abilities',
       href: '/heroes',
-      color: 'from-blue-500 to-cyan-500',
     },
     {
-      icon: BarChart3,
-      title: 'Meta Analytics',
-      description: 'Track win rates, pick rates, and tier rankings with interactive charts',
-      href: '/analytics',
-      color: 'from-purple-500 to-pink-500',
+      icon: Crown,
+      title: 'Tier List',
+      description: 'Community-driven tier rankings updated for the current meta',
+      href: '/tier-list',
     },
     {
       icon: Shield,
       title: 'Counter Picks',
-      description: 'Find the best counter picks to dominate your matchups',
+      description: 'Find the best counters and synergies for any hero',
       href: '/counters',
-      color: 'from-orange-500 to-red-500',
     },
     {
       icon: Palette,
       title: 'Skin Gallery',
-      description: 'Explore 1,394+ stunning skins across all heroes',
+      description: 'Browse and explore all skins across every hero',
       href: '/skins',
-      color: 'from-green-500 to-emerald-500',
     },
   ];
 
-  const topHeroes = heroes
-    ?.filter((h) => h.stats.tier === 'S' || h.stats.tier === 'S+')
-    .slice(0, 6);
-
-  // Hero section animations
-  useEffect(() => {
-    if (heroSectionRef.current) {
-      animate(heroSectionRef.current.querySelector('h1 span:first-child'), {
-        opacity: [0, 1],
-        translateY: [50, 0],
-        duration: 1200,
-        easing: 'outExpo',
-      });
-
-      animate(heroSectionRef.current.querySelector('h1 span:last-child'), {
-        opacity: [0, 1],
-        translateY: [50, 0],
-        duration: 1200,
-        delay: 200,
-        easing: 'outExpo',
-      });
-
-      animate(heroSectionRef.current.querySelectorAll('.hero-button'), {
-        opacity: [0, 1],
-        translateY: [30, 0],
-        delay: stagger(100, { start: 600 }),
-        duration: 800,
-        easing: 'outExpo',
-      });
-    }
-  }, []);
-
-  // Features cards animation
-  useEffect(() => {
-    if (featuresRef.current) {
-      animate(featuresRef.current.querySelectorAll('.feature-card'), {
-        opacity: [0, 1],
-        translateY: [40, 0],
-        scale: [0.9, 1],
-        delay: stagger(150),
-        duration: 800,
-        easing: 'outExpo',
-      });
-    }
-  }, []);
-
-  // Stats counter animation
-  useEffect(() => {
-    if (statsRef.current) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              const stats = [
-                { el: '.stat-1', value: 111 },
-                { el: '.stat-2', value: 466 },
-                { el: '.stat-3', value: 6 },
-              ];
-
-              stats.forEach(({ el, value }) => {
-                const element = entry.target.querySelector(el);
-                if (element) {
-                  animate(element, {
-                    innerHTML: [0, value],
-                    duration: 2000,
-                    round: 1,
-                    easing: 'outExpo',
-                  });
-                }
-              });
-
-              observer.unobserve(entry.target);
-            }
-          });
-        },
-        { threshold: 0.5 }
-      );
-
-      if (statsRef.current) {
-        observer.observe(statsRef.current);
-      }
-
-      return () => observer.disconnect();
-    }
-  }, []);
+  const heroCount = heroes?.length || 111;
+  const skinCount = heroes?.reduce((acc, h) => acc + (h.skins?.length || 0), 0) || 1394;
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section ref={heroSectionRef} className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-        {/* Background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-dark-400 via-dark-300 to-dark-300">
-          <div className="absolute inset-0 bg-[url('https://camp.honorofkings.com/manage_material/p/QGRC6bOP.png')] bg-cover bg-center opacity-10 blur-sm"></div>
-        </div>
-
-        {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+    <div className="min-h-screen bg-dark-400">
+      {/* Hero Section - Full Height */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <img
+            src="/wmremove-transformed.jpeg"
+            alt="Honor of Kings Heroes"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-dark-400/70 via-dark-400/50 to-dark-400" />
+          <div className="absolute inset-0 bg-gradient-to-r from-dark-400/80 via-transparent to-dark-400/80" />
         </div>
 
         {/* Content */}
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="relative z-10 container mx-auto px-6 lg:px-8 text-center pt-20">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
           >
-            <div className="inline-flex items-center space-x-2 px-4 py-2 bg-primary-500/10 border border-primary-500/30 rounded-full mb-6">
-              <Sparkles className="w-4 h-4 text-primary-400" />
-              <span className="text-sm text-primary-400 font-semibold">Welcome to HoK Hub</span>
+            {/* Badge */}
+            <div className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full mb-8">
+              <span className="text-sm text-white/90 font-medium">Your Ultimate HoK Companion</span>
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-display font-bold mb-6">
-              <span className="block">MASTER THE META,</span>
-              <span className="block gradient-text">RULE THE GORGE.</span>
+            {/* Main Headline */}
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-bold text-white mb-6 tracking-tight">
+              <span className="block">Master the</span>
+              <span className="block bg-gradient-to-r from-primary-400 via-primary-300 to-blue-400 bg-clip-text text-transparent">
+                Meta
+              </span>
             </h1>
 
-            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-              Everything you need to dominate your game. Analytics, counters, skins, and more.
+            {/* Subtitle */}
+            <p className="text-lg sm:text-xl text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed">
+              Everything you need to dominate Honor of Kings.
+              Hero stats, tier lists, counters, and more.
             </p>
 
+            {/* CTAs */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link to="/heroes" className="hero-button btn-primary flex items-center space-x-2 text-lg">
-                <span>Start Exploring</span>
-                <ArrowRight className="w-5 h-5" />
+              <Link
+                to="/heroes"
+                className="group flex items-center gap-3 px-8 py-4 bg-white text-dark-400 rounded-2xl text-lg font-semibold hover:bg-gray-100 transition-all duration-300"
+              >
+                <span>Explore Heroes</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
-              <Link to="/analytics" className="hero-button btn-secondary flex items-center space-x-2 text-lg">
-                <BarChart3 className="w-5 h-5" />
-                <span>View Analytics</span>
+              <Link
+                to="/tier-list"
+                className="flex items-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-sm text-white border border-white/20 rounded-2xl text-lg font-medium hover:bg-white/20 transition-all duration-300"
+              >
+                <Crown className="w-5 h-5" />
+                <span>View Tier List</span>
               </Link>
-            </div>
-
-            <div className="mt-12 flex items-center justify-center space-x-2 text-sm text-gray-400">
-              <span>Scroll down to explore</span>
-              <ArrowRight className="w-4 h-4 rotate-90 animate-bounce" />
             </div>
           </motion.div>
         </div>
+
+        {/* Scroll Indicator */}
+        <motion.div
+          className="absolute bottom-10 left-1/2 -translate-x-1/2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1, duration: 0.5 }}
+        >
+          <div className="flex flex-col items-center gap-3 text-white/50">
+            <span className="text-sm tracking-wide uppercase">Scroll to explore</span>
+            <ArrowDown className="w-5 h-5 animate-bounce" />
+          </div>
+        </motion.div>
       </section>
 
-      {/* Features Section */}
-      <section ref={featuresRef} className="py-20 bg-dark-400/50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-              Everything you need to dominate your game
-            </h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">
-              Comprehensive tools and analytics to help you master Honor of Kings
-            </p>
+      {/* Stats Section - Minimal */}
+      <section className="py-20 border-b border-white/5">
+        <div className="container mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+            <motion.div
+              className="text-center"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="text-4xl md:text-5xl font-display font-bold text-white mb-2">
+                {heroCount}
+              </div>
+              <p className="text-gray-500 text-sm uppercase tracking-wide">Heroes</p>
+            </motion.div>
+            <motion.div
+              className="text-center"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <div className="text-4xl md:text-5xl font-display font-bold text-white mb-2">
+                {skinCount}+
+              </div>
+              <p className="text-gray-500 text-sm uppercase tracking-wide">Skins</p>
+            </motion.div>
+            <motion.div
+              className="text-center"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <div className="text-4xl md:text-5xl font-display font-bold text-white mb-2">
+                6
+              </div>
+              <p className="text-gray-500 text-sm uppercase tracking-wide">Roles</p>
+            </motion.div>
+            <motion.div
+              className="text-center"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              <div className="text-4xl md:text-5xl font-display font-bold text-white mb-2">
+                24/7
+              </div>
+              <p className="text-gray-500 text-sm uppercase tracking-wide">Updated</p>
+            </motion.div>
           </div>
+        </div>
+      </section>
 
+      {/* Features Section - Clean Grid */}
+      <section className="py-24">
+        <div className="container mx-auto px-6 lg:px-8">
+          {/* Section Header */}
+          <motion.div
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-4">
+              Everything you need
+            </h2>
+            <p className="text-gray-400 max-w-xl mx-auto">
+              Comprehensive tools and data to help you improve your gameplay
+            </p>
+          </motion.div>
+
+          {/* Feature Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, index) => (
               <motion.div
                 key={feature.title}
-                className="feature-card opacity-0"
-                initial={{ opacity: 0 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <Link to={feature.href} className="block group">
-                  <div className="card-hover p-6 h-full">
-                    <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                      <feature.icon className="w-6 h-6 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-2 group-hover:text-primary-400 transition-colors">
-                      {feature.title}
-                    </h3>
-                    <p className="text-gray-400 text-sm">{feature.description}</p>
+                <Link
+                  to={feature.href}
+                  className="group block p-8 bg-dark-300/50 border border-white/5 rounded-2xl hover:bg-dark-300 hover:border-white/10 transition-all duration-300"
+                >
+                  <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-6 group-hover:bg-white/10 transition-colors">
+                    <feature.icon className="w-6 h-6 text-white/70" />
                   </div>
+                  <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-primary-400 transition-colors">
+                    {feature.title}
+                  </h3>
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    {feature.description}
+                  </p>
                 </Link>
               </motion.div>
             ))}
@@ -221,63 +216,39 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* Top Heroes Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-display font-bold mb-2">
-                Top Meta Heroes
-              </h2>
-              <p className="text-gray-400">Dominating the current meta</p>
+      {/* CTA Section */}
+      <section className="py-24 border-t border-white/5">
+        <div className="container mx-auto px-6 lg:px-8">
+          <motion.div
+            className="max-w-3xl mx-auto text-center"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-6">
+              Ready to climb the ranks?
+            </h2>
+            <p className="text-gray-400 text-lg mb-10">
+              Join our community and start improving your gameplay today.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link
+                to="/heroes"
+                className="group flex items-center gap-3 px-8 py-4 bg-primary-500 text-white rounded-2xl text-lg font-semibold hover:bg-primary-600 transition-all duration-300"
+              >
+                <span>Get Started</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link
+                to="/contribute"
+                className="flex items-center gap-3 px-8 py-4 text-gray-300 hover:text-white transition-colors"
+              >
+                <span>Contribute to HoK Hub</span>
+                <ArrowRight className="w-5 h-5" />
+              </Link>
             </div>
-            <Link to="/tier-list" className="text-primary-400 hover:text-primary-300 flex items-center space-x-2">
-              <span>View All</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          {isLoading ? (
-            <Loading message="Loading top heroes..." />
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-              {topHeroes?.map((hero) => (
-                <HeroCard key={hero.heroId} hero={hero} />
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section ref={statsRef} className="py-20 bg-dark-400/50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="stat-1 text-4xl md:text-5xl font-display font-bold gradient-text mb-2">
-                0
-              </div>
-              <p className="text-gray-400">Heroes</p>
-            </div>
-            <div>
-              <div className="stat-2 text-4xl md:text-5xl font-display font-bold gradient-text mb-2">
-                0
-              </div>
-              <p className="text-gray-400">Skins</p>
-            </div>
-            <div>
-              <div className="stat-3 text-4xl md:text-5xl font-display font-bold gradient-text mb-2">
-                0
-              </div>
-              <p className="text-gray-400">Roles</p>
-            </div>
-            <div>
-              <div className="text-4xl md:text-5xl font-display font-bold gradient-text mb-2">
-                24/7
-              </div>
-              <p className="text-gray-400">Updated</p>
-            </div>
-          </div>
+          </motion.div>
         </div>
       </section>
     </div>

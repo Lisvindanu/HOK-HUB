@@ -2,8 +2,9 @@ import { useState, useMemo } from 'react';
 import { useHeroes } from '../hooks/useHeroes';
 import { useAuth } from '../contexts/AuthContext';
 import { Loading } from '../components/ui/Loading';
-import { Search, ChevronRight, Shield, Sword, AlertCircle, PenLine, X, Plus, Trash2 } from 'lucide-react';
+import { Search, ChevronRight, Shield, Sword, AlertCircle, PenLine, X, Plus, Trash2, ArrowLeft, Users, Zap } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { Hero } from '../types/hero';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://hokapi.project-n.site';
@@ -16,7 +17,6 @@ export function CounterPage() {
   const [showSuggestModal, setShowSuggestModal] = useState(false);
   const [suggestAction, setSuggestAction] = useState<'add' | 'remove'>('add');
   const [suggestType, setSuggestType] = useState<'strongAgainst' | 'weakAgainst' | 'bestPartner'>('strongAgainst');
-  const [suggestTargetHero, setSuggestTargetHero] = useState<Hero | null>(null);
   const [suggestTargetHeroes, setSuggestTargetHeroes] = useState<{name: string, icon: string}[]>([]);
   const [suggestDescription, setSuggestDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,21 +34,18 @@ export function CounterPage() {
 
     let filtered = heroes.filter(h => h.heroId !== selectedHero?.heroId);
 
-    // Filter by search query
     if (heroSearch) {
       filtered = filtered.filter(h =>
         h.name.toLowerCase().includes(heroSearch.toLowerCase())
       );
     }
 
-    // Filter by role
     if (filterRole !== 'All') {
       filtered = filtered.filter(h =>
         h.role?.toLowerCase() === filterRole.toLowerCase()
       );
     }
 
-    // Filter by lane
     if (filterLane !== 'All') {
       filtered = filtered.filter(h =>
         h.lane?.toLowerCase().includes(filterLane.toLowerCase().replace(' lane', ''))
@@ -58,7 +55,6 @@ export function CounterPage() {
     return filtered;
   }, [heroes, heroSearch, selectedHero, filterRole, filterLane]);
 
-  // Get existing heroes for remove action
   const existingRelationHeroes = useMemo(() => {
     if (!selectedHero || suggestAction !== 'remove') return [];
 
@@ -81,7 +77,6 @@ export function CounterPage() {
 
     setIsSubmitting(true);
     try {
-      // Submit one contribution per target hero
       const promises = suggestTargetHeroes.map(target =>
         fetch(`${API_BASE_URL}/api/contribute`, {
           method: 'POST',
@@ -112,7 +107,6 @@ export function CounterPage() {
       setTimeout(() => {
         setShowSuggestModal(false);
         setSubmitSuccess(false);
-        setSuggestTargetHero(null);
         setSuggestTargetHeroes([]);
         setSuggestDescription('');
         setHeroSearch('');
@@ -135,7 +129,6 @@ export function CounterPage() {
     });
   };
 
-  // Filter heroes based on search
   const filteredHeroes = useMemo(() => {
     if (!heroes) return [];
     if (!searchQuery) return heroes;
@@ -147,514 +140,578 @@ export function CounterPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <Loading message="Loading counter data..." />
+      <div className="min-h-screen bg-dark-400 pt-28 pb-12">
+        <div className="container mx-auto px-6 lg:px-8">
+          <Loading message="Loading counter data..." />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="min-h-screen bg-dark-400">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl md:text-5xl font-display font-bold mb-4">
-          Counter Picks
-        </h1>
-        <p className="text-gray-400 text-lg">
-          Find out which heroes counter or get countered by your pick
-        </p>
-      </div>
+      <section className="pt-28 pb-6 border-b border-white/5">
+        <div className="container mx-auto px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl flex items-center justify-center">
+                <Shield className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl md:text-4xl font-display font-bold text-white">
+                  Counter Picks
+                </h1>
+                <p className="text-gray-400 text-sm">
+                  Find counters and synergies for any hero
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
-      {/* Search */}
-      <div className="mb-8">
-        <div className="relative max-w-md">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search for a hero..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-dark-50 border border-white/10 rounded-lg focus:outline-none focus:border-primary-500 text-white placeholder-gray-500"
-          />
+      {/* Sticky Search Bar */}
+      <div className="sticky top-20 z-30 bg-dark-400/90 backdrop-blur-xl border-b border-white/5">
+        <div className="container mx-auto px-6 lg:px-8 py-4">
+          <div className="relative max-w-md">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+            <input
+              type="text"
+              placeholder="Search for a hero..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 bg-dark-300/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary-500/50 transition-colors"
+            />
+          </div>
         </div>
       </div>
 
-      {!selectedHero ? (
-        <>
-          {/* Hero Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            {filteredHeroes.map((hero) => (
-              <button
-                key={hero.heroId}
-                onClick={() => setSelectedHero(hero)}
-                className="group relative overflow-hidden rounded-lg bg-dark-200 transition-all hover:scale-105 hover:shadow-xl"
-              >
-                <div className="aspect-square relative overflow-hidden">
-                  <img
-                    src={hero.icon}
-                    alt={hero.name}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
-
-                  <div className="absolute bottom-0 left-0 right-0 p-2">
-                    <h3 className="text-sm font-bold text-white line-clamp-1">{hero.name}</h3>
-                    <p className="text-xs text-gray-300">{hero.role}</p>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-
-          {filteredHeroes.length === 0 && (
-            <div className="text-center py-20">
-              <p className="text-gray-400 text-lg">No heroes found matching "{searchQuery}"</p>
-            </div>
-          )}
-        </>
-      ) : (
-        <>
-          {/* Selected Hero Section */}
-          <div className="mb-8">
-            <button
-              onClick={() => setSelectedHero(null)}
-              className="mb-4 px-4 py-2 bg-dark-200 border border-white/10 rounded-lg text-white hover:bg-dark-100 transition-colors"
-            >
-              ← Back to all heroes
-            </button>
-
-            <div className="flex items-center gap-4 p-6 bg-dark-200 border border-white/10 rounded-xl">
-              <img
-                src={selectedHero.icon}
-                alt={selectedHero.name}
-                className="w-20 h-20 rounded-lg border-2 border-primary-500"
-              />
-              <div>
-                <h2 className="text-3xl font-bold text-white">{selectedHero.name}</h2>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-gray-400">{selectedHero.role}</span>
-                  <span className="text-gray-600">•</span>
-                  <span className="text-gray-400">{selectedHero.lane}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Counter Information */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Strong Against */}
-            <div className="bg-dark-200 border border-white/10 rounded-xl overflow-hidden">
-              <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-4">
-                <div className="flex items-center gap-2">
-                  <Sword className="w-5 h-5 text-white" />
-                  <h3 className="text-xl font-bold text-white">Strong Against</h3>
-                </div>
-                <p className="text-white/80 text-sm mt-1">
-                  {selectedHero.name} counters these heroes
-                </p>
-              </div>
-
-              <div className="p-4">
-                {Object.keys(selectedHero.suppressingHeroes).length > 0 ? (
-                  <div className="space-y-3">
-                    {Object.entries(selectedHero.suppressingHeroes).map(([key, relation]) => {
-                      const counterHero = heroes?.find(h => h.name.toLowerCase() === relation.name.toLowerCase());
-                      return (
-                      <Link
-                        key={key}
-                        to="/heroes/$heroId"
-                        params={{ heroId: counterHero?.heroId.toString() || '0' }}
-                        className="flex items-center gap-3 p-3 bg-dark-100 rounded-lg hover:bg-dark-50 transition-colors group"
-                      >
-                        <img
-                          src={relation.thumbnail}
-                          alt={relation.name}
-                          className="w-12 h-12 rounded-lg"
-                        />
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-white group-hover:text-primary-400 transition-colors">
-                            {relation.name}
-                          </h4>
-                          <p className="text-sm text-gray-400 line-clamp-1">{relation.description}</p>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-gray-600 group-hover:text-primary-400 transition-colors" />
-                      </Link>
-                    )})}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <AlertCircle className="w-12 h-12 text-gray-600 mx-auto mb-2" />
-                    <p className="text-gray-400">No counter data available</p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Weak Against */}
-            <div className="bg-dark-200 border border-white/10 rounded-xl overflow-hidden">
-              <div className="bg-gradient-to-r from-red-500 to-orange-500 p-4">
-                <div className="flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-white" />
-                  <h3 className="text-xl font-bold text-white">Weak Against</h3>
-                </div>
-                <p className="text-white/80 text-sm mt-1">
-                  These heroes counter {selectedHero.name}
-                </p>
-              </div>
-
-              <div className="p-4">
-                {Object.keys(selectedHero.suppressedHeroes).length > 0 ? (
-                  <div className="space-y-3">
-                    {Object.entries(selectedHero.suppressedHeroes).map(([key, relation]) => {
-                      const counterHero = heroes?.find(h => h.name.toLowerCase() === relation.name.toLowerCase());
-                      return (
-                      <Link
-                        key={key}
-                        to="/heroes/$heroId"
-                        params={{ heroId: counterHero?.heroId.toString() || '0' }}
-                        className="flex items-center gap-3 p-3 bg-dark-100 rounded-lg hover:bg-dark-50 transition-colors group"
-                      >
-                        <img
-                          src={relation.thumbnail}
-                          alt={relation.name}
-                          className="w-12 h-12 rounded-lg"
-                        />
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-white group-hover:text-primary-400 transition-colors">
-                            {relation.name}
-                          </h4>
-                          <p className="text-sm text-gray-400 line-clamp-1">{relation.description}</p>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-gray-600 group-hover:text-primary-400 transition-colors" />
-                      </Link>
-                    )})}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <AlertCircle className="w-12 h-12 text-gray-600 mx-auto mb-2" />
-                    <p className="text-gray-400">No counter data available</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Best Partners */}
-          {Object.keys(selectedHero.bestPartners).length > 0 && (
-            <div className="mt-6 bg-dark-200 border border-white/10 rounded-xl overflow-hidden">
-              <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-4">
-                <h3 className="text-xl font-bold text-white">Best Partners</h3>
-                <p className="text-white/80 text-sm mt-1">
-                  Heroes that synergize well with {selectedHero.name}
-                </p>
-              </div>
-
-              <div className="p-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {Object.entries(selectedHero.bestPartners).map(([key, relation]) => {
-                    const partnerHero = heroes?.find(h => h.name.toLowerCase() === relation.name.toLowerCase());
-                    return (
-                    <Link
-                      key={key}
-                      to="/heroes/$heroId"
-                      params={{ heroId: partnerHero?.heroId.toString() || '0' }}
-                      className="flex items-center gap-3 p-3 bg-dark-100 rounded-lg hover:bg-dark-50 transition-colors group"
+      <AnimatePresence mode="wait">
+        {!selectedHero ? (
+          /* Hero Selection Grid */
+          <motion.section
+            key="grid"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="py-8"
+          >
+            <div className="container mx-auto px-6 lg:px-8">
+              {filteredHeroes.length > 0 ? (
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-3">
+                  {filteredHeroes.map((hero, index) => (
+                    <motion.button
+                      key={hero.heroId}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3, delay: index * 0.02 }}
+                      onClick={() => setSelectedHero(hero)}
+                      className="group relative aspect-square overflow-hidden rounded-xl bg-dark-300/50 border border-white/5 hover:border-white/20 transition-all duration-300 hover:scale-105"
                     >
                       <img
-                        src={relation.thumbnail}
-                        alt={relation.name}
-                        className="w-12 h-12 rounded-lg"
+                        src={hero.icon}
+                        alt={hero.name}
+                        className="w-full h-full object-cover"
                       />
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-white group-hover:text-primary-400 transition-colors">
-                          {relation.name}
-                        </h4>
-                        <p className="text-sm text-gray-400 line-clamp-1">{relation.description}</p>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      <div className="absolute bottom-0 left-0 right-0 p-2">
+                        <p className="text-xs font-medium text-white truncate text-center">{hero.name}</p>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-gray-600 group-hover:text-primary-400 transition-colors" />
-                    </Link>
-                  )})}
+                    </motion.button>
+                  ))}
                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* Suggest Edit Button */}
-          {isAuthenticated && (
-            <div className="mt-6 text-center">
-              <button
-                onClick={() => setShowSuggestModal(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-primary-500/20 text-primary-400 border border-primary-500/30 rounded-lg hover:bg-primary-500/30 transition-colors"
-              >
-                <PenLine className="w-4 h-4" />
-                Suggest Edit
-              </button>
-              <p className="text-xs text-gray-500 mt-2">
-                Help improve counter data for the community
-              </p>
-            </div>
-          )}
-        </>
-      )}
-
-      {/* Suggest Modal */}
-      {showSuggestModal && selectedHero && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-dark-300 border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl">
-            {/* Header */}
-            <div className="flex items-center justify-between p-5 border-b border-white/10">
-              <div>
-                <h3 className="text-xl font-bold">Suggest Counter Edit</h3>
-                <p className="text-sm text-gray-400 mt-0.5">Help improve data for {selectedHero.name}</p>
-              </div>
-              <button
-                onClick={() => { setShowSuggestModal(false); setSuggestTargetHero(null); setHeroSearch(''); }}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {submitSuccess ? (
-              <div className="p-10 text-center">
-                <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-10 h-10 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
+              ) : (
+                <div className="text-center py-20">
+                  <AlertCircle className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-400 text-lg">No heroes found matching "{searchQuery}"</p>
                 </div>
-                <p className="text-xl font-bold text-white">Suggestion Submitted!</p>
-                <p className="text-gray-400 mt-2">Admin will review your suggestion</p>
-              </div>
-            ) : (
-              <div className="p-5 space-y-5">
-                {/* Hero Info */}
-                <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-primary-500/10 to-transparent rounded-xl border border-primary-500/20">
-                  <img src={selectedHero.icon} alt={selectedHero.name} className="w-14 h-14 rounded-lg border-2 border-primary-500/50" />
+              )}
+            </div>
+          </motion.section>
+        ) : (
+          /* Selected Hero Detail */
+          <motion.section
+            key="detail"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="py-8"
+          >
+            <div className="container mx-auto px-6 lg:px-8">
+              {/* Back Button & Hero Info */}
+              <div className="mb-6">
+                <button
+                  onClick={() => setSelectedHero(null)}
+                  className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-4"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="text-sm">Back to all heroes</span>
+                </button>
+
+                <div className="flex items-center gap-4 p-5 bg-dark-300/50 border border-white/5 rounded-2xl">
+                  <img
+                    src={selectedHero.icon}
+                    alt={selectedHero.name}
+                    className="w-20 h-20 rounded-xl border-2 border-primary-500/50"
+                  />
                   <div>
-                    <p className="font-bold text-lg">{selectedHero.name}</p>
-                    <p className="text-sm text-gray-400">{selectedHero.role} • {selectedHero.lane}</p>
+                    <h2 className="text-2xl font-display font-bold text-white">{selectedHero.name}</h2>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="px-2 py-0.5 bg-white/10 rounded-md text-sm text-gray-300">{selectedHero.role}</span>
+                      <span className="text-gray-600">•</span>
+                      <span className="text-sm text-gray-400">{selectedHero.lane}</span>
+                    </div>
                   </div>
                 </div>
+              </div>
 
-                {/* Action & Type Selection */}
-                <div className="grid grid-cols-2 gap-4">
-                  {/* Action */}
-                  <div>
-                    <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Action</label>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => { setSuggestAction('add'); setSuggestTargetHeroes([]); setFilterRole('All'); setFilterLane('All'); setHeroSearch(''); }}
-                        className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg font-medium text-sm transition-all ${
-                          suggestAction === 'add'
-                            ? 'bg-green-500 text-white shadow-lg shadow-green-500/25'
-                            : 'bg-dark-100 text-gray-400 hover:bg-dark-50'
-                        }`}
-                      >
-                        <Plus className="w-4 h-4" /> Add
-                      </button>
-                      <button
-                        onClick={() => { setSuggestAction('remove'); setSuggestTargetHeroes([]); }}
-                        className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg font-medium text-sm transition-all ${
-                          suggestAction === 'remove'
-                            ? 'bg-red-500 text-white shadow-lg shadow-red-500/25'
-                            : 'bg-dark-100 text-gray-400 hover:bg-dark-50'
-                        }`}
-                      >
-                        <Trash2 className="w-4 h-4" /> Remove
-                      </button>
+              {/* Counter Information Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                {/* Strong Against */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="bg-dark-300/50 border border-white/5 rounded-2xl overflow-hidden"
+                >
+                  <div className="bg-gradient-to-r from-green-500/20 to-transparent p-4 border-b border-white/5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center">
+                        <Sword className="w-5 h-5 text-green-400" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-white">Strong Against</h3>
+                        <p className="text-xs text-gray-400">{selectedHero.name} counters these heroes</p>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Type */}
-                  <div>
-                    <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Category</label>
-                    <select
-                      value={suggestType}
-                      onChange={(e) => { setSuggestType(e.target.value as typeof suggestType); setSuggestTargetHero(null); setSuggestTargetHeroes([]); }}
-                      className="w-full py-2.5 px-3 bg-dark-100 border border-white/10 rounded-lg text-white text-sm font-medium focus:border-primary-500 focus:outline-none"
-                    >
-                      <option value="strongAgainst">Strong Against</option>
-                      <option value="weakAgainst">Weak Against</option>
-                      <option value="bestPartner">Best Partner</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Target Hero Selection */}
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
-                    {suggestAction === 'add' ? 'Select Hero to Add' : 'Select Hero to Remove'}
-                  </label>
-
-                  {suggestAction === 'remove' ? (
-                    existingRelationHeroes.length > 0 ? (
-                      <div>
-                        {suggestTargetHeroes.length > 0 && (
-                          <div className="mb-2 px-2 py-1.5 bg-red-500/20 rounded-lg text-sm text-red-300 flex items-center justify-between">
-                            <span>{suggestTargetHeroes.length} hero{suggestTargetHeroes.length > 1 ? 'es' : ''} selected</span>
-                            <button onClick={() => setSuggestTargetHeroes([])} className="text-xs hover:text-white">Clear all</button>
-                          </div>
-                        )}
-                        <div className="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto p-1">
-                          {existingRelationHeroes.map((hero) => {
-                            const isSelected = suggestTargetHeroes.some(h => h.name === hero.name);
-                            return (
-                              <button
-                                key={hero.name}
-                                onClick={() => toggleHeroSelection({ name: hero.name, icon: hero.thumbnail })}
-                                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all text-center ${
-                                  isSelected
-                                    ? 'bg-red-500/30 border-2 border-red-500 ring-2 ring-red-500/30'
-                                    : 'bg-dark-100 border border-white/10 hover:bg-red-500/10 hover:border-red-500/30'
-                                }`}
-                              >
-                                <img src={hero.thumbnail} alt={hero.name} className={`w-12 h-12 rounded-lg ${isSelected ? 'ring-2 ring-red-400' : ''}`} />
-                                <span className={`text-xs font-medium truncate w-full ${isSelected ? 'text-red-300' : ''}`}>{hero.name}</span>
-                                {isSelected && <span className="text-[10px] text-red-400">✓</span>}
-                              </button>
-                            );
-                          })}
-                        </div>
+                  <div className="p-4">
+                    {Object.keys(selectedHero.suppressingHeroes).length > 0 ? (
+                      <div className="space-y-2">
+                        {Object.entries(selectedHero.suppressingHeroes).map(([key, relation]) => {
+                          const counterHero = heroes?.find(h => h.name.toLowerCase() === relation.name.toLowerCase());
+                          return (
+                            <Link
+                              key={key}
+                              to="/heroes/$heroId"
+                              params={{ heroId: counterHero?.heroId.toString() || '0' }}
+                              className="flex items-center gap-3 p-3 bg-dark-200/50 rounded-xl hover:bg-dark-200 transition-colors group"
+                            >
+                              <img
+                                src={relation.thumbnail}
+                                alt={relation.name}
+                                className="w-12 h-12 rounded-lg"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-medium text-white group-hover:text-primary-400 transition-colors">
+                                  {relation.name}
+                                </h4>
+                                <p className="text-xs text-gray-500 truncate">{relation.description}</p>
+                              </div>
+                              <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-primary-400 transition-colors" />
+                            </Link>
+                          );
+                        })}
                       </div>
                     ) : (
-                      <div className="p-6 bg-dark-100 rounded-xl text-center">
-                        <AlertCircle className="w-8 h-8 text-gray-600 mx-auto mb-2" />
-                        <p className="text-sm text-gray-400">No heroes in this category to remove</p>
+                      <div className="text-center py-8">
+                        <AlertCircle className="w-10 h-10 text-gray-600 mx-auto mb-2" />
+                        <p className="text-sm text-gray-500">No counter data available</p>
                       </div>
-                    )
-                  ) : (
+                    )}
+                  </div>
+                </motion.div>
+
+                {/* Weak Against */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="bg-dark-300/50 border border-white/5 rounded-2xl overflow-hidden"
+                >
+                  <div className="bg-gradient-to-r from-red-500/20 to-transparent p-4 border-b border-white/5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-red-500/20 rounded-xl flex items-center justify-center">
+                        <Shield className="w-5 h-5 text-red-400" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-white">Weak Against</h3>
+                        <p className="text-xs text-gray-400">These heroes counter {selectedHero.name}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4">
+                    {Object.keys(selectedHero.suppressedHeroes).length > 0 ? (
+                      <div className="space-y-2">
+                        {Object.entries(selectedHero.suppressedHeroes).map(([key, relation]) => {
+                          const counterHero = heroes?.find(h => h.name.toLowerCase() === relation.name.toLowerCase());
+                          return (
+                            <Link
+                              key={key}
+                              to="/heroes/$heroId"
+                              params={{ heroId: counterHero?.heroId.toString() || '0' }}
+                              className="flex items-center gap-3 p-3 bg-dark-200/50 rounded-xl hover:bg-dark-200 transition-colors group"
+                            >
+                              <img
+                                src={relation.thumbnail}
+                                alt={relation.name}
+                                className="w-12 h-12 rounded-lg"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-medium text-white group-hover:text-primary-400 transition-colors">
+                                  {relation.name}
+                                </h4>
+                                <p className="text-xs text-gray-500 truncate">{relation.description}</p>
+                              </div>
+                              <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-primary-400 transition-colors" />
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <AlertCircle className="w-10 h-10 text-gray-600 mx-auto mb-2" />
+                        <p className="text-sm text-gray-500">No counter data available</p>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              </div>
+
+              {/* Best Partners */}
+              {Object.keys(selectedHero.bestPartners).length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="bg-dark-300/50 border border-white/5 rounded-2xl overflow-hidden mb-6"
+                >
+                  <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 p-4 border-b border-white/5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                        <Users className="w-5 h-5 text-blue-400" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-white">Best Partners</h3>
+                        <p className="text-xs text-gray-400">Heroes that synergize well with {selectedHero.name}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      {Object.entries(selectedHero.bestPartners).map(([key, relation]) => {
+                        const partnerHero = heroes?.find(h => h.name.toLowerCase() === relation.name.toLowerCase());
+                        return (
+                          <Link
+                            key={key}
+                            to="/heroes/$heroId"
+                            params={{ heroId: partnerHero?.heroId.toString() || '0' }}
+                            className="flex items-center gap-3 p-3 bg-dark-200/50 rounded-xl hover:bg-dark-200 transition-colors group"
+                          >
+                            <img
+                              src={relation.thumbnail}
+                              alt={relation.name}
+                              className="w-12 h-12 rounded-lg"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium text-white group-hover:text-primary-400 transition-colors">
+                                {relation.name}
+                              </h4>
+                              <p className="text-xs text-gray-500 truncate">{relation.description}</p>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-primary-400 transition-colors" />
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Suggest Edit Button */}
+              {isAuthenticated && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                  className="text-center"
+                >
+                  <button
+                    onClick={() => setShowSuggestModal(true)}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-500/10 text-primary-400 border border-primary-500/20 rounded-xl hover:bg-primary-500/20 transition-colors"
+                  >
+                    <PenLine className="w-4 h-4" />
+                    <span className="font-medium">Suggest Edit</span>
+                  </button>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Help improve counter data for the community
+                  </p>
+                </motion.div>
+              )}
+            </div>
+          </motion.section>
+        )}
+      </AnimatePresence>
+
+      {/* Suggest Modal */}
+      <AnimatePresence>
+        {showSuggestModal && selectedHero && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => setShowSuggestModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="bg-dark-300 border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] flex flex-col"
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between p-5 border-b border-white/10 flex-shrink-0">
+                <div>
+                  <h3 className="text-lg font-bold text-white">Suggest Counter Edit</h3>
+                  <p className="text-xs text-gray-400 mt-0.5">Help improve data for {selectedHero.name}</p>
+                </div>
+                <button
+                  onClick={() => { setShowSuggestModal(false); setSuggestTargetHeroes([]); setHeroSearch(''); }}
+                  className="p-2 hover:bg-white/10 rounded-xl transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-400" />
+                </button>
+              </div>
+
+              {submitSuccess ? (
+                <div className="p-10 text-center">
+                  <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Zap className="w-8 h-8 text-green-400" />
+                  </div>
+                  <p className="text-lg font-bold text-white">Suggestion Submitted!</p>
+                  <p className="text-sm text-gray-400 mt-2">Admin will review your suggestion</p>
+                </div>
+              ) : (
+                <div className="p-5 space-y-5 overflow-y-auto flex-1">
+                  {/* Hero Info */}
+                  <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-primary-500/10 to-transparent rounded-xl border border-primary-500/20">
+                    <img src={selectedHero.icon} alt={selectedHero.name} className="w-12 h-12 rounded-lg border-2 border-primary-500/50" />
                     <div>
-                      {/* Selected heroes counter */}
-                      {suggestTargetHeroes.length > 0 && (
-                        <div className="mb-2 px-2 py-1.5 bg-green-500/20 rounded-lg text-sm text-green-300 flex items-center justify-between">
-                          <span>{suggestTargetHeroes.length} hero{suggestTargetHeroes.length > 1 ? 'es' : ''} selected</span>
-                          <button onClick={() => setSuggestTargetHeroes([])} className="text-xs hover:text-white">Clear all</button>
-                        </div>
-                      )}
+                      <p className="font-semibold text-white">{selectedHero.name}</p>
+                      <p className="text-xs text-gray-400">{selectedHero.role} • {selectedHero.lane}</p>
+                    </div>
+                  </div>
 
-                      {/* Filters */}
-                      <div className="flex gap-2 mb-3">
-                        <div className="relative flex-1">
-                          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                          <input
-                            type="text"
-                            value={heroSearch}
-                            onChange={(e) => setHeroSearch(e.target.value)}
-                            placeholder="Search..."
-                            className="w-full py-2 pl-8 pr-3 bg-dark-100 border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:border-primary-500 focus:outline-none"
-                          />
-                        </div>
-                        <select
-                          value={filterRole}
-                          onChange={(e) => setFilterRole(e.target.value)}
-                          className="py-2 px-2 bg-dark-100 border border-white/10 rounded-lg text-sm text-white focus:border-primary-500 focus:outline-none"
+                  {/* Action & Type Selection */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Action</label>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => { setSuggestAction('add'); setSuggestTargetHeroes([]); setFilterRole('All'); setFilterLane('All'); setHeroSearch(''); }}
+                          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-medium text-sm transition-all ${
+                            suggestAction === 'add'
+                              ? 'bg-green-500 text-white'
+                              : 'bg-dark-100 text-gray-400 hover:bg-dark-50'
+                          }`}
                         >
-                          {roles.map(role => (
-                            <option key={role} value={role}>{role}</option>
-                          ))}
-                        </select>
-                        <select
-                          value={filterLane}
-                          onChange={(e) => setFilterLane(e.target.value)}
-                          className="py-2 px-2 bg-dark-100 border border-white/10 rounded-lg text-sm text-white focus:border-primary-500 focus:outline-none"
+                          <Plus className="w-4 h-4" /> Add
+                        </button>
+                        <button
+                          onClick={() => { setSuggestAction('remove'); setSuggestTargetHeroes([]); }}
+                          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-medium text-sm transition-all ${
+                            suggestAction === 'remove'
+                              ? 'bg-red-500 text-white'
+                              : 'bg-dark-100 text-gray-400 hover:bg-dark-50'
+                          }`}
                         >
-                          {lanes.map(lane => (
-                            <option key={lane} value={lane}>{lane}</option>
-                          ))}
-                        </select>
+                          <Trash2 className="w-4 h-4" /> Remove
+                        </button>
                       </div>
+                    </div>
 
-                      {/* Hero grid */}
-                      {filteredSuggestHeroes.length > 0 ? (
-                        <div className="grid grid-cols-4 gap-2 max-h-52 overflow-y-auto p-1">
-                          {filteredSuggestHeroes.slice(0, 24).map((hero) => {
-                            const isSelected = suggestTargetHeroes.some(h => h.name === hero.name);
-                            return (
-                              <button
-                                key={hero.heroId}
-                                onClick={() => toggleHeroSelection({ name: hero.name, icon: hero.icon })}
-                                className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all text-center ${
-                                  isSelected
-                                    ? 'bg-green-500/30 border-2 border-green-500 ring-2 ring-green-500/30'
-                                    : 'bg-dark-100 border border-white/10 hover:bg-green-500/10 hover:border-green-500/30'
-                                }`}
-                              >
-                                <img src={hero.icon} alt={hero.name} className={`w-10 h-10 rounded-lg ${isSelected ? 'ring-2 ring-green-400' : ''}`} />
-                                <span className={`text-[10px] font-medium truncate w-full ${isSelected ? 'text-green-300' : 'text-gray-400'}`}>{hero.name}</span>
-                                {isSelected && <span className="text-[10px] text-green-400">✓</span>}
-                              </button>
-                            );
-                          })}
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Category</label>
+                      <select
+                        value={suggestType}
+                        onChange={(e) => { setSuggestType(e.target.value as typeof suggestType); setSuggestTargetHeroes([]); }}
+                        className="w-full py-2.5 px-3 bg-dark-100 border border-white/10 rounded-xl text-white text-sm font-medium focus:border-primary-500 focus:outline-none"
+                      >
+                        <option value="strongAgainst">Strong Against</option>
+                        <option value="weakAgainst">Weak Against</option>
+                        <option value="bestPartner">Best Partner</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Target Hero Selection */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+                      {suggestAction === 'add' ? 'Select Hero to Add' : 'Select Hero to Remove'}
+                    </label>
+
+                    {suggestAction === 'remove' ? (
+                      existingRelationHeroes.length > 0 ? (
+                        <div>
+                          {suggestTargetHeroes.length > 0 && (
+                            <div className="mb-2 px-3 py-2 bg-red-500/20 rounded-xl text-sm text-red-300 flex items-center justify-between">
+                              <span>{suggestTargetHeroes.length} selected</span>
+                              <button onClick={() => setSuggestTargetHeroes([])} className="text-xs hover:text-white">Clear</button>
+                            </div>
+                          )}
+                          <div className="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto p-1">
+                            {existingRelationHeroes.map((hero) => {
+                              const isSelected = suggestTargetHeroes.some(h => h.name === hero.name);
+                              return (
+                                <button
+                                  key={hero.name}
+                                  onClick={() => toggleHeroSelection({ name: hero.name, icon: hero.thumbnail })}
+                                  className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
+                                    isSelected
+                                      ? 'bg-red-500/30 border-2 border-red-500'
+                                      : 'bg-dark-100 border border-white/10 hover:border-red-500/30'
+                                  }`}
+                                >
+                                  <img src={hero.thumbnail} alt={hero.name} className="w-10 h-10 rounded-lg" />
+                                  <span className="text-[10px] font-medium truncate w-full text-center">{hero.name}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
                       ) : (
                         <div className="p-6 bg-dark-100 rounded-xl text-center">
                           <AlertCircle className="w-8 h-8 text-gray-600 mx-auto mb-2" />
-                          <p className="text-sm text-gray-400">No heroes match filter</p>
+                          <p className="text-sm text-gray-400">No heroes in this category</p>
                         </div>
-                      )}
-                      {filteredSuggestHeroes.length > 24 && (
-                        <p className="text-xs text-gray-500 text-center mt-2">Showing 24 of {filteredSuggestHeroes.length}. Use filters to narrow down.</p>
-                      )}
+                      )
+                    ) : (
+                      <div>
+                        {suggestTargetHeroes.length > 0 && (
+                          <div className="mb-2 px-3 py-2 bg-green-500/20 rounded-xl text-sm text-green-300 flex items-center justify-between">
+                            <span>{suggestTargetHeroes.length} selected</span>
+                            <button onClick={() => setSuggestTargetHeroes([])} className="text-xs hover:text-white">Clear</button>
+                          </div>
+                        )}
+
+                        <div className="flex gap-2 mb-3">
+                          <div className="relative flex-1">
+                            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                            <input
+                              type="text"
+                              value={heroSearch}
+                              onChange={(e) => setHeroSearch(e.target.value)}
+                              placeholder="Search..."
+                              className="w-full py-2 pl-8 pr-3 bg-dark-100 border border-white/10 rounded-xl text-sm text-white placeholder-gray-500 focus:border-primary-500 focus:outline-none"
+                            />
+                          </div>
+                          <select
+                            value={filterRole}
+                            onChange={(e) => setFilterRole(e.target.value)}
+                            className="py-2 px-2 bg-dark-100 border border-white/10 rounded-xl text-sm text-white focus:border-primary-500 focus:outline-none"
+                          >
+                            {roles.map(role => (
+                              <option key={role} value={role}>{role}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {filteredSuggestHeroes.length > 0 ? (
+                          <div className="grid grid-cols-5 gap-2 max-h-44 overflow-y-auto p-1">
+                            {filteredSuggestHeroes.slice(0, 25).map((hero) => {
+                              const isSelected = suggestTargetHeroes.some(h => h.name === hero.name);
+                              return (
+                                <button
+                                  key={hero.heroId}
+                                  onClick={() => toggleHeroSelection({ name: hero.name, icon: hero.icon })}
+                                  className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all ${
+                                    isSelected
+                                      ? 'bg-green-500/30 border-2 border-green-500'
+                                      : 'bg-dark-100 border border-white/10 hover:border-green-500/30'
+                                  }`}
+                                >
+                                  <img src={hero.icon} alt={hero.name} className="w-9 h-9 rounded-lg" />
+                                  <span className="text-[9px] font-medium truncate w-full text-center">{hero.name}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <div className="p-6 bg-dark-100 rounded-xl text-center">
+                            <AlertCircle className="w-8 h-8 text-gray-600 mx-auto mb-2" />
+                            <p className="text-sm text-gray-400">No heroes match filter</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Two-way relationship toggle */}
+                  <label className="flex items-start gap-3 p-3 bg-dark-100 rounded-xl border border-white/10 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={applyInverse}
+                      onChange={(e) => setApplyInverse(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 rounded border-gray-600 bg-dark-200 text-primary-500 focus:ring-primary-500 focus:ring-offset-0"
+                    />
+                    <div>
+                      <span className="font-medium text-white text-sm">Apply two-way relationship</span>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {suggestType === 'weakAgainst'
+                          ? `Also add ${selectedHero?.name} to target's "Strong Against"`
+                          : suggestType === 'strongAgainst'
+                          ? `Also add ${selectedHero?.name} to target's "Weak Against"`
+                          : `Also add ${selectedHero?.name} to target's "Best Partner"`}
+                      </p>
                     </div>
-                  )}
-                </div>
-
-                {/* Two-way relationship toggle */}
-                <div className="flex items-start gap-3 p-3 bg-dark-100 rounded-xl border border-white/10">
-                  <input
-                    type="checkbox"
-                    id="applyInverse"
-                    checked={applyInverse}
-                    onChange={(e) => setApplyInverse(e.target.checked)}
-                    className="mt-1 w-4 h-4 rounded border-gray-600 bg-dark-200 text-primary-500 focus:ring-primary-500 focus:ring-offset-0"
-                  />
-                  <label htmlFor="applyInverse" className="text-sm cursor-pointer">
-                    <span className="font-medium text-white">Apply two-way relationship</span>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {suggestType === 'weakAgainst'
-                        ? `Also add ${selectedHero?.name} to target hero's "Strong Against"`
-                        : suggestType === 'strongAgainst'
-                        ? `Also add ${selectedHero?.name} to target hero's "Weak Against"`
-                        : `Also add ${selectedHero?.name} to target hero's "Best Partner"`}
-                    </p>
                   </label>
-                </div>
 
-                {/* Reason */}
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Reason (Optional)</label>
-                  <textarea
-                    value={suggestDescription}
-                    onChange={(e) => setSuggestDescription(e.target.value)}
-                    placeholder="e.g., After patch 1.5, this hero now counters..."
-                    rows={2}
-                    className="w-full p-3 bg-dark-100 border border-white/10 rounded-xl text-white placeholder-gray-500 resize-none focus:border-primary-500 focus:outline-none"
-                  />
-                </div>
+                  {/* Reason */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Reason (Optional)</label>
+                    <textarea
+                      value={suggestDescription}
+                      onChange={(e) => setSuggestDescription(e.target.value)}
+                      placeholder="e.g., After patch 1.5, this hero now counters..."
+                      rows={2}
+                      className="w-full p-3 bg-dark-100 border border-white/10 rounded-xl text-white placeholder-gray-500 resize-none focus:border-primary-500 focus:outline-none text-sm"
+                    />
+                  </div>
 
-                {/* Submit Button */}
-                <button
-                  onClick={handleSubmitSuggestion}
-                  disabled={suggestTargetHeroes.length === 0 || isSubmitting}
-                  className={`w-full py-3.5 rounded-xl font-bold text-white transition-all ${
-                    suggestTargetHeroes.length > 0 && !isSubmitting
-                      ? suggestAction === 'add'
-                        ? 'bg-green-500 hover:bg-green-600 shadow-lg shadow-green-500/25'
-                        : 'bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/25'
-                      : 'bg-gray-600 cursor-not-allowed'
-                  }`}
-                >
-                  {isSubmitting
-                    ? 'Submitting...'
-                    : suggestAction === 'add'
-                      ? `Add ${suggestTargetHeroes.length} Hero${suggestTargetHeroes.length > 1 ? 'es' : ''}`
-                      : `Remove ${suggestTargetHeroes.length} Hero${suggestTargetHeroes.length > 1 ? 'es' : ''}`}
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+                  {/* Submit Button */}
+                  <button
+                    onClick={handleSubmitSuggestion}
+                    disabled={suggestTargetHeroes.length === 0 || isSubmitting}
+                    className={`w-full py-3.5 rounded-xl font-bold text-white transition-all ${
+                      suggestTargetHeroes.length > 0 && !isSubmitting
+                        ? suggestAction === 'add'
+                          ? 'bg-green-500 hover:bg-green-600'
+                          : 'bg-red-500 hover:bg-red-600'
+                        : 'bg-gray-600 cursor-not-allowed'
+                    }`}
+                  >
+                    {isSubmitting
+                      ? 'Submitting...'
+                      : suggestAction === 'add'
+                        ? `Add ${suggestTargetHeroes.length} Hero${suggestTargetHeroes.length > 1 ? 'es' : ''}`
+                        : `Remove ${suggestTargetHeroes.length} Hero${suggestTargetHeroes.length > 1 ? 'es' : ''}`}
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,49 +1,157 @@
-import { Github, Heart } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
+import { Github, ExternalLink, Mail, MessageCircle } from 'lucide-react';
 
 export function Footer() {
+  const currentYear = new Date().getFullYear();
+
+  const quickLinks = [
+    { name: 'Heroes', path: '/heroes' },
+    { name: 'Tier List', path: '/tier-list' },
+    { name: 'Patch Notes', path: '/patch-notes' },
+    { name: 'Counters', path: '/counters' },
+  ];
+
+  const resources = [
+    { name: 'Contribute', path: '/contribute' },
+    { name: 'Contributors', path: '/contributors' },
+    { name: 'API Documentation', href: 'https://hokapi.project-n.site/', external: true },
+  ];
+
+  const community = [
+    { name: 'GitHub', href: 'https://github.com/Lisvindanu/hok-hub', icon: Github },
+    { name: 'Discord', href: 'https://discord.gg/honorofkings', icon: MessageCircle },
+  ];
+
   return (
     <footer className="bg-dark-400 border-t border-white/5 mt-20">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          {/* Left side */}
-          <div className="flex items-center space-x-2 text-sm text-gray-400">
-            <span>Made with</span>
-            <Heart className="w-4 h-4 text-red-500 fill-red-500" />
-            <span>for the HoK community</span>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Main Footer Content */}
+        <div className="py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Brand Section */}
+          <div className="lg:col-span-1">
+            <Link to="/" className="flex items-center space-x-2.5 mb-4">
+              <img
+                src="/hokhub.webp"
+                alt="HoK Hub"
+                className="w-10 h-10 object-contain"
+              />
+              <span className="text-xl font-display font-semibold text-white">
+                <span className="text-primary-400">HoK</span> Hub
+              </span>
+            </Link>
+            <p className="text-sm text-gray-400 leading-relaxed mb-4">
+              Your ultimate Honor of Kings companion. Explore hero guides, tier lists,
+              patch notes, and community tools.
+            </p>
+            <div className="flex items-center space-x-3">
+              {community.map((item) => (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-9 h-9 rounded-lg bg-dark-300 flex items-center justify-center text-gray-400 hover:text-white hover:bg-dark-200 transition-all"
+                  aria-label={item.name}
+                >
+                  <item.icon className="w-4 h-4" />
+                </a>
+              ))}
+            </div>
           </div>
 
-          {/* Center */}
-          <div className="text-sm text-gray-500">
-            <p>© 2026 HoK Hub. Not affiliated with Tencent or Honor of Kings.</p>
+          {/* Quick Links */}
+          <div>
+            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+              Quick Links
+            </h3>
+            <ul className="space-y-3">
+              {quickLinks.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    to={link.path}
+                    className="text-sm text-gray-400 hover:text-primary-400 transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* Right side */}
-          <div className="flex items-center space-x-4">
-            <a
-              href="https://github.com/Lisvindanu/HonorOfKingsApi"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors"
-            >
-              <Github className="w-5 h-5" />
-              <span className="text-sm">GitHub</span>
-            </a>
+          {/* Resources */}
+          <div>
+            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+              Resources
+            </h3>
+            <ul className="space-y-3">
+              {resources.map((link) => (
+                <li key={link.name}>
+                  {link.external ? (
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-gray-400 hover:text-primary-400 transition-colors inline-flex items-center gap-1"
+                    >
+                      {link.name}
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  ) : (
+                    <Link
+                      to={link.path!}
+                      className="text-sm text-gray-400 hover:text-primary-400 transition-colors"
+                    >
+                      {link.name}
+                    </Link>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact & Support */}
+          <div>
+            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+              Support
+            </h3>
+            <ul className="space-y-3">
+              <li>
+                <a
+                  href="mailto:anaphygon@protonmail.com"
+                  className="text-sm text-gray-400 hover:text-primary-400 transition-colors inline-flex items-center gap-2"
+                >
+                  <Mail className="w-4 h-4" />
+                  anaphygon@protonmail.com
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://github.com/Lisvindanu/hok-hub/issues"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-gray-400 hover:text-primary-400 transition-colors inline-flex items-center gap-1"
+                >
+                  Report an Issue
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
 
-        {/* API Status */}
-        <div className="mt-4 pt-4 border-t border-white/5 text-center">
-          <p className="text-xs text-gray-500">
-            Powered by{' '}
-            <a
-              href="http://hokapi.project-n.site/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary-400 hover:text-primary-300"
-            >
-              HoK API
-            </a>
-          </p>
+        {/* Bottom Bar */}
+        <div className="py-6 border-t border-white/5">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-xs text-gray-500 text-center md:text-left">
+              © {currentYear} HoK Hub. All rights reserved.
+              <span className="hidden sm:inline"> • </span>
+              <br className="sm:hidden" />
+              This site is not affiliated with or endorsed by Tencent Games or Level Infinite.
+            </p>
+            <p className="text-xs text-gray-500">
+              Honor of Kings™ is a trademark of Tencent Games.
+            </p>
+          </div>
         </div>
       </div>
     </footer>

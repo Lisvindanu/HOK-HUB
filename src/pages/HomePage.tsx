@@ -43,9 +43,10 @@ export function HomePage() {
         {/* Background Image */}
         <div className="absolute inset-0">
           <img
-            src="/wmremove-transformed.jpeg"
+            src="/wmremove-transformed.webp"
             alt="Honor of Kings Heroes"
             className="w-full h-full object-cover"
+            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-dark-400/70 via-dark-400/50 to-dark-400" />
           <div className="absolute inset-0 bg-gradient-to-r from-dark-400/80 via-transparent to-dark-400/80" />

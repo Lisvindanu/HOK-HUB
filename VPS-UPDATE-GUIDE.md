@@ -123,8 +123,11 @@ ssh root@167.253.158.192 "pm2 restart hok-api"
 ## Quick Commands
 
 ```bash
-# === UPDATE HERO DATA ===
-ssh root@167.253.158.192 "cd /root/HonorOfKingsApi && node scripts/scrape.mjs && pm2 restart hok-api"
+# === ADD SPECIFIC HEROES (FAST) ===
+ssh root@167.253.158.192 "cd /root/HonorOfKingsApi && node src/add-heroes.mjs 582 584 && pm2 restart hok-api"
+
+# === UPDATE ALL HERO DATA (SLOW - 10-15 min) ===
+ssh root@167.253.158.192 "cd /root/HonorOfKingsApi && node src/scrape-all-heroes.js && pm2 restart hok-api"
 
 # === UPDATE PATCH NOTES (dari lokal) ===
 cd ~/Sites/hok-hub && \

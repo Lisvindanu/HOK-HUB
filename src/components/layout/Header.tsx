@@ -74,12 +74,14 @@ export function Header() {
       <nav className="container mx-auto px-4 md:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
-              <span className="text-lg font-bold font-display text-white">HK</span>
-            </div>
+          <Link to="/" className="flex items-center space-x-2.5 group">
+            <img
+              src="/hokhub.png"
+              alt="HoK Hub"
+              className="w-9 h-9 object-contain group-hover:scale-110 transition-transform duration-300"
+            />
             <span className="text-xl font-display font-semibold text-white">
-              HoK Hub
+              <span className="text-primary-400">HoK</span> Hub
             </span>
           </Link>
 

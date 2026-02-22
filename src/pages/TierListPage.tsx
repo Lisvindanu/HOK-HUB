@@ -159,6 +159,7 @@ export function TierListPage() {
   const [selectedTier, setSelectedTier] = useState<TierKey | null>(null);
   const [showHeroModal, setShowHeroModal] = useState(false);
   const [tierListLane, setTierListLane] = useState<string>('All'); // Main lane filter for tier list
+  const [showShareMenu, setShowShareMenu] = useState<string | null>(null); // tier list id
   const tierListRef = useRef<HTMLDivElement>(null);
   const createTierListRef = useRef<HTMLDivElement>(null);
 
@@ -269,8 +270,13 @@ export function TierListPage() {
     }
   };
 
+  const getShareUrl = (tierListId: string) => {
+    const baseUrl = import.meta.env.PROD ? 'https://hok-hub.project-n.site' : window.location.origin;
+    return `${baseUrl}/tier-list?id=${tierListId}`;
+  };
+
   const handleCopyLink = async (tierListId: string) => {
-    const url = `${window.location.origin}/tier-list?id=${tierListId}`;
+    const url = getShareUrl(tierListId);
     try {
       await navigator.clipboard.writeText(url);
       setCopiedId(tierListId);
@@ -278,6 +284,35 @@ export function TierListPage() {
     } catch (error) {
       alert('Failed to copy link');
     }
+  };
+
+  const handleShare = async (tierList: TierList) => {
+    const url = getShareUrl(tierList.id);
+    const text = `Check out "${tierList.title}" tier list by ${tierList.creatorName} on HoK Hub!`;
+
+    // Try native share first (mobile)
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: tierList.title, text, url });
+        return;
+      } catch {
+        // User cancelled or not supported, show menu
+      }
+    }
+
+    // Show share menu
+    setShowShareMenu(tierList.id);
+  };
+
+  const getShareLinks = (tierList: TierList) => {
+    const url = getShareUrl(tierList.id);
+    const text = `Check out "${tierList.title}" tier list by ${tierList.creatorName} on HoK Hub!`;
+    return [
+      { name: 'Twitter / X', icon: '𝕏', url: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}` },
+      { name: 'WhatsApp', icon: '💬', url: `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}` },
+      { name: 'Facebook', icon: '📘', url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}` },
+      { name: 'Telegram', icon: '✈️', url: `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}` },
+    ];
   };
 
   const sortedTierLists = useMemo(() => {
@@ -1150,7 +1185,7 @@ export function TierListPage() {
                       </span>
                     </button>
                     <button
-                      onClick={() => handleCopyLink(selectedTierList.id)}
+                      onClick={() => handleShare(selectedTierList)}
                       className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
                     >
                       {copiedId === selectedTierList.id ? (
@@ -1318,6 +1353,60 @@ export function TierListPage() {
                   Cancel
                 </button>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Share Menu Modal */}
+      <AnimatePresence>
+        {showShareMenu && selectedTierList && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            onClick={() => setShowShareMenu(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-dark-300 rounded-2xl p-4 w-full max-w-sm"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-bold text-white mb-4">Share Tier List</h3>
+              <div className="space-y-2">
+                {getShareLinks(selectedTierList).map((link) => (
+                  <a
+                    key={link.name}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-colors"
+                    onClick={() => setShowShareMenu(null)}
+                  >
+                    <span className="text-xl">{link.icon}</span>
+                    <span className="text-white font-medium">{link.name}</span>
+                  </a>
+                ))}
+                <button
+                  onClick={() => {
+                    handleCopyLink(selectedTierList.id);
+                    setShowShareMenu(null);
+                  }}
+                  className="flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-colors w-full"
+                >
+                  <span className="text-xl">🔗</span>
+                  <span className="text-white font-medium">Copy Link</span>
+                </button>
+              </div>
+              <button
+                onClick={() => setShowShareMenu(null)}
+                className="w-full mt-4 py-2 text-gray-400 hover:text-white transition-colors text-sm"
+              >
+                Cancel
+              </button>
             </motion.div>
           </motion.div>
         )}

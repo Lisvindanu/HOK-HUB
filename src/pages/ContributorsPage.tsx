@@ -124,34 +124,43 @@ export function ContributorsPage() {
                 onClick={() => handleContributorClick(contributor.id)}
                 className="w-full text-left bg-dark-200 border border-white/10 rounded-xl p-6 hover:border-primary-500/30 hover:bg-dark-100 transition-colors cursor-pointer"
               >
-                <div className="flex items-center gap-4">
+                <div className="flex items-start gap-3 md:gap-4">
                   {/* Rank */}
-                  <div className="flex-shrink-0 w-12 text-center">
-                    <RankIcon className={`w-8 h-8 mx-auto ${rankColor}`} />
-                    <p className="text-sm font-bold text-gray-400 mt-1">#{rank}</p>
+                  <div className="flex-shrink-0 w-10 md:w-12 text-center">
+                    <RankIcon className={`w-6 md:w-8 h-6 md:h-8 mx-auto ${rankColor}`} />
+                    <p className="text-xs md:text-sm font-bold text-gray-400 mt-1">#{rank}</p>
                   </div>
 
                   {/* Info */}
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold text-white">{contributor.name}</h3>
-                    <div className="flex items-center gap-4 mt-2 text-sm">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="text-base md:text-xl font-bold text-white truncate">{contributor.name}</h3>
+                      {/* Score - Mobile */}
+                      <div className="flex-shrink-0 text-right md:hidden">
+                        <p className="text-xl font-bold text-primary-400">
+                          {(contributor.totalContributions || 0) * 5 + contributor.totalTierLists * 10 + contributor.totalVotes}
+                        </p>
+                        <p className="text-[10px] text-gray-500">pts</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs md:text-sm">
                       <div className="flex items-center gap-1">
-                        <ListChecks className="w-4 h-4 text-blue-400" />
-                        <span className="text-gray-400">{contributor.totalContributions || 0} contributions</span>
+                        <ListChecks className="w-3.5 md:w-4 h-3.5 md:h-4 text-blue-400" />
+                        <span className="text-gray-400">{contributor.totalContributions || 0}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Trophy className="w-4 h-4 text-yellow-400" />
-                        <span className="text-gray-400">{contributor.totalTierLists} tier lists</span>
+                        <Trophy className="w-3.5 md:w-4 h-3.5 md:h-4 text-yellow-400" />
+                        <span className="text-gray-400">{contributor.totalTierLists}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <ThumbsUp className="w-4 h-4 text-green-400" />
-                        <span className="text-gray-400">{contributor.totalVotes} votes</span>
+                        <ThumbsUp className="w-3.5 md:w-4 h-3.5 md:h-4 text-green-400" />
+                        <span className="text-gray-400">{contributor.totalVotes}</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Score */}
-                  <div className="flex-shrink-0 text-right">
+                  {/* Score - Desktop */}
+                  <div className="hidden md:block flex-shrink-0 text-right">
                     <p className="text-3xl font-bold text-primary-400">
                       {(contributor.totalContributions || 0) * 5 + contributor.totalTierLists * 10 + contributor.totalVotes}
                     </p>

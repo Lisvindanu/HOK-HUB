@@ -52,6 +52,7 @@ import {
   DragOverlay,
   closestCenter,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   useDroppable,
@@ -80,10 +81,11 @@ function DraggableHero({ hero, showName = false }: { hero: Hero; showName?: bool
     id: hero.heroId,
   });
 
-  const style = transform ? {
-    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+  const style: React.CSSProperties = {
+    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
     opacity: isDragging ? 0.5 : 1,
-  } : undefined;
+    touchAction: 'none',
+  };
 
   return (
     <div
@@ -91,16 +93,16 @@ function DraggableHero({ hero, showName = false }: { hero: Hero; showName?: bool
       style={style}
       {...listeners}
       {...attributes}
-      className="group relative cursor-grab active:cursor-grabbing"
+      className="group relative cursor-grab active:cursor-grabbing select-none"
     >
-      <div className="w-14 h-14 rounded-xl overflow-hidden border-2 border-white/10 group-hover:border-primary-500/50 transition-all group-hover:scale-105">
-        <img src={hero.icon} alt={hero.name} className="w-full h-full object-cover" />
+      <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl overflow-hidden border-2 border-white/10 group-hover:border-primary-500/50 transition-all group-hover:scale-105">
+        <img src={hero.icon} alt={hero.name} className="w-full h-full object-cover pointer-events-none" draggable={false} />
       </div>
       {showName && (
-        <p className="text-[10px] text-gray-400 text-center mt-1 truncate w-14">{hero.name}</p>
+        <p className="text-[9px] md:text-[10px] text-gray-400 text-center mt-1 truncate w-12 md:w-14">{hero.name}</p>
       )}
       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-        <GripVertical className="w-5 h-5 text-white drop-shadow-lg" />
+        <GripVertical className="w-4 md:w-5 h-4 md:h-5 text-white drop-shadow-lg" />
       </div>
     </div>
   );
@@ -154,6 +156,9 @@ export function TierListPage() {
   const [poolSearch, setPoolSearch] = useState('');
   const [poolRoleFilter, setPoolRoleFilter] = useState<string>('All');
   const [isDownloading, setIsDownloading] = useState(false);
+  const [editMode, setEditMode] = useState<'drag' | 'tap'>('tap');
+  const [selectedTier, setSelectedTier] = useState<TierKey | null>(null);
+  const [showHeroModal, setShowHeroModal] = useState(false);
   const tierListRef = useRef<HTMLDivElement>(null);
   const createTierListRef = useRef<HTMLDivElement>(null);
 
@@ -282,7 +287,9 @@ export function TierListPage() {
     return sorted;
   }, [communityTierLists, sortBy]);
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
+  const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 8 } });
+  const touchSensor = useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 8 } });
+  const sensors = useSensors(pointerSensor, touchSensor);
 
   const unassignedHeroIds = useMemo(() => {
     if (!heroes) return new Set<number>();
@@ -346,6 +353,34 @@ export function TierListPage() {
 
   const handleReset = () => {
     setTierAssignments({ 'S+': [], 'S': [], 'A': [], 'B': [], 'C': [], 'D': [] });
+    setSelectedTier(null);
+  };
+
+  // Tap mode handlers
+  const handleSelectTier = (tier: TierKey) => {
+    setSelectedTier(tier);
+    setShowHeroModal(true);
+  };
+
+  const handleTapHeroFromPool = (heroId: number) => {
+    if (!selectedTier) return;
+    setTierAssignments(prev => ({
+      ...prev,
+      [selectedTier]: [...prev[selectedTier], heroId]
+    }));
+    // Modal stays open so user can add more heroes
+  };
+
+  const handleTapHeroFromTier = (heroId: number, tier: TierKey) => {
+    setTierAssignments(prev => ({
+      ...prev,
+      [tier]: prev[tier].filter(id => id !== heroId)
+    }));
+  };
+
+  const closeHeroModal = () => {
+    setShowHeroModal(false);
+    setSelectedTier(null);
   };
 
   const handleSave = async () => {
@@ -504,21 +539,48 @@ export function TierListPage() {
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
             >
-              {/* Instructions */}
+              {/* Mode Toggle & Instructions */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-6 p-4 bg-primary-500/5 border border-primary-500/10 rounded-xl"
+                className="mb-4 md:mb-6 p-3 md:p-4 bg-primary-500/5 border border-primary-500/10 rounded-xl"
               >
-                <p className="text-sm text-gray-300">
-                  <span className="text-primary-400 font-medium">Tip:</span> Drag heroes from the pool to tier rows. Drop back to pool to remove from tier.
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <p className="text-xs md:text-sm text-gray-300">
+                    <span className="text-primary-400 font-medium">Mode:</span>{' '}
+                    {editMode === 'drag' ? 'Drag & Drop' : 'Tap to Add'}
+                  </p>
+                  <div className="flex items-center gap-1 bg-dark-300/50 p-0.5 rounded-lg border border-white/5">
+                    <button
+                      onClick={() => setEditMode('tap')}
+                      className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                        editMode === 'tap' ? 'bg-primary-500 text-white' : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      Tap
+                    </button>
+                    <button
+                      onClick={() => setEditMode('drag')}
+                      className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                        editMode === 'drag' ? 'bg-primary-500 text-white' : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      Drag
+                    </button>
+                  </div>
+                </div>
+                <p className="text-[11px] md:text-xs text-gray-500">
+                  {editMode === 'drag'
+                    ? 'Hold and drag heroes to tiers. Drop back to pool to remove.'
+                    : 'Tap a tier to add heroes. Tap heroes in tiers to remove.'}
                 </p>
               </motion.div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
-                {/* Hero Pool */}
+              <div className={`grid gap-4 md:gap-6 ${editMode === 'drag' ? 'grid-cols-1 lg:grid-cols-[320px_1fr]' : 'grid-cols-1'}`}>
+                {/* Hero Pool - Only show in drag mode */}
+                {editMode === 'drag' && (
                 <div className="lg:sticky lg:top-36 lg:self-start">
-                  <div className="rounded-2xl overflow-hidden bg-dark-300/50 border border-white/5 max-h-[calc(100vh-220px)] flex flex-col">
+                  <div className="rounded-2xl overflow-hidden bg-dark-300/50 border border-white/5 max-h-[50vh] lg:max-h-[calc(100vh-220px)] flex flex-col">
                     {/* Pool Header */}
                     <div className="p-4 border-b border-white/5 space-y-3">
                       <div className="flex items-center justify-between">
@@ -559,29 +621,64 @@ export function TierListPage() {
                     </div>
 
                     {/* Pool Content */}
-                    <div className="p-3 overflow-y-auto flex-1">
-                      <DroppableTier tier="pool" heroes={filteredPoolHeroes}>
-                        <div className="grid grid-cols-4 gap-2">
+                    <div className="p-2 md:p-3 overflow-y-auto flex-1">
+                      {editMode === 'drag' ? (
+                        <DroppableTier tier="pool" heroes={filteredPoolHeroes}>
+                          <div className="grid grid-cols-5 md:grid-cols-4 gap-1.5 md:gap-2">
+                            {filteredPoolHeroes.map(hero => (
+                              <DraggableHero key={hero.heroId} hero={hero} showName />
+                            ))}
+                            {filteredPoolHeroes.length === 0 && unassignedHeroes.length > 0 && (
+                              <p className="col-span-5 md:col-span-4 text-gray-500 text-sm text-center py-6">No heroes match filter</p>
+                            )}
+                            {unassignedHeroes.length === 0 && (
+                              <div className="col-span-5 md:col-span-4 text-center py-8">
+                                <Check className="w-8 h-8 text-green-400 mx-auto mb-2" />
+                                <p className="text-green-400 text-sm font-medium">All heroes assigned!</p>
+                              </div>
+                            )}
+                          </div>
+                        </DroppableTier>
+                      ) : (
+                        <div className="grid grid-cols-5 md:grid-cols-4 gap-1.5 md:gap-2">
                           {filteredPoolHeroes.map(hero => (
-                            <DraggableHero key={hero.heroId} hero={hero} showName />
+                            <button
+                              key={hero.heroId}
+                              onClick={() => handleTapHeroFromPool(hero.heroId)}
+                              disabled={!selectedTier}
+                              className={`group relative ${!selectedTier ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                            >
+                              <div className={`w-12 h-12 md:w-14 md:h-14 rounded-xl overflow-hidden border-2 transition-all ${
+                                selectedTier ? 'border-white/10 hover:border-primary-500 hover:scale-105' : 'border-white/5'
+                              }`}>
+                                <img src={hero.icon} alt={hero.name} className="w-full h-full object-cover" />
+                              </div>
+                              <p className="text-[9px] md:text-[10px] text-gray-400 text-center mt-1 truncate w-12 md:w-14">{hero.name}</p>
+                              {selectedTier && (
+                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                  <Plus className="w-5 h-5 text-primary-400 drop-shadow-lg" />
+                                </div>
+                              )}
+                            </button>
                           ))}
                           {filteredPoolHeroes.length === 0 && unassignedHeroes.length > 0 && (
-                            <p className="col-span-4 text-gray-500 text-sm text-center py-6">No heroes match filter</p>
+                            <p className="col-span-5 md:col-span-4 text-gray-500 text-sm text-center py-6">No heroes match filter</p>
                           )}
                           {unassignedHeroes.length === 0 && (
-                            <div className="col-span-4 text-center py-8">
+                            <div className="col-span-5 md:col-span-4 text-center py-8">
                               <Check className="w-8 h-8 text-green-400 mx-auto mb-2" />
                               <p className="text-green-400 text-sm font-medium">All heroes assigned!</p>
                             </div>
                           )}
                         </div>
-                      </DroppableTier>
+                      )}
                     </div>
                   </div>
                 </div>
+                )}
 
                 {/* Tier Containers */}
-                <div className="space-y-3">
+                <div className="space-y-2 md:space-y-3">
                   {/* Downloadable area */}
                   <div ref={createTierListRef} className="space-y-3 p-4 -m-4 bg-dark-400">
                     {/* Title for download */}
@@ -601,34 +698,69 @@ export function TierListPage() {
                           initial={{ opacity: 0, x: 20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ duration: 0.3, delay: index * 0.05 }}
-                          className="rounded-2xl overflow-hidden bg-dark-300/50 border border-white/5 hover:border-white/10 transition-colors"
+                          className="rounded-2xl overflow-hidden bg-dark-300/50 border border-white/5 hover:border-white/10 transition-all"
                         >
                           <div className="flex items-stretch">
-                            {/* Tier Label */}
-                            <div className={`bg-gradient-to-br ${config.color} w-20 flex flex-col items-center justify-center flex-shrink-0 py-4`}>
-                              <span className="text-3xl font-bold text-white">{tier}</span>
+                            {/* Tier Label - clickable in tap mode */}
+                            <button
+                              onClick={() => editMode === 'tap' && handleSelectTier(tier)}
+                              className={`bg-gradient-to-br ${config.color} w-14 md:w-20 flex flex-col items-center justify-center flex-shrink-0 py-3 md:py-4 ${
+                                editMode === 'tap' ? 'cursor-pointer hover:opacity-90 active:opacity-80' : 'cursor-default'
+                              }`}
+                            >
+                              <span className="text-2xl md:text-3xl font-bold text-white">{tier}</span>
                               {count > 0 && (
-                                <span className="text-xs text-white/70 mt-1">{count}</span>
+                                <span className="text-[10px] md:text-xs text-white/70 mt-0.5 md:mt-1">{count}</span>
                               )}
-                            </div>
+                              {editMode === 'tap' && (
+                                <Plus className="w-4 h-4 text-white/70 mt-1" />
+                              )}
+                            </button>
 
-                            {/* Drop Zone */}
-                            <div className="flex-1 p-4">
-                              <DroppableTier tier={tier} heroes={tierHeroes}>
-                                <div className="flex flex-wrap gap-2 min-h-[72px]">
+                            {/* Heroes Zone */}
+                            <div className="flex-1 p-2 md:p-4">
+                              {editMode === 'drag' ? (
+                                <DroppableTier tier={tier} heroes={tierHeroes}>
+                                  <div className="flex flex-wrap gap-1.5 md:gap-2 min-h-[56px] md:min-h-[72px]">
+                                    {tierHeroes.map(hero => (
+                                      <DraggableHero key={hero.heroId} hero={hero} />
+                                    ))}
+                                    {tierHeroes.length === 0 && (
+                                      <div className="flex items-center gap-2 text-gray-500">
+                                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 border-dashed border-white/10 flex items-center justify-center">
+                                          <Plus className="w-4 md:w-5 h-4 md:h-5 text-gray-600" />
+                                        </div>
+                                        <p className="text-xs md:text-sm">Drop heroes here</p>
+                                      </div>
+                                    )}
+                                  </div>
+                                </DroppableTier>
+                              ) : (
+                                <div className="flex flex-wrap gap-1.5 md:gap-2 min-h-[56px] md:min-h-[72px]">
                                   {tierHeroes.map(hero => (
-                                    <DraggableHero key={hero.heroId} hero={hero} />
+                                    <button
+                                      key={hero.heroId}
+                                      onClick={() => handleTapHeroFromTier(hero.heroId, tier)}
+                                      className="group relative cursor-pointer"
+                                    >
+                                      <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl overflow-hidden border-2 border-white/10 hover:border-red-500 transition-all hover:scale-105">
+                                        <img src={hero.icon} alt={hero.name} className="w-full h-full object-cover" />
+                                      </div>
+                                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none bg-black/40 rounded-xl">
+                                        <X className="w-5 h-5 text-red-400 drop-shadow-lg" />
+                                      </div>
+                                    </button>
                                   ))}
                                   {tierHeroes.length === 0 && (
                                     <div className="flex items-center gap-2 text-gray-500">
-                                      <div className="w-14 h-14 rounded-xl border-2 border-dashed border-white/10 flex items-center justify-center">
-                                        <Plus className="w-5 h-5 text-gray-600" />
+                                      <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 border-dashed border-white/10 flex items-center justify-center">
+                                        <Plus className="w-4 md:w-5 h-4 md:h-5 text-gray-600" />
                                       </div>
-                                      <p className="text-sm">Drop heroes here</p>
+                                      <p className="text-xs md:text-sm">Tap tier to add</p>
                                     </div>
                                   )}
                                 </div>
-                              </DroppableTier>
+                              )}
                             </div>
                           </div>
                         </motion.div>
@@ -662,15 +794,129 @@ export function TierListPage() {
                 </div>
               </div>
 
-              <DragOverlay>
-                {activeDragHero && (
-                  <div className="w-14 h-14 rounded-xl overflow-hidden ring-2 ring-primary-500 shadow-xl shadow-primary-500/20">
-                    <img src={activeDragHero.icon} alt={activeDragHero.name} className="w-full h-full object-cover" />
-                  </div>
-                )}
-              </DragOverlay>
+              {editMode === 'drag' && (
+                <DragOverlay>
+                  {activeDragHero && (
+                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl overflow-hidden ring-2 ring-primary-500 shadow-xl shadow-primary-500/20">
+                      <img src={activeDragHero.icon} alt={activeDragHero.name} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                </DragOverlay>
+              )}
             </DndContext>
           )}
+
+          {/* Hero Selection Modal for Tap Mode */}
+          <AnimatePresence>
+            {showHeroModal && selectedTier && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/80 backdrop-blur-sm"
+                onClick={closeHeroModal}
+              >
+                <motion.div
+                  initial={{ y: '100%', opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: '100%', opacity: 0 }}
+                  transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                  className="relative w-full max-w-2xl max-h-[85vh] bg-dark-300 rounded-t-2xl md:rounded-2xl flex flex-col"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Modal Header */}
+                  <div className="flex items-center justify-between p-4 border-b border-white/5 flex-shrink-0">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br ${TIER_CONFIG[selectedTier].color}`}>
+                        <span className="text-lg font-bold text-white">{selectedTier}</span>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-white">Add Heroes to {selectedTier} Tier</h3>
+                        <p className="text-xs text-gray-400">{tierAssignments[selectedTier].length} heroes added</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={closeHeroModal}
+                      className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                    >
+                      <X className="w-5 h-5 text-gray-400" />
+                    </button>
+                  </div>
+
+                  {/* Search & Filter */}
+                  <div className="p-3 border-b border-white/5 space-y-2 flex-shrink-0">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                      <input
+                        type="text"
+                        placeholder="Search heroes..."
+                        value={poolSearch}
+                        onChange={(e) => setPoolSearch(e.target.value)}
+                        className="w-full pl-9 pr-3 py-2 bg-dark-200/50 border border-white/5 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary-500/50"
+                      />
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {roles.map(role => (
+                        <button
+                          key={role}
+                          onClick={() => setPoolRoleFilter(role)}
+                          className={`px-2 py-1 rounded-lg text-xs font-medium transition-all ${
+                            poolRoleFilter === role
+                              ? 'bg-primary-500 text-white'
+                              : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
+                          }`}
+                        >
+                          {role}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Heroes Grid */}
+                  <div className="flex-1 overflow-y-auto p-3">
+                    <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-7 gap-2">
+                      {filteredPoolHeroes.map(hero => (
+                        <button
+                          key={hero.heroId}
+                          onClick={() => handleTapHeroFromPool(hero.heroId)}
+                          className="group relative"
+                        >
+                          <div className="w-full aspect-square rounded-xl overflow-hidden border-2 border-white/10 hover:border-primary-500 transition-all hover:scale-105">
+                            <img src={hero.icon} alt={hero.name} className="w-full h-full object-cover" />
+                          </div>
+                          <p className="text-[9px] text-gray-400 text-center mt-1 truncate">{hero.name}</p>
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                            <div className="w-6 h-6 rounded-full bg-primary-500 flex items-center justify-center">
+                              <Plus className="w-4 h-4 text-white" />
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                      {filteredPoolHeroes.length === 0 && unassignedHeroes.length > 0 && (
+                        <p className="col-span-full text-gray-500 text-sm text-center py-8">No heroes match filter</p>
+                      )}
+                      {unassignedHeroes.length === 0 && (
+                        <div className="col-span-full text-center py-8">
+                          <Check className="w-8 h-8 text-green-400 mx-auto mb-2" />
+                          <p className="text-green-400 text-sm font-medium">All heroes assigned!</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Modal Footer */}
+                  <div className="p-3 border-t border-white/5 flex-shrink-0">
+                    <button
+                      onClick={closeHeroModal}
+                      className="w-full py-2.5 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-medium transition-colors"
+                    >
+                      Done
+                    </button>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* View Mode */}
           {mode === 'view' && (

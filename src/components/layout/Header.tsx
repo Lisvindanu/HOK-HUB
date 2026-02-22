@@ -77,7 +77,8 @@ export function Header() {
           <Link to="/" className="flex items-center space-x-2.5 group">
             <img
               src="/hokhub.webp"
-              alt="HoK Hub"
+              alt=""
+              aria-hidden="true"
               className="w-9 h-9 object-contain group-hover:scale-110 transition-transform duration-300"
             />
             <span className="text-xl font-display font-semibold text-white">
@@ -192,6 +193,7 @@ export function Header() {
             type="button"
             className="md:hidden p-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
           >
             {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>

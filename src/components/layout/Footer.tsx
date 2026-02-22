@@ -31,7 +31,8 @@ export function Footer() {
             <Link to="/" className="flex items-center space-x-2.5 mb-4">
               <img
                 src="/hokhub.webp"
-                alt="HoK Hub"
+                alt=""
+                aria-hidden="true"
                 className="w-10 h-10 object-contain"
               />
               <span className="text-xl font-display font-semibold text-white">
@@ -130,13 +131,13 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="py-6 border-t border-white/5">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-gray-500 text-center md:text-left">
+            <p className="text-xs text-gray-400 text-center md:text-left">
               © {currentYear} HoK Hub. All rights reserved.
               <span className="hidden sm:inline"> • </span>
               <br className="sm:hidden" />
               This site is not affiliated with or endorsed by Tencent Games or Level Infinite.
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-400">
               Honor of Kings™ is a trademark of Tencent Games.
             </p>
           </div>

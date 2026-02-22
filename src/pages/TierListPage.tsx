@@ -154,11 +154,11 @@ export function TierListPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [poolSearch, setPoolSearch] = useState('');
-  const [poolRoleFilter, setPoolRoleFilter] = useState<string>('All');
-  const [isDownloading, setIsDownloading] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
   const [editMode, setEditMode] = useState<'drag' | 'tap'>('tap');
   const [selectedTier, setSelectedTier] = useState<TierKey | null>(null);
   const [showHeroModal, setShowHeroModal] = useState(false);
+  const [tierListRole, setTierListRole] = useState<string>('All'); // Main role filter for tier list
   const tierListRef = useRef<HTMLDivElement>(null);
   const createTierListRef = useRef<HTMLDivElement>(null);
 
@@ -291,25 +291,30 @@ export function TierListPage() {
   const touchSensor = useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 8 } });
   const sensors = useSensors(pointerSensor, touchSensor);
 
+  // Heroes available for this tier list (filtered by tierListRole)
+  const availableHeroes = useMemo(() => {
+    if (!heroes) return [];
+    if (tierListRole === 'All') return heroes;
+    return heroes.filter(h => h.role === tierListRole);
+  }, [heroes, tierListRole]);
+
   const unassignedHeroIds = useMemo(() => {
-    if (!heroes) return new Set<number>();
+    if (!availableHeroes.length) return new Set<number>();
     const assignedIds = new Set(Object.values(tierAssignments).flat());
-    return new Set(heroes.map(h => h.heroId).filter(id => !assignedIds.has(id)));
-  }, [heroes, tierAssignments]);
+    return new Set(availableHeroes.map(h => h.heroId).filter(id => !assignedIds.has(id)));
+  }, [availableHeroes, tierAssignments]);
 
   const unassignedHeroes = useMemo(() => {
-    if (!heroes) return [];
-    return heroes.filter(h => unassignedHeroIds.has(h.heroId));
-  }, [heroes, unassignedHeroIds]);
+    return availableHeroes.filter(h => unassignedHeroIds.has(h.heroId));
+  }, [availableHeroes, unassignedHeroIds]);
 
-  // Filtered heroes for pool
+  // Filtered heroes for pool (search only, role is filtered by tierListRole)
   const filteredPoolHeroes = useMemo(() => {
-    return unassignedHeroes.filter(h => {
-      const matchesSearch = !poolSearch || h.name.toLowerCase().includes(poolSearch.toLowerCase());
-      const matchesRole = poolRoleFilter === 'All' || h.role === poolRoleFilter;
-      return matchesSearch && matchesRole;
-    });
-  }, [unassignedHeroes, poolSearch, poolRoleFilter]);
+    if (!poolSearch) return unassignedHeroes;
+    return unassignedHeroes.filter(h =>
+      h.name.toLowerCase().includes(poolSearch.toLowerCase())
+    );
+  }, [unassignedHeroes, poolSearch]);
 
   // Get unique roles
   const roles = useMemo(() => {
@@ -354,6 +359,8 @@ export function TierListPage() {
   const handleReset = () => {
     setTierAssignments({ 'S+': [], 'S': [], 'A': [], 'B': [], 'C': [], 'D': [] });
     setSelectedTier(null);
+    setTierListRole('All');
+    setPoolSearch('');
   };
 
   // Tap mode handlers
@@ -539,41 +546,75 @@ export function TierListPage() {
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
             >
-              {/* Mode Toggle & Instructions */}
+              {/* Role Filter & Mode Toggle */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-4 md:mb-6 p-3 md:p-4 bg-primary-500/5 border border-primary-500/10 rounded-xl"
+                className="mb-4 md:mb-6 space-y-3"
               >
-                <div className="flex items-center justify-between gap-3 mb-2">
-                  <p className="text-xs md:text-sm text-gray-300">
-                    <span className="text-primary-400 font-medium">Mode:</span>{' '}
-                    {editMode === 'drag' ? 'Drag & Drop' : 'Tap to Add'}
-                  </p>
-                  <div className="flex items-center gap-1 bg-dark-300/50 p-0.5 rounded-lg border border-white/5">
-                    <button
-                      onClick={() => setEditMode('tap')}
-                      className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
-                        editMode === 'tap' ? 'bg-primary-500 text-white' : 'text-gray-400 hover:text-white'
-                      }`}
-                    >
-                      Tap
-                    </button>
-                    <button
-                      onClick={() => setEditMode('drag')}
-                      className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
-                        editMode === 'drag' ? 'bg-primary-500 text-white' : 'text-gray-400 hover:text-white'
-                      }`}
-                    >
-                      Drag
-                    </button>
+                {/* Role Filter */}
+                <div className="p-3 md:p-4 bg-dark-300/50 border border-white/5 rounded-xl">
+                  <p className="text-xs text-gray-400 mb-2">Create tier list for:</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {roles.map(role => (
+                      <button
+                        key={role}
+                        onClick={() => {
+                          setTierListRole(role);
+                          // Reset assignments when changing role filter
+                          if (role !== tierListRole) {
+                            setTierAssignments({ 'S+': [], 'S': [], 'A': [], 'B': [], 'C': [], 'D': [] });
+                          }
+                        }}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                          tierListRole === role
+                            ? 'bg-primary-500 text-white'
+                            : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
+                        }`}
+                      >
+                        {role === 'All' ? 'All Roles' : role}
+                        {role !== 'All' && heroes && (
+                          <span className="ml-1 text-[10px] opacity-70">
+                            ({heroes.filter(h => h.role === role).length})
+                          </span>
+                        )}
+                      </button>
+                    ))}
                   </div>
                 </div>
-                <p className="text-[11px] md:text-xs text-gray-500">
-                  {editMode === 'drag'
-                    ? 'Hold and drag heroes to tiers. Drop back to pool to remove.'
-                    : 'Tap a tier to add heroes. Tap heroes in tiers to remove.'}
-                </p>
+
+                {/* Mode Toggle & Instructions */}
+                <div className="p-3 md:p-4 bg-primary-500/5 border border-primary-500/10 rounded-xl">
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <p className="text-xs md:text-sm text-gray-300">
+                      <span className="text-primary-400 font-medium">Mode:</span>{' '}
+                      {editMode === 'drag' ? 'Drag & Drop' : 'Tap to Add'}
+                    </p>
+                    <div className="flex items-center gap-1 bg-dark-300/50 p-0.5 rounded-lg border border-white/5">
+                      <button
+                        onClick={() => setEditMode('tap')}
+                        className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                          editMode === 'tap' ? 'bg-primary-500 text-white' : 'text-gray-400 hover:text-white'
+                        }`}
+                      >
+                        Tap
+                      </button>
+                      <button
+                        onClick={() => setEditMode('drag')}
+                        className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                          editMode === 'drag' ? 'bg-primary-500 text-white' : 'text-gray-400 hover:text-white'
+                        }`}
+                      >
+                        Drag
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-[11px] md:text-xs text-gray-500">
+                    {editMode === 'drag'
+                      ? 'Hold and drag heroes to tiers. Drop back to pool to remove.'
+                      : 'Tap a tier to add heroes. Tap heroes in tiers to remove.'}
+                  </p>
+                </div>
               </motion.div>
 
               <div className={`grid gap-4 md:gap-6 ${editMode === 'drag' ? 'grid-cols-1 lg:grid-cols-[320px_1fr]' : 'grid-cols-1'}`}>
@@ -602,22 +643,6 @@ export function TierListPage() {
                         />
                       </div>
 
-                      {/* Role Filter */}
-                      <div className="flex flex-wrap gap-1">
-                        {roles.map(role => (
-                          <button
-                            key={role}
-                            onClick={() => setPoolRoleFilter(role)}
-                            className={`px-2 py-1 rounded-lg text-xs font-medium transition-all ${
-                              poolRoleFilter === role
-                                ? 'bg-primary-500 text-white'
-                                : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
-                            }`}
-                          >
-                            {role}
-                          </button>
-                        ))}
-                      </div>
                     </div>
 
                     {/* Pool Content */}
@@ -683,7 +708,9 @@ export function TierListPage() {
                   <div ref={createTierListRef} className="space-y-3 p-4 -m-4 bg-dark-400">
                     {/* Title for download */}
                     <div className="pb-3 border-b border-white/10 hidden" id="create-tier-title">
-                      <h3 className="text-xl font-bold text-white">My Tier List</h3>
+                      <h3 className="text-xl font-bold text-white">
+                        {tierListRole === 'All' ? 'My Tier List' : `${tierListRole} Tier List`}
+                      </h3>
                       <p className="text-sm text-gray-400 mt-1">HoK Hub</p>
                     </div>
 
@@ -777,16 +804,18 @@ export function TierListPage() {
                   {/* Summary - outside downloadable area */}
                   <div className="mt-6 p-4 bg-dark-300/30 rounded-xl border border-white/5">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-400">Total assigned:</span>
+                      <span className="text-gray-400">
+                        {tierListRole === 'All' ? 'Total assigned:' : `${tierListRole} assigned:`}
+                      </span>
                       <span className="text-white font-medium">
-                        {Object.values(tierAssignments).flat().length} / {heroes?.length || 0} heroes
+                        {Object.values(tierAssignments).flat().length} / {availableHeroes.length} heroes
                       </span>
                     </div>
                     <div className="mt-3 h-2 bg-dark-200 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-primary-500 to-blue-500 transition-all duration-300"
                         style={{
-                          width: `${(Object.values(tierAssignments).flat().length / (heroes?.length || 1)) * 100}%`
+                          width: `${(Object.values(tierAssignments).flat().length / (availableHeroes.length || 1)) * 100}%`
                         }}
                       />
                     </div>
@@ -831,8 +860,12 @@ export function TierListPage() {
                         <span className="text-lg font-bold text-white">{selectedTier}</span>
                       </div>
                       <div>
-                        <h3 className="font-semibold text-white">Add Heroes to {selectedTier} Tier</h3>
-                        <p className="text-xs text-gray-400">{tierAssignments[selectedTier].length} heroes added</p>
+                        <h3 className="font-semibold text-white">
+                          Add {tierListRole !== 'All' && <span className="text-primary-400">{tierListRole}</span>} to {selectedTier}
+                        </h3>
+                        <p className="text-xs text-gray-400">
+                          {tierAssignments[selectedTier].length} added • {unassignedHeroes.length} remaining
+                        </p>
                       </div>
                     </div>
                     <button
@@ -843,32 +876,17 @@ export function TierListPage() {
                     </button>
                   </div>
 
-                  {/* Search & Filter */}
-                  <div className="p-3 border-b border-white/5 space-y-2 flex-shrink-0">
+                  {/* Search */}
+                  <div className="p-3 border-b border-white/5 flex-shrink-0">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                       <input
                         type="text"
-                        placeholder="Search heroes..."
+                        placeholder={`Search ${tierListRole !== 'All' ? tierListRole.toLowerCase() + 's' : 'heroes'}...`}
                         value={poolSearch}
                         onChange={(e) => setPoolSearch(e.target.value)}
                         className="w-full pl-9 pr-3 py-2 bg-dark-200/50 border border-white/5 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary-500/50"
                       />
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {roles.map(role => (
-                        <button
-                          key={role}
-                          onClick={() => setPoolRoleFilter(role)}
-                          className={`px-2 py-1 rounded-lg text-xs font-medium transition-all ${
-                            poolRoleFilter === role
-                              ? 'bg-primary-500 text-white'
-                              : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
-                          }`}
-                        >
-                          {role}
-                        </button>
-                      ))}
                     </div>
                   </div>
 

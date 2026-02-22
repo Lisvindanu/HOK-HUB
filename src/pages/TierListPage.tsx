@@ -158,7 +158,7 @@ export function TierListPage() {
   const [editMode, setEditMode] = useState<'drag' | 'tap'>('tap');
   const [selectedTier, setSelectedTier] = useState<TierKey | null>(null);
   const [showHeroModal, setShowHeroModal] = useState(false);
-  const [tierListRole, setTierListRole] = useState<string>('All'); // Main role filter for tier list
+  const [tierListLane, setTierListLane] = useState<string>('All'); // Main lane filter for tier list
   const tierListRef = useRef<HTMLDivElement>(null);
   const createTierListRef = useRef<HTMLDivElement>(null);
 
@@ -291,12 +291,12 @@ export function TierListPage() {
   const touchSensor = useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 8 } });
   const sensors = useSensors(pointerSensor, touchSensor);
 
-  // Heroes available for this tier list (filtered by tierListRole)
+  // Heroes available for this tier list (filtered by tierListLane)
   const availableHeroes = useMemo(() => {
     if (!heroes) return [];
-    if (tierListRole === 'All') return heroes;
-    return heroes.filter(h => h.role === tierListRole);
-  }, [heroes, tierListRole]);
+    if (tierListLane === 'All') return heroes;
+    return heroes.filter(h => h.lane === tierListLane);
+  }, [heroes, tierListLane]);
 
   const unassignedHeroIds = useMemo(() => {
     if (!availableHeroes.length) return new Set<number>();
@@ -316,11 +316,11 @@ export function TierListPage() {
     );
   }, [unassignedHeroes, poolSearch]);
 
-  // Get unique roles
-  const roles = useMemo(() => {
+  // Get unique lanes
+  const lanes = useMemo(() => {
     if (!heroes) return [];
-    const roleSet = new Set(heroes.map(h => h.role));
-    return ['All', ...Array.from(roleSet).sort()];
+    const laneSet = new Set(heroes.map(h => h.lane));
+    return ['All', ...Array.from(laneSet).sort()];
   }, [heroes]);
 
   // Count heroes per tier
@@ -359,7 +359,7 @@ export function TierListPage() {
   const handleReset = () => {
     setTierAssignments({ 'S+': [], 'S': [], 'A': [], 'B': [], 'C': [], 'D': [] });
     setSelectedTier(null);
-    setTierListRole('All');
+    setTierListLane('All');
     setPoolSearch('');
   };
 
@@ -552,30 +552,30 @@ export function TierListPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-4 md:mb-6 space-y-3"
               >
-                {/* Role Filter */}
+                {/* Lane Filter */}
                 <div className="p-3 md:p-4 bg-dark-300/50 border border-white/5 rounded-xl">
                   <p className="text-xs text-gray-400 mb-2">Create tier list for:</p>
                   <div className="flex flex-wrap gap-1.5">
-                    {roles.map(role => (
+                    {lanes.map(lane => (
                       <button
-                        key={role}
+                        key={lane}
                         onClick={() => {
-                          setTierListRole(role);
-                          // Reset assignments when changing role filter
-                          if (role !== tierListRole) {
+                          setTierListLane(lane);
+                          // Reset assignments when changing lane filter
+                          if (lane !== tierListLane) {
                             setTierAssignments({ 'S+': [], 'S': [], 'A': [], 'B': [], 'C': [], 'D': [] });
                           }
                         }}
                         className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                          tierListRole === role
+                          tierListLane === lane
                             ? 'bg-primary-500 text-white'
                             : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        {role === 'All' ? 'All Roles' : role}
-                        {role !== 'All' && heroes && (
+                        {lane === 'All' ? 'All Lanes' : lane.replace(' Lane', '')}
+                        {lane !== 'All' && heroes && (
                           <span className="ml-1 text-[10px] opacity-70">
-                            ({heroes.filter(h => h.role === role).length})
+                            ({heroes.filter(h => h.lane === lane).length})
                           </span>
                         )}
                       </button>
@@ -709,7 +709,7 @@ export function TierListPage() {
                     {/* Title for download */}
                     <div className="pb-3 border-b border-white/10 hidden" id="create-tier-title">
                       <h3 className="text-xl font-bold text-white">
-                        {tierListRole === 'All' ? 'My Tier List' : `${tierListRole} Tier List`}
+                        {tierListLane === 'All' ? 'My Tier List' : `${tierListLane.replace(' Lane', '')} Tier List`}
                       </h3>
                       <p className="text-sm text-gray-400 mt-1">HoK Hub</p>
                     </div>
@@ -805,7 +805,7 @@ export function TierListPage() {
                   <div className="mt-6 p-4 bg-dark-300/30 rounded-xl border border-white/5">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-400">
-                        {tierListRole === 'All' ? 'Total assigned:' : `${tierListRole} assigned:`}
+                        {tierListLane === 'All' ? 'Total assigned:' : `${tierListLane.replace(' Lane', '')} assigned:`}
                       </span>
                       <span className="text-white font-medium">
                         {Object.values(tierAssignments).flat().length} / {availableHeroes.length} heroes
@@ -861,7 +861,7 @@ export function TierListPage() {
                       </div>
                       <div>
                         <h3 className="font-semibold text-white">
-                          Add {tierListRole !== 'All' && <span className="text-primary-400">{tierListRole}</span>} to {selectedTier}
+                          Add {tierListLane !== 'All' && <span className="text-primary-400">{tierListLane.replace(' Lane', '')}</span>} to {selectedTier}
                         </h3>
                         <p className="text-xs text-gray-400">
                           {tierAssignments[selectedTier].length} added • {unassignedHeroes.length} remaining
@@ -882,7 +882,7 @@ export function TierListPage() {
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                       <input
                         type="text"
-                        placeholder={`Search ${tierListRole !== 'All' ? tierListRole.toLowerCase() + 's' : 'heroes'}...`}
+                        placeholder={`Search ${tierListLane !== 'All' ? tierListLane.replace(' Lane', '').toLowerCase() + ' heroes' : 'heroes'}...`}
                         value={poolSearch}
                         onChange={(e) => setPoolSearch(e.target.value)}
                         className="w-full pl-9 pr-3 py-2 bg-dark-200/50 border border-white/5 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary-500/50"

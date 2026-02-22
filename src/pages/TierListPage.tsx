@@ -796,7 +796,7 @@ export function TierListPage() {
 
                     {/* Watermark for download */}
                     <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs text-gray-500">
-                      <span>hokhub.com</span>
+                      <span>hok-hub.project-n.site</span>
                       <span>{new Date().toLocaleDateString()}</span>
                     </div>
                   </div>
@@ -1215,7 +1215,7 @@ export function TierListPage() {
 
                   {/* Watermark */}
                   <div className="pt-3 mt-3 border-t border-white/10 flex items-center justify-between text-xs text-gray-500">
-                    <span>hokhub.com</span>
+                    <span>hok-hub.project-n.site</span>
                     <span>{new Date(selectedTierList.createdAt).toLocaleDateString()}</span>
                   </div>
                 </div>

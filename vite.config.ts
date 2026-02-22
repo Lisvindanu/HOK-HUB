@@ -5,6 +5,19 @@ import { TanStackRouterVite } from '@tanstack/router-vite-plugin'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), TanStackRouterVite()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-router': ['@tanstack/react-router', '@tanstack/react-query'],
+          'vendor-motion': ['framer-motion'],
+          'vendor-charts': ['recharts'],
+          'vendor-icons': ['lucide-react'],
+          'vendor-utils': ['clsx', 'html2canvas'],
+        },
+      },
+    },
+  },
   server: {
     proxy: {
       '/api': {

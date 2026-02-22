@@ -53,7 +53,92 @@ const LANES = [
   { value: 'Roam', label: 'Roam', icon: Map, color: 'text-blue-400' },
 ];
 
-const TIERS = ['Epic', 'Legendary', 'Limited', 'Rare', 'Common'];
+// Skin tier definitions
+const TIERS = [
+  { value: 'Flawless', label: 'Flawless', color: '#F472B6' },
+  { value: 'Mythic', label: 'Mythic', color: '#EF4444' },
+  { value: 'Precious', label: 'Precious', color: '#EC4899' },
+  { value: 'Legend', label: 'Legend', color: '#F59E0B' },
+  { value: 'Epic', label: 'Epic', color: '#8B5CF6' },
+  { value: 'Rare', label: 'Rare', color: '#3B82F6' },
+  { value: 'No Tag', label: 'No Tag', color: '#9CA3AF' },
+];
+
+// Collaboration series
+const COLLAB_SERIES = [
+  'DETECTIVE CONAN',
+  'PRETTY GUARDIAN SAILOR MOON COSMOS THE MOVIE COLLAB',
+  'SNK',
+  'JUJUTSU KAISEN',
+  'BLEACH',
+  'SANRIO CHARACTERS',
+  'FROZEN',
+  'SAINT SEIYA',
+  'LORD OF THE MYSTERIES',
+];
+
+// Series to tier auto-mapping
+const SERIES_TIER_MAP: Record<string, string> = {
+  // Collaboration - typically Epic
+  'DETECTIVE CONAN': 'Epic',
+  'PRETTY GUARDIAN SAILOR MOON COSMOS THE MOVIE COLLAB': 'Epic',
+  'SNK': 'Epic',
+  'JUJUTSU KAISEN': 'Epic',
+  'BLEACH': 'Epic',
+  'SANRIO CHARACTERS': 'Epic',
+  'FROZEN': 'Epic',
+  'SAINT SEIYA': 'Epic',
+  'LORD OF THE MYSTERIES': 'Epic',
+  // Legend tier series
+  'HELLFIRE': 'Legend',
+  'LIMBO': 'Legend',
+  'FIVE HONORS': 'Legend',
+  'FIVE TIGER GENERALS': 'Legend',
+  'FIVE MOUNTAINS': 'Legend',
+  'DUNHUANG ENCOUNTER': 'Legend',
+  "SHI YI'S TALE": 'Legend',
+  'AMPED UP: TRUE HERTZ': 'Legend',
+  'EWC': 'Legend',
+  // Epic tier series
+  'FUTURE ERA': 'Epic',
+  'DOOMSDAY MECHA': 'Epic',
+  'COSMIC SONG': 'Epic',
+  'SPACE ODYSSEY': 'Epic',
+  'INTERSTELLAR': 'Epic',
+  'MAGIC': 'Epic',
+  'JOURNEY TO THE WEST': 'Epic',
+  'GAMER': 'Epic',
+  'MANGA CROSSOVER': 'Epic',
+  'SIRIUS SQUAD': 'Epic',
+  'DRAGON HUNTER': 'Epic',
+  'YEAR OF THE DRAGON': 'Epic',
+  'NUTCRACKER MONARCH': 'Epic',
+  'CHRISTMAS CAROL': 'Epic',
+  'BEACH VACATION': 'Epic',
+  'Ascension': 'Epic',
+  // Rare tier
+  'CAMPUS DIARIES': 'Rare',
+};
+
+// Auto-detect tier from series
+function getAutoTier(series: string): string {
+  if (!series) return '';
+  const upperSeries = series.toUpperCase().trim();
+
+  // Check exact match first
+  if (SERIES_TIER_MAP[series]) return SERIES_TIER_MAP[series];
+  if (SERIES_TIER_MAP[upperSeries]) return SERIES_TIER_MAP[upperSeries];
+
+  // Check partial match for collaborations
+  for (const collab of COLLAB_SERIES) {
+    if (upperSeries.includes(collab) || collab.includes(upperSeries)) {
+      return 'Epic';
+    }
+  }
+
+  // Default to Epic for named series, empty for no series
+  return series ? 'Epic' : '';
+}
 
 export function ContributePage() {
   const { data: heroes, isLoading } = useHeroes();
@@ -330,13 +415,14 @@ export function ContributePage() {
   );
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="min-h-screen bg-dark-400">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 pt-20 md:pt-28 pb-12">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl md:text-5xl font-display font-bold mb-4">
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-3xl md:text-5xl font-display font-bold mb-2 md:mb-4">
           Contribute Data
         </h1>
-        <p className="text-gray-400 text-lg">
+        <p className="text-gray-400 text-sm md:text-lg">
           Help us complete the Honor of Kings database!
         </p>
       </div>
@@ -490,32 +576,88 @@ export function ContributePage() {
               <div>
                 <label className="block text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wide">
                   Skin Series
+                  <span className="text-xs text-gray-500 font-normal ml-2">(Type to see suggestions)</span>
                 </label>
                 <input
                   type="text"
+                  list="series-suggestions"
                   value={skinForm.skinSeries}
-                  onChange={(e) => setSkinForm({ ...skinForm, skinSeries: e.target.value })}
-                  placeholder="e.g. DETECTIVE CONAN"
+                  onChange={(e) => {
+                    const newSeries = e.target.value;
+                    const autoTier = getAutoTier(newSeries);
+                    setSkinForm({
+                      ...skinForm,
+                      skinSeries: newSeries,
+                      skinTier: autoTier || skinForm.skinTier // Keep existing if no auto-tier
+                    });
+                  }}
+                  placeholder="e.g. DETECTIVE CONAN, HELLFIRE, FUTURE ERA"
                   className="w-full px-4 py-3 bg-dark-50 border border-white/10 rounded-lg focus:outline-none focus:border-primary-500 text-white"
                 />
+                <datalist id="series-suggestions">
+                  {/* Collaborations */}
+                  <option value="DETECTIVE CONAN" />
+                  <option value="PRETTY GUARDIAN SAILOR MOON COSMOS THE MOVIE COLLAB" />
+                  <option value="SNK" />
+                  <option value="JUJUTSU KAISEN" />
+                  <option value="BLEACH" />
+                  <option value="SANRIO CHARACTERS" />
+                  <option value="FROZEN" />
+                  <option value="SAINT SEIYA" />
+                  <option value="LORD OF THE MYSTERIES" />
+                  {/* Legend Series */}
+                  <option value="HELLFIRE" />
+                  <option value="LIMBO" />
+                  <option value="FIVE HONORS" />
+                  <option value="FIVE TIGER GENERALS" />
+                  <option value="FIVE MOUNTAINS" />
+                  <option value="DUNHUANG ENCOUNTER" />
+                  <option value="AMPED UP: TRUE HERTZ" />
+                  <option value="EWC" />
+                  {/* Epic Series */}
+                  <option value="FUTURE ERA" />
+                  <option value="DOOMSDAY MECHA" />
+                  <option value="COSMIC SONG" />
+                  <option value="SPACE ODYSSEY" />
+                  <option value="INTERSTELLAR" />
+                  <option value="MAGIC" />
+                  <option value="JOURNEY TO THE WEST" />
+                  <option value="GAMER" />
+                  <option value="MANGA CROSSOVER" />
+                  <option value="SIRIUS SQUAD" />
+                  <option value="DRAGON HUNTER" />
+                  <option value="YEAR OF THE DRAGON" />
+                  <option value="CHRISTMAS CAROL" />
+                  <option value="BEACH VACATION" />
+                  <option value="Ascension" />
+                  {/* Rare Series */}
+                  <option value="CAMPUS DIARIES" />
+                </datalist>
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-300 mb-3 uppercase tracking-wide">
-                  Skin Tier (Optional)
+                  Skin Tier {skinForm.skinSeries && getAutoTier(skinForm.skinSeries) && (
+                    <span className="text-xs text-primary-400 font-normal ml-2">(Auto-detected from series)</span>
+                  )}
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
                   {TIERS.map(tier => (
                     <button
-                      key={tier}
-                      onClick={() => setSkinForm({ ...skinForm, skinTier: skinForm.skinTier === tier ? '' : tier })}
-                      className={`px-4 py-3 rounded-lg border-2 transition-all text-sm font-semibold ${
-                        skinForm.skinTier === tier
-                          ? 'border-primary-500 bg-primary-500/20 text-white'
+                      key={tier.value}
+                      onClick={() => setSkinForm({ ...skinForm, skinTier: skinForm.skinTier === tier.value ? '' : tier.value })}
+                      className={`px-3 py-2 rounded-lg border-2 transition-all text-xs font-bold uppercase tracking-wide ${
+                        skinForm.skinTier === tier.value
+                          ? 'border-current text-white'
                           : 'border-white/10 hover:border-white/20 text-gray-400'
                       }`}
+                      style={skinForm.skinTier === tier.value ? {
+                        borderColor: tier.color,
+                        backgroundColor: `${tier.color}33`,
+                        color: tier.color
+                      } : {}}
                     >
-                      {tier}
+                      {tier.label}
                     </button>
                   ))}
                 </div>
@@ -825,6 +967,7 @@ export function ContributePage() {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

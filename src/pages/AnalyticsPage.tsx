@@ -145,8 +145,8 @@ export function AnalyticsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-dark-400 pt-28 pb-12">
-        <div className="container mx-auto px-6 lg:px-8">
+      <div className="min-h-screen bg-dark-400 pt-20 md:pt-28 pb-12">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8">
           <Loading message="Loading analytics..." />
         </div>
       </div>
@@ -156,22 +156,22 @@ export function AnalyticsPage() {
   return (
     <div className="min-h-screen bg-dark-400">
       {/* Header */}
-      <section className="pt-28 pb-8 border-b border-white/5">
-        <div className="container mx-auto px-6 lg:px-8">
+      <section className="pt-20 md:pt-28 pb-6 md:pb-8 border-b border-white/5">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
-                <BarChart3 className="w-6 h-6 text-white" />
+            <div className="flex items-center gap-2.5 md:gap-3 mb-3 md:mb-4">
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
+                <BarChart3 className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl md:text-4xl font-display font-bold text-white">
+                <h1 className="text-2xl md:text-4xl font-display font-bold text-white">
                   Analytics
                 </h1>
-                <p className="text-gray-400 text-sm">
+                <p className="text-gray-400 text-xs md:text-sm">
                   Comprehensive statistics across all heroes
                 </p>
               </div>
@@ -181,9 +181,9 @@ export function AnalyticsPage() {
       </section>
 
       {/* Overview Stats */}
-      <section className="py-8">
-        <div className="container mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <section className="py-6 md:py-8">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
             {[
               { label: 'Total Heroes', value: overallStats.totalHeroes, icon: Users, color: 'blue' },
               { label: 'Avg Win Rate', value: `${overallStats.avgWinRate}%`, icon: Award, color: 'green' },

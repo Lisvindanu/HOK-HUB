@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { CheckCircle, XCircle, Eye, Clock, AlertCircle, LogIn, History, Filter, Users, FileText, User, Calendar } from 'lucide-react';
+import { CheckCircle, XCircle, Eye, Clock, AlertCircle, LogIn, History, Filter, Users, User, Calendar } from 'lucide-react';
 
 interface Contribution {
   id: string;

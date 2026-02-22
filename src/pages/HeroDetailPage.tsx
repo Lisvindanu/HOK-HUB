@@ -51,7 +51,7 @@ export function HeroDetailPage() {
         </div>
 
         {/* Content */}
-        <div className="relative container mx-auto px-6 lg:px-8 pt-28 pb-8">
+        <div className="relative container mx-auto px-4 md:px-6 lg:px-8 pt-20 md:pt-28 pb-6 md:pb-8">
           {/* Back Button */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -134,21 +134,21 @@ export function HeroDetailPage() {
       </section>
 
       {/* Content Grid */}
-      <section className="py-8">
-        <div className="container mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <section className="py-6 md:py-8">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
             {/* Main Content */}
-            <div className="lg:col-span-2 space-y-8">
+            <div className="lg:col-span-2 space-y-6 md:space-y-8">
               {/* Attributes */}
               {hasAttributes && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.2 }}
-                  className="p-6 bg-dark-300/50 border border-white/5 rounded-2xl"
+                  className="p-4 md:p-6 bg-dark-300/50 border border-white/5 rounded-2xl"
                 >
-                  <h2 className="text-xl font-semibold text-white mb-6">Attributes</h2>
-                  <div className="grid grid-cols-2 gap-6">
+                  <h2 className="text-lg md:text-xl font-semibold text-white mb-4 md:mb-6">Attributes</h2>
+                  <div className="grid grid-cols-2 gap-4 md:gap-6">
                     <AttributeBar
                       icon={Shield}
                       label="Survival"
@@ -183,13 +183,13 @@ export function HeroDetailPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.3 }}
-                  className="p-6 bg-dark-300/50 border border-white/5 rounded-2xl"
+                  className="p-4 md:p-6 bg-dark-300/50 border border-white/5 rounded-2xl"
                 >
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-semibold text-white">Skins</h2>
-                    <span className="text-sm text-gray-500">{hero.skins.length} available</span>
+                  <div className="flex items-center justify-between mb-4 md:mb-6">
+                    <h2 className="text-lg md:text-xl font-semibold text-white">Skins</h2>
+                    <span className="text-xs md:text-sm text-gray-500">{hero.skins.length} available</span>
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
                     {hero.skins.map((skin, index) => (
                       <button
                         key={index}
@@ -206,6 +206,34 @@ export function HeroDetailPage() {
                             }}
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-dark-400 via-transparent to-transparent" />
+
+                          {/* Tier Badge */}
+                          {skin.tierName && (
+                            <div
+                              className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide shadow-lg"
+                              style={{
+                                backgroundColor: skin.tierColor || '#8B5CF6',
+                                color: '#fff',
+                                textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                              }}
+                            >
+                              {skin.tierName}
+                            </div>
+                          )}
+
+                          {/* Collab Badge */}
+                          {skin.collab && (
+                            <div
+                              className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide shadow-lg"
+                              style={{
+                                backgroundColor: skin.collab.color || '#FFD700',
+                                color: '#fff',
+                                textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                              }}
+                            >
+                              {skin.collab.name}
+                            </div>
+                          )}
 
                           {/* Skin name */}
                           <div className="absolute bottom-0 left-0 right-0 p-3">
@@ -224,19 +252,179 @@ export function HeroDetailPage() {
                   </div>
                 </motion.div>
               )}
+
+              {/* Skills Section */}
+              {hero.skill && hero.skill.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.32 }}
+                  className="p-4 md:p-6 bg-dark-300/50 border border-white/5 rounded-2xl"
+                >
+                  <h2 className="text-lg md:text-xl font-semibold text-white mb-4 md:mb-6">Skills</h2>
+                  <div className="space-y-3 md:space-y-4">
+                    {hero.skill.map((skill, index) => (
+                      <div
+                        key={index}
+                        className="flex gap-3 md:gap-4 p-3 md:p-4 bg-dark-200/50 rounded-xl border border-white/5 hover:border-primary-500/20 transition-all"
+                      >
+                        <div className="flex-shrink-0">
+                          <img
+                            src={skill.skillImg}
+                            alt={skill.skillName}
+                            className="w-12 h-12 md:w-14 md:h-14 rounded-xl border border-white/10"
+                            onError={(e) => {
+                              e.currentTarget.src = 'https://via.placeholder.com/56?text=?';
+                            }}
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="text-sm font-semibold text-white">
+                              {index === 0 ? 'Passive' : `Skill ${index}`}: {skill.skillName}
+                            </h3>
+                          </div>
+                          <p className="text-xs text-gray-400 leading-relaxed line-clamp-3">
+                            {skill.skillDesc}
+                          </p>
+                          <div className="flex gap-4 mt-2">
+                            {skill.cooldown && skill.cooldown[0] > 0 && (
+                              <span className="text-[10px] text-blue-400">
+                                CD: {skill.cooldown.join('/')}s
+                              </span>
+                            )}
+                            {skill.cost && skill.cost[0] > 0 && (
+                              <span className="text-[10px] text-cyan-400">
+                                Cost: {skill.cost.join('/')}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Arcana Section */}
+              {hero.arcana && hero.arcana.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.35 }}
+                  className="p-4 md:p-6 bg-dark-300/50 border border-white/5 rounded-2xl"
+                >
+                  <div className="flex items-center justify-between mb-4 md:mb-6">
+                    <h2 className="text-lg md:text-xl font-semibold text-white">Recommended Arcana</h2>
+                    <span className="text-xs md:text-sm text-gray-500">{hero.arcana.length} slots</span>
+                  </div>
+                  <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 gap-2 md:gap-3">
+                    {hero.arcana.map((arcana, index) => (
+                      <div
+                        key={index}
+                        className="group relative bg-dark-200/50 rounded-xl p-2 md:p-3 border border-white/5 hover:border-primary-500/30 transition-all"
+                      >
+                        <div className="flex flex-col items-center text-center">
+                          <img
+                            src={arcana.icon}
+                            alt={arcana.name}
+                            className="w-10 h-10 md:w-12 md:h-12 rounded-lg mb-1.5 md:mb-2"
+                            onError={(e) => {
+                              e.currentTarget.src = 'https://via.placeholder.com/48?text=?';
+                            }}
+                          />
+                          <p className="text-xs font-medium text-white line-clamp-2">{arcana.name}</p>
+                          <p className="text-[10px] text-gray-500 mt-1">Lv.{arcana.level}</p>
+                        </div>
+                        {/* Tooltip */}
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 bg-dark-400 border border-white/10 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 pointer-events-none">
+                          <p className="text-xs text-white font-medium mb-1">{arcana.name}</p>
+                          <p className="text-[10px] text-gray-400 whitespace-pre-line">{arcana.description}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Equipment Section */}
+              {hero.recommendedEquipment && hero.recommendedEquipment.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.4 }}
+                  className="p-4 md:p-6 bg-dark-300/50 border border-white/5 rounded-2xl"
+                >
+                  <div className="flex items-center justify-between mb-4 md:mb-6">
+                    <div>
+                      <h2 className="text-lg md:text-xl font-semibold text-white">Recommended Build</h2>
+                      {hero.buildTitle && (
+                        <p className="text-xs md:text-sm text-gray-500 mt-1">{hero.buildTitle}</p>
+                      )}
+                    </div>
+                    <span className="text-xs md:text-sm text-gray-500">{hero.recommendedEquipment.length} items</span>
+                  </div>
+                  <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-12 gap-2">
+                    {hero.recommendedEquipment.map((item, index) => (
+                      <div
+                        key={index}
+                        className="group relative"
+                      >
+                        <div className={`relative bg-dark-200/50 rounded-xl p-2 border transition-all ${
+                          item.isCore
+                            ? 'border-yellow-500/50 ring-1 ring-yellow-500/20'
+                            : 'border-white/5 hover:border-primary-500/30'
+                        }`}>
+                          <img
+                            src={item.icon}
+                            alt={item.name}
+                            className="w-full aspect-square rounded-lg"
+                            onError={(e) => {
+                              e.currentTarget.src = 'https://via.placeholder.com/48?text=?';
+                            }}
+                          />
+                          {item.isCore && (
+                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center">
+                              <span className="text-[8px] text-black font-bold">★</span>
+                            </div>
+                          )}
+                        </div>
+                        {/* Tooltip */}
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-3 bg-dark-400 border border-white/10 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 pointer-events-none">
+                          <div className="flex items-start gap-2 mb-2">
+                            <img src={item.icon} alt="" className="w-8 h-8 rounded" />
+                            <div>
+                              <p className="text-sm text-white font-medium">{item.name}</p>
+                              <p className="text-xs text-yellow-500">{item.price} gold</p>
+                            </div>
+                          </div>
+                          <p className="text-[10px] text-gray-400 whitespace-pre-line">{item.description}</p>
+                          {item.passiveSkills && item.passiveSkills.length > 0 && (
+                            <div className="mt-2 pt-2 border-t border-white/10">
+                              {item.passiveSkills.map((passive, i) => (
+                                <p key={i} className="text-[10px] text-primary-400">{passive.name}</p>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               {/* Lore */}
               {hero.world && (hero.world.region || hero.world.identity) && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.2 }}
-                  className="p-6 bg-dark-300/50 border border-white/5 rounded-2xl"
+                  className="p-4 md:p-6 bg-dark-300/50 border border-white/5 rounded-2xl"
                 >
-                  <h2 className="text-lg font-semibold text-white mb-4">Lore</h2>
+                  <h2 className="text-base md:text-lg font-semibold text-white mb-3 md:mb-4">Lore</h2>
                   <div className="space-y-4">
                     {hero.world.region && (
                       <div>
@@ -272,11 +460,11 @@ export function HeroDetailPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.25 }}
-                  className="p-6 bg-dark-300/50 border border-white/5 rounded-2xl"
+                  className="p-4 md:p-6 bg-dark-300/50 border border-white/5 rounded-2xl"
                 >
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-2 mb-3 md:mb-4">
                     <Users className="w-4 h-4 text-blue-400" />
-                    <h2 className="text-lg font-semibold text-white">Best Partners</h2>
+                    <h2 className="text-base md:text-lg font-semibold text-white">Best Partners</h2>
                   </div>
                   <div className="space-y-2">
                     {Object.values(hero.bestPartners).slice(0, 5).map((partner, index) => (
@@ -299,11 +487,11 @@ export function HeroDetailPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.3 }}
-                  className="p-6 bg-dark-300/50 border border-white/5 rounded-2xl"
+                  className="p-4 md:p-6 bg-dark-300/50 border border-white/5 rounded-2xl"
                 >
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-2 mb-3 md:mb-4">
                     <Crosshair className="w-4 h-4 text-green-400" />
-                    <h2 className="text-lg font-semibold text-white">Strong Against</h2>
+                    <h2 className="text-base md:text-lg font-semibold text-white">Strong Against</h2>
                   </div>
                   <div className="space-y-2">
                     {Object.values(hero.suppressingHeroes).slice(0, 5).map((counter, index) => (
@@ -326,11 +514,11 @@ export function HeroDetailPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.35 }}
-                  className="p-6 bg-dark-300/50 border border-white/5 rounded-2xl"
+                  className="p-4 md:p-6 bg-dark-300/50 border border-white/5 rounded-2xl"
                 >
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-2 mb-3 md:mb-4">
                     <Shield className="w-4 h-4 text-red-400" />
-                    <h2 className="text-lg font-semibold text-white">Weak Against</h2>
+                    <h2 className="text-base md:text-lg font-semibold text-white">Weak Against</h2>
                   </div>
                   <div className="space-y-2">
                     {Object.values(hero.suppressedHeroes).slice(0, 5).map((counter, index) => (
@@ -358,13 +546,13 @@ export function HeroDetailPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 md:bg-black/90 backdrop-blur-sm"
             onClick={() => setSelectedSkinIndex(null)}
           >
             {/* Close button */}
             <button
               onClick={() => setSelectedSkinIndex(null)}
-              className="absolute top-6 right-6 z-10 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+              className="absolute top-4 right-4 md:top-6 md:right-6 z-10 p-2 md:p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -376,9 +564,9 @@ export function HeroDetailPage() {
                   e.stopPropagation();
                   setSelectedSkinIndex(selectedSkinIndex - 1);
                 }}
-                className="absolute left-6 z-10 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+                className="absolute left-2 md:left-6 z-10 p-2 md:p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
               >
-                <ChevronLeft className="w-6 h-6" />
+                <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
               </button>
             )}
 
@@ -389,9 +577,9 @@ export function HeroDetailPage() {
                   e.stopPropagation();
                   setSelectedSkinIndex(selectedSkinIndex + 1);
                 }}
-                className="absolute right-6 z-10 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+                className="absolute right-2 md:right-6 z-10 p-2 md:p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
               >
-                <ChevronRight className="w-6 h-6" />
+                <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
               </button>
             )}
 
@@ -400,11 +588,11 @@ export function HeroDetailPage() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="relative max-w-4xl w-full mx-4"
+              className="relative max-w-4xl w-full mx-2 md:mx-4"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Image */}
-              <div className="relative rounded-2xl overflow-hidden">
+              <div className="relative rounded-xl md:rounded-2xl overflow-hidden">
                 <img
                   src={
                     hero.skins[selectedSkinIndex].skinCover ||
@@ -413,7 +601,7 @@ export function HeroDetailPage() {
                     ''
                   }
                   alt={hero.skins[selectedSkinIndex].skinName}
-                  className="w-full max-h-[70vh] object-contain"
+                  className="w-full max-h-[60vh] md:max-h-[70vh] object-contain"
                   onError={(e) => {
                     e.currentTarget.src = 'https://via.placeholder.com/800x1200?text=No+Image';
                   }}
@@ -421,27 +609,51 @@ export function HeroDetailPage() {
               </div>
 
               {/* Info */}
-              <div className="mt-6 text-center">
-                <h3 className="text-2xl font-semibold text-white">
+              <div className="mt-4 md:mt-6 text-center px-2">
+                <div className="flex items-center justify-center gap-2 md:gap-3 mb-2">
+                  {hero.skins[selectedSkinIndex].tierName && (
+                    <span
+                      className="px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wide"
+                      style={{
+                        backgroundColor: hero.skins[selectedSkinIndex].tierColor || '#8B5CF6',
+                        color: '#fff'
+                      }}
+                    >
+                      {hero.skins[selectedSkinIndex].tierName}
+                    </span>
+                  )}
+                  {hero.skins[selectedSkinIndex].collab && (
+                    <span
+                      className="px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wide"
+                      style={{
+                        backgroundColor: hero.skins[selectedSkinIndex].collab.color || '#FFD700',
+                        color: '#fff'
+                      }}
+                    >
+                      {hero.skins[selectedSkinIndex].collab.name}
+                    </span>
+                  )}
+                </div>
+                <h3 className="text-lg md:text-2xl font-semibold text-white">
                   {hero.skins[selectedSkinIndex].skinName}
                 </h3>
                 {hero.skins[selectedSkinIndex].skinSeries && (
-                  <p className="text-primary-400 mt-1">
+                  <p className="text-sm md:text-base text-primary-400 mt-1">
                     {hero.skins[selectedSkinIndex].skinSeries}
                   </p>
                 )}
-                <p className="text-sm text-gray-500 mt-2">
+                <p className="text-xs md:text-sm text-gray-500 mt-2">
                   {selectedSkinIndex + 1} of {hero.skins.length}
                 </p>
               </div>
 
               {/* Thumbnail navigation */}
-              <div className="mt-6 flex justify-center gap-2 overflow-x-auto pb-2">
+              <div className="mt-4 md:mt-6 flex justify-center gap-1.5 md:gap-2 overflow-x-auto pb-2 px-2">
                 {hero.skins.map((skin, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedSkinIndex(index)}
-                    className={`flex-shrink-0 w-16 h-20 rounded-lg overflow-hidden transition-all ${
+                    className={`flex-shrink-0 w-12 h-16 md:w-16 md:h-20 rounded-lg overflow-hidden transition-all ${
                       index === selectedSkinIndex
                         ? 'ring-2 ring-primary-500 opacity-100'
                         : 'opacity-40 hover:opacity-70'

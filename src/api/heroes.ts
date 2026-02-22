@@ -45,3 +45,48 @@ export async function fetchHealthCheck(): Promise<any> {
 
   return response.json();
 }
+
+// Adjustments/Patch Notes types
+export interface SkillChange {
+  skillName: string;
+  skillIcon: string;
+  skillIndex: string;
+  title: string;
+  description: string;
+  descriptionText: string;
+}
+
+export interface HeroAdjustment {
+  heroId: number;
+  heroName: string;
+  heroIcon: string;
+  shortDesc: string;
+  type: 'Stat Buffs' | 'Stat Changes' | 'Stat Nerfs' | string;
+  tagEnum: number;
+  tagColor: string;
+  stats: {
+    winRate: number;
+    pickRate: number;
+    banRate: number;
+  };
+  skillChanges: SkillChange[];
+}
+
+export interface AdjustmentsResponse {
+  scrapedAt: string;
+  season: {
+    id: string;
+    name: string;
+  };
+  adjustments: HeroAdjustment[];
+}
+
+export async function fetchAdjustments(): Promise<AdjustmentsResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/adjustments`);
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch adjustments');
+  }
+
+  return response.json();
+}

@@ -61,20 +61,21 @@ export function ContributorsPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 pt-20 md:pt-28 pb-12">
         <Loading message="Loading contributors..." />
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="min-h-screen bg-dark-400">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 pt-20 md:pt-28 pb-12">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl md:text-5xl font-display font-bold mb-4">
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-3xl md:text-5xl font-display font-bold mb-2 md:mb-4">
           Top Contributors
         </h1>
-        <p className="text-gray-400 text-lg">
+        <p className="text-gray-400 text-sm md:text-lg">
           Community members who help keep HoK Hub up-to-date
         </p>
       </div>
@@ -300,6 +301,7 @@ export function ContributorsPage() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

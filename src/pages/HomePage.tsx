@@ -52,19 +52,19 @@ export function HomePage() {
         </div>
 
         {/* Content */}
-        <div className="relative z-10 container mx-auto px-6 lg:px-8 text-center pt-20">
+        <div className="relative z-10 container mx-auto px-4 md:px-6 lg:px-8 text-center pt-16 md:pt-20">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
           >
             {/* Badge */}
-            <div className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full mb-8">
-              <span className="text-sm text-white/90 font-medium">Your Ultimate HoK Companion</span>
+            <div className="inline-flex items-center px-3 md:px-4 py-1.5 md:py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full mb-6 md:mb-8">
+              <span className="text-xs md:text-sm text-white/90 font-medium">Your Ultimate HoK Companion</span>
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-bold text-white mb-6 tracking-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-display font-bold text-white mb-4 md:mb-6 tracking-tight">
               <span className="block">Master the</span>
               <span className="block bg-gradient-to-r from-primary-400 via-primary-300 to-blue-400 bg-clip-text text-transparent">
                 Meta
@@ -72,34 +72,34 @@ export function HomePage() {
             </h1>
 
             {/* Subtitle */}
-            <p className="text-lg sm:text-xl text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed">
+            <p className="text-base md:text-lg lg:text-xl text-white/70 max-w-2xl mx-auto mb-8 md:mb-10 leading-relaxed px-4">
               Everything you need to dominate Honor of Kings.
               Hero stats, tier lists, counters, and more.
             </p>
 
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            {/* CTAs - Stack on mobile */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 px-4">
               <Link
                 to="/heroes"
-                className="group flex items-center gap-3 px-8 py-4 bg-white text-dark-400 rounded-2xl text-lg font-semibold hover:bg-gray-100 transition-all duration-300"
+                className="group w-full sm:w-auto flex items-center justify-center gap-2 md:gap-3 px-6 md:px-8 py-3.5 md:py-4 bg-white text-dark-400 rounded-xl md:rounded-2xl text-base md:text-lg font-semibold hover:bg-gray-100 transition-all duration-300"
               >
                 <span>Explore Heroes</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 to="/tier-list"
-                className="flex items-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-sm text-white border border-white/20 rounded-2xl text-lg font-medium hover:bg-white/20 transition-all duration-300"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 md:gap-3 px-6 md:px-8 py-3.5 md:py-4 bg-white/10 backdrop-blur-sm text-white border border-white/20 rounded-xl md:rounded-2xl text-base md:text-lg font-medium hover:bg-white/20 transition-all duration-300"
               >
-                <Crown className="w-5 h-5" />
+                <Crown className="w-4 h-4 md:w-5 md:h-5" />
                 <span>View Tier List</span>
               </Link>
             </div>
           </motion.div>
         </div>
 
-        {/* Scroll Indicator */}
+        {/* Scroll Indicator - Hidden on mobile */}
         <motion.div
-          className="absolute bottom-10 left-1/2 -translate-x-1/2"
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 hidden md:block"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1, duration: 0.5 }}
@@ -112,56 +112,56 @@ export function HomePage() {
       </section>
 
       {/* Stats Section - Minimal */}
-      <section className="py-20 border-b border-white/5">
-        <div className="container mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+      <section className="py-12 md:py-20 border-b border-white/5">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 lg:gap-12">
             <motion.div
-              className="text-center"
+              className="text-center p-4 md:p-0"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              <div className="text-4xl md:text-5xl font-display font-bold text-white mb-2">
+              <div className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-white mb-1 md:mb-2">
                 {heroCount}
               </div>
-              <p className="text-gray-500 text-sm uppercase tracking-wide">Heroes</p>
+              <p className="text-gray-500 text-xs md:text-sm uppercase tracking-wide">Heroes</p>
             </motion.div>
             <motion.div
-              className="text-center"
+              className="text-center p-4 md:p-0"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.1 }}
             >
-              <div className="text-4xl md:text-5xl font-display font-bold text-white mb-2">
+              <div className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-white mb-1 md:mb-2">
                 {skinCount}+
               </div>
-              <p className="text-gray-500 text-sm uppercase tracking-wide">Skins</p>
+              <p className="text-gray-500 text-xs md:text-sm uppercase tracking-wide">Skins</p>
             </motion.div>
             <motion.div
-              className="text-center"
+              className="text-center p-4 md:p-0"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <div className="text-4xl md:text-5xl font-display font-bold text-white mb-2">
+              <div className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-white mb-1 md:mb-2">
                 6
               </div>
-              <p className="text-gray-500 text-sm uppercase tracking-wide">Roles</p>
+              <p className="text-gray-500 text-xs md:text-sm uppercase tracking-wide">Roles</p>
             </motion.div>
             <motion.div
-              className="text-center"
+              className="text-center p-4 md:p-0"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.3 }}
             >
-              <div className="text-4xl md:text-5xl font-display font-bold text-white mb-2">
+              <div className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-white mb-1 md:mb-2">
                 24/7
               </div>
-              <p className="text-gray-500 text-sm uppercase tracking-wide">Updated</p>
+              <p className="text-gray-500 text-xs md:text-sm uppercase tracking-wide">Updated</p>
             </motion.div>
           </div>
         </div>

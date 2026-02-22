@@ -1,9 +1,51 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useHeroes } from '../hooks/useHeroes';
 import { Loading } from '../components/ui/Loading';
 import { Link } from '@tanstack/react-router';
-import { Plus, Save, X, RotateCcw, Users, List as ListIcon, ThumbsUp, Calendar, TrendingUp, Share2, Check, Search, GripVertical } from 'lucide-react';
+import { Plus, Save, X, RotateCcw, Users, List as ListIcon, ThumbsUp, Calendar, TrendingUp, Share2, Check, Search, GripVertical, Download, Loader2 } from 'lucide-react';
+import html2canvas from 'html2canvas';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// Convert image URL to base64 via proxy
+async function imageToBase64(url: string): Promise<string> {
+  try {
+    // Use proxy path for external images
+    let proxyUrl = url;
+    if (url.includes('honorofkings.com')) {
+      const apiBase = import.meta.env.DEV ? '' : 'https://hokapi.project-n.site';
+      proxyUrl = url.replace('https://world.honorofkings.com', `${apiBase}/proxy-image`);
+    }
+
+    const response = await fetch(proxyUrl);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    // Return a 1x1 transparent pixel as fallback
+    return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+  }
+}
+
+// Clone element and convert all images to base64
+async function cloneWithBase64Images(element: HTMLElement): Promise<HTMLElement> {
+  const clone = element.cloneNode(true) as HTMLElement;
+  const images = clone.querySelectorAll('img');
+
+  await Promise.all(
+    Array.from(images).map(async (img) => {
+      if (img.src && !img.src.startsWith('data:')) {
+        const base64 = await imageToBase64(img.src);
+        img.src = base64;
+      }
+    })
+  );
+
+  return clone;
+}
 import type { Hero } from '../types/hero';
 import {
   DndContext,
@@ -111,6 +153,85 @@ export function TierListPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [poolSearch, setPoolSearch] = useState('');
   const [poolRoleFilter, setPoolRoleFilter] = useState<string>('All');
+  const [isDownloading, setIsDownloading] = useState(false);
+  const tierListRef = useRef<HTMLDivElement>(null);
+  const createTierListRef = useRef<HTMLDivElement>(null);
+
+  const handleDownload = useCallback(async () => {
+    if (!tierListRef.current || !selectedTierList) return;
+
+    setIsDownloading(true);
+    try {
+      // Clone element and convert images to base64 to avoid CORS issues
+      const clone = await cloneWithBase64Images(tierListRef.current);
+      clone.style.position = 'absolute';
+      clone.style.left = '-9999px';
+      clone.style.top = '0';
+      document.body.appendChild(clone);
+
+      const canvas = await html2canvas(clone, {
+        backgroundColor: '#0a0e27',
+        scale: 2,
+        logging: false,
+      });
+
+      document.body.removeChild(clone);
+
+      const dataUrl = canvas.toDataURL('image/png', 1.0);
+      const link = document.createElement('a');
+      link.download = `${selectedTierList.title.replace(/[^a-z0-9]/gi, '_')}_tierlist.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (error) {
+      console.error('Failed to download tier list:', error);
+      alert('Failed to download tier list. Please try again.');
+    } finally {
+      setIsDownloading(false);
+    }
+  }, [selectedTierList]);
+
+  const handleDownloadCreate = useCallback(async () => {
+    if (!createTierListRef.current) return;
+
+    setIsDownloading(true);
+    try {
+      // Show title for download
+      const titleEl = document.getElementById('create-tier-title');
+      if (titleEl) titleEl.classList.remove('hidden');
+
+      // Clone element and convert images to base64 to avoid CORS issues
+      const clone = await cloneWithBase64Images(createTierListRef.current);
+      clone.style.position = 'absolute';
+      clone.style.left = '-9999px';
+      clone.style.top = '0';
+      document.body.appendChild(clone);
+
+      // Hide title in original again
+      if (titleEl) titleEl.classList.add('hidden');
+
+      const canvas = await html2canvas(clone, {
+        backgroundColor: '#0a0e27',
+        scale: 2,
+        logging: false,
+      });
+
+      document.body.removeChild(clone);
+
+      const dataUrl = canvas.toDataURL('image/png', 1.0);
+      const link = document.createElement('a');
+      link.download = `my_tierlist_${Date.now()}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (error) {
+      console.error('Failed to download tier list:', error);
+      alert('Failed to download tier list. Please try again.');
+      // Ensure title is hidden on error too
+      const titleEl = document.getElementById('create-tier-title');
+      if (titleEl) titleEl.classList.add('hidden');
+    } finally {
+      setIsDownloading(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (user?.name && !creatorName) setCreatorName(user.name);
@@ -267,17 +388,17 @@ export function TierListPage() {
   return (
     <div className="min-h-screen bg-dark-400">
       {/* Header */}
-      <section className="pt-28 pb-8 border-b border-white/5">
-        <div className="container mx-auto px-6 lg:px-8">
+      <section className="pt-20 md:pt-28 pb-6 md:pb-8 border-b border-white/5">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-3">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-2 md:mb-3">
               Tier List
             </h1>
-            <p className="text-gray-400 text-lg">
+            <p className="text-gray-400 text-sm md:text-lg">
               {mode === 'create'
                 ? 'Create your own tier list by dragging heroes'
                 : 'View meta rankings and community tier lists'}
@@ -287,27 +408,27 @@ export function TierListPage() {
       </section>
 
       {/* Controls */}
-      <section className="sticky top-20 z-30 bg-dark-400/95 backdrop-blur-xl border-b border-white/5">
-        <div className="container mx-auto px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
+      <section className="sticky top-16 md:top-20 z-30 bg-dark-400/95 backdrop-blur-xl border-b border-white/5">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 py-3 md:py-4">
+          <div className="flex items-center justify-between gap-2">
             {/* Mode Tabs */}
             <div className="flex items-center gap-1 bg-dark-300/50 p-1 rounded-xl border border-white/5">
               <button
                 onClick={() => setMode('view')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition-all ${
                   mode === 'view' ? 'bg-white text-dark-400' : 'text-gray-400 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <ListIcon className="w-4 h-4" />
+                <ListIcon className="w-3.5 md:w-4 h-3.5 md:h-4" />
                 View
               </button>
               <button
                 onClick={() => setMode('create')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition-all ${
                   mode === 'create' ? 'bg-white text-dark-400' : 'text-gray-400 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-3.5 md:w-4 h-3.5 md:h-4" />
                 Create
               </button>
             </div>
@@ -317,41 +438,53 @@ export function TierListPage() {
               <div className="flex items-center gap-1 bg-dark-300/50 p-1 rounded-xl border border-white/5">
                 <button
                   onClick={() => setSortBy('popular')}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  className={`flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 rounded-lg text-[10px] md:text-xs font-medium transition-all ${
                     sortBy === 'popular' ? 'bg-primary-500 text-white' : 'text-gray-400 hover:text-white'
                   }`}
                 >
-                  <TrendingUp className="w-3.5 h-3.5" />
-                  Popular
+                  <TrendingUp className="w-3 md:w-3.5 h-3 md:h-3.5" />
+                  <span className="hidden xs:inline">Popular</span>
                 </button>
                 <button
                   onClick={() => setSortBy('newest')}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  className={`flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 rounded-lg text-[10px] md:text-xs font-medium transition-all ${
                     sortBy === 'newest' ? 'bg-primary-500 text-white' : 'text-gray-400 hover:text-white'
                   }`}
                 >
-                  <Calendar className="w-3.5 h-3.5" />
-                  Newest
+                  <Calendar className="w-3 md:w-3.5 h-3 md:h-3.5" />
+                  <span className="hidden xs:inline">Newest</span>
                 </button>
               </div>
             )}
 
             {/* Create Mode Actions */}
             {mode === 'create' && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 md:gap-2">
                 <button
                   onClick={handleReset}
-                  className="flex items-center gap-2 px-3 py-2 text-red-400 hover:bg-red-500/10 rounded-lg text-sm transition-colors"
+                  className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 text-red-400 hover:bg-red-500/10 rounded-lg text-xs md:text-sm transition-colors"
                 >
-                  <RotateCcw className="w-4 h-4" />
-                  Reset
+                  <RotateCcw className="w-3.5 md:w-4 h-3.5 md:h-4" />
+                  <span className="hidden sm:inline">Reset</span>
+                </button>
+                <button
+                  onClick={handleDownloadCreate}
+                  disabled={isDownloading || Object.values(tierAssignments).every(arr => arr.length === 0)}
+                  className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-xs md:text-sm transition-colors"
+                >
+                  {isDownloading ? (
+                    <Loader2 className="w-3.5 md:w-4 h-3.5 md:h-4 animate-spin" />
+                  ) : (
+                    <Download className="w-3.5 md:w-4 h-3.5 md:h-4" />
+                  )}
+                  <span className="hidden sm:inline">Download</span>
                 </button>
                 <button
                   onClick={() => setShowSaveModal(true)}
                   disabled={Object.values(tierAssignments).every(arr => arr.length === 0)}
-                  className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors"
+                  className="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg text-xs md:text-sm font-medium transition-colors"
                 >
-                  <Save className="w-4 h-4" />
+                  <Save className="w-3.5 md:w-4 h-3.5 md:h-4" />
                   Save
                 </button>
               </div>
@@ -361,8 +494,8 @@ export function TierListPage() {
       </section>
 
       {/* Content */}
-      <section className="py-8">
-        <div className="container mx-auto px-6 lg:px-8">
+      <section className="py-6 md:py-8">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8">
           {/* Create Mode */}
           {mode === 'create' && (
             <DndContext
@@ -449,52 +582,67 @@ export function TierListPage() {
 
                 {/* Tier Containers */}
                 <div className="space-y-3">
-                  {TIER_ORDER.map((tier, index) => {
-                    const config = TIER_CONFIG[tier];
-                    const tierHeroes = getHeroesInTier(tier);
-                    const count = getTierCount(tier);
+                  {/* Downloadable area */}
+                  <div ref={createTierListRef} className="space-y-3 p-4 -m-4 bg-dark-400">
+                    {/* Title for download */}
+                    <div className="pb-3 border-b border-white/10 hidden" id="create-tier-title">
+                      <h3 className="text-xl font-bold text-white">My Tier List</h3>
+                      <p className="text-sm text-gray-400 mt-1">HoK Hub</p>
+                    </div>
 
-                    return (
-                      <motion.div
-                        key={tier}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.05 }}
-                        className="rounded-2xl overflow-hidden bg-dark-300/50 border border-white/5 hover:border-white/10 transition-colors"
-                      >
-                        <div className="flex items-stretch">
-                          {/* Tier Label */}
-                          <div className={`bg-gradient-to-br ${config.color} w-20 flex flex-col items-center justify-center flex-shrink-0 py-4`}>
-                            <span className="text-3xl font-bold text-white">{tier}</span>
-                            {count > 0 && (
-                              <span className="text-xs text-white/70 mt-1">{count}</span>
-                            )}
-                          </div>
+                    {TIER_ORDER.map((tier, index) => {
+                      const config = TIER_CONFIG[tier];
+                      const tierHeroes = getHeroesInTier(tier);
+                      const count = getTierCount(tier);
 
-                          {/* Drop Zone */}
-                          <div className="flex-1 p-4">
-                            <DroppableTier tier={tier} heroes={tierHeroes}>
-                              <div className="flex flex-wrap gap-2 min-h-[72px]">
-                                {tierHeroes.map(hero => (
-                                  <DraggableHero key={hero.heroId} hero={hero} />
-                                ))}
-                                {tierHeroes.length === 0 && (
-                                  <div className="flex items-center gap-2 text-gray-500">
-                                    <div className="w-14 h-14 rounded-xl border-2 border-dashed border-white/10 flex items-center justify-center">
-                                      <Plus className="w-5 h-5 text-gray-600" />
+                      return (
+                        <motion.div
+                          key={tier}
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.3, delay: index * 0.05 }}
+                          className="rounded-2xl overflow-hidden bg-dark-300/50 border border-white/5 hover:border-white/10 transition-colors"
+                        >
+                          <div className="flex items-stretch">
+                            {/* Tier Label */}
+                            <div className={`bg-gradient-to-br ${config.color} w-20 flex flex-col items-center justify-center flex-shrink-0 py-4`}>
+                              <span className="text-3xl font-bold text-white">{tier}</span>
+                              {count > 0 && (
+                                <span className="text-xs text-white/70 mt-1">{count}</span>
+                              )}
+                            </div>
+
+                            {/* Drop Zone */}
+                            <div className="flex-1 p-4">
+                              <DroppableTier tier={tier} heroes={tierHeroes}>
+                                <div className="flex flex-wrap gap-2 min-h-[72px]">
+                                  {tierHeroes.map(hero => (
+                                    <DraggableHero key={hero.heroId} hero={hero} />
+                                  ))}
+                                  {tierHeroes.length === 0 && (
+                                    <div className="flex items-center gap-2 text-gray-500">
+                                      <div className="w-14 h-14 rounded-xl border-2 border-dashed border-white/10 flex items-center justify-center">
+                                        <Plus className="w-5 h-5 text-gray-600" />
+                                      </div>
+                                      <p className="text-sm">Drop heroes here</p>
                                     </div>
-                                    <p className="text-sm">Drop heroes here</p>
-                                  </div>
-                                )}
-                              </div>
-                            </DroppableTier>
+                                  )}
+                                </div>
+                              </DroppableTier>
+                            </div>
                           </div>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
+                        </motion.div>
+                      );
+                    })}
 
-                  {/* Summary */}
+                    {/* Watermark for download */}
+                    <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs text-gray-500">
+                      <span>hokhub.com</span>
+                      <span>{new Date().toLocaleDateString()}</span>
+                    </div>
+                  </div>
+
+                  {/* Summary - outside downloadable area */}
                   <div className="mt-6 p-4 bg-dark-300/30 rounded-xl border border-white/5">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-400">Total assigned:</span>
@@ -526,16 +674,16 @@ export function TierListPage() {
 
           {/* View Mode */}
           {mode === 'view' && (
-            <div className="space-y-10">
+            <div className="space-y-8 md:space-y-10">
               {/* Official Tier List */}
               {heroes && heroes.length > 0 && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                 >
-                  <div className="flex items-center gap-3 mb-4">
-                    <h2 className="text-xl font-semibold text-white">Official Meta</h2>
-                    <span className="text-xs text-gray-500">Based on API data</span>
+                  <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+                    <h2 className="text-lg md:text-xl font-semibold text-white">Official Meta</h2>
+                    <span className="text-[10px] md:text-xs text-gray-500">Based on API data</span>
                   </div>
 
                   <div className="bg-dark-300/50 border border-white/5 rounded-2xl overflow-hidden">
@@ -577,29 +725,29 @@ export function TierListPage() {
 
               {/* Community Tier Lists */}
               <div>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-xl font-semibold text-white">Community</h2>
-                    <span className="text-xs text-gray-500">{sortedTierLists.length} tier lists</span>
+                <div className="flex items-center justify-between mb-3 md:mb-4">
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <h2 className="text-lg md:text-xl font-semibold text-white">Community</h2>
+                    <span className="text-[10px] md:text-xs text-gray-500">{sortedTierLists.length} tier lists</span>
                   </div>
                 </div>
 
                 {isLoadingTierLists ? (
                   <Loading message="Loading community tier lists..." />
                 ) : sortedTierLists.length === 0 ? (
-                  <div className="text-center py-16 bg-dark-300/50 rounded-2xl border border-white/5">
-                    <Users className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-white mb-2">No Tier Lists Yet</h3>
-                    <p className="text-gray-400 text-sm mb-6">Be the first to create one!</p>
+                  <div className="text-center py-12 md:py-16 bg-dark-300/50 rounded-2xl border border-white/5">
+                    <Users className="w-10 md:w-12 h-10 md:h-12 text-gray-600 mx-auto mb-3 md:mb-4" />
+                    <h3 className="text-base md:text-lg font-semibold text-white mb-2">No Tier Lists Yet</h3>
+                    <p className="text-gray-400 text-xs md:text-sm mb-4 md:mb-6">Be the first to create one!</p>
                     <button
                       onClick={() => setMode('create')}
-                      className="px-6 py-2.5 bg-white text-dark-400 rounded-xl font-medium hover:bg-gray-100 transition-colors"
+                      className="px-5 md:px-6 py-2 md:py-2.5 bg-white text-dark-400 rounded-xl text-sm font-medium hover:bg-gray-100 transition-colors"
                     >
                       Create Tier List
                     </button>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4">
                     {sortedTierLists.map((tierList, index) => (
                       <motion.div
                         key={tierList.id}
@@ -697,88 +845,116 @@ export function TierListPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-2 md:p-4 bg-black/95 md:bg-black/90 backdrop-blur-sm"
             onClick={() => setSelectedTierList(null)}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-4xl max-h-[90vh] bg-dark-300 rounded-2xl flex flex-col"
+              className="relative w-full max-w-4xl max-h-[90vh] bg-dark-300 rounded-xl md:rounded-2xl flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               <button
                 onClick={() => setSelectedTierList(null)}
-                className="absolute top-4 right-4 z-10 p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+                className="absolute top-3 right-3 md:top-4 md:right-4 z-10 p-2 md:p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
               >
-                <X className="w-5 h-5 text-white" />
+                <X className="w-4 md:w-5 h-4 md:h-5 text-white" />
               </button>
 
               {/* Modal Header - Fixed */}
-              <div className="p-6 border-b border-white/5 flex-shrink-0">
-                <h2 className="text-2xl font-bold text-white mb-2">{selectedTierList.title}</h2>
-                <div className="flex items-center gap-4 text-sm flex-wrap">
+              <div className="p-4 md:p-6 border-b border-white/5 flex-shrink-0">
+                <h2 className="text-lg md:text-2xl font-bold text-white mb-2 pr-8">{selectedTierList.title}</h2>
+                <div className="flex items-center gap-2 md:gap-4 text-xs md:text-sm flex-wrap">
                   <span className="text-gray-400">
                     by <span className="text-primary-400 font-medium">{selectedTierList.creatorName}</span>
                   </span>
                   <span className="text-gray-500">{new Date(selectedTierList.createdAt).toLocaleDateString()}</span>
-                  <div className="ml-auto flex items-center gap-2">
+                  <div className="ml-auto flex items-center gap-1.5 md:gap-2">
+                    <button
+                      onClick={handleDownload}
+                      disabled={isDownloading}
+                      className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors disabled:opacity-50"
+                    >
+                      {isDownloading ? (
+                        <Loader2 className="w-3.5 md:w-4 h-3.5 md:h-4 animate-spin" />
+                      ) : (
+                        <Download className="w-3.5 md:w-4 h-3.5 md:h-4" />
+                      )}
+                      <span className="text-xs md:text-sm hidden sm:inline">
+                        {isDownloading ? 'Saving...' : 'Download'}
+                      </span>
+                    </button>
                     <button
                       onClick={() => handleCopyLink(selectedTierList.id)}
-                      className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+                      className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
                     >
                       {copiedId === selectedTierList.id ? (
-                        <Check className="w-4 h-4 text-green-400" />
+                        <Check className="w-3.5 md:w-4 h-3.5 md:h-4 text-green-400" />
                       ) : (
-                        <Share2 className="w-4 h-4 text-gray-400" />
+                        <Share2 className="w-3.5 md:w-4 h-3.5 md:h-4 text-gray-400" />
                       )}
-                      <span className="text-sm text-white">Share</span>
+                      <span className="text-xs md:text-sm text-white hidden sm:inline">Share</span>
                     </button>
                     <button
                       onClick={() => handleVote(selectedTierList.id)}
-                      className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+                      className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
                     >
-                      <ThumbsUp className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm font-medium text-white">{selectedTierList.votes}</span>
+                      <ThumbsUp className="w-3.5 md:w-4 h-3.5 md:h-4 text-gray-400" />
+                      <span className="text-xs md:text-sm font-medium text-white">{selectedTierList.votes}</span>
                     </button>
                   </div>
                 </div>
               </div>
 
               {/* Modal Content - Scrollable */}
-              <div className="p-6 space-y-3 overflow-y-auto flex-1">
-                {TIER_ORDER.map(tier => {
-                  const tierHeroIds = selectedTierList.tiers[tier] || [];
-                  if (tierHeroIds.length === 0) return null;
+              <div className="overflow-y-auto flex-1">
+                <div ref={tierListRef} className="p-4 md:p-6 space-y-2 md:space-y-3 bg-dark-300">
+                  {/* Title for download image */}
+                  <div className="pb-3 mb-3 border-b border-white/10">
+                    <h3 className="text-xl font-bold text-white">{selectedTierList.title}</h3>
+                    <p className="text-sm text-gray-400 mt-1">by {selectedTierList.creatorName} • HoK Hub</p>
+                  </div>
 
-                  const config = TIER_CONFIG[tier];
-                  const tierHeroes = tierHeroIds
-                    .map(id => heroes?.find(h => h.heroId === id))
-                    .filter(Boolean) as Hero[];
+                  {TIER_ORDER.map(tier => {
+                    const tierHeroIds = selectedTierList.tiers[tier] || [];
+                    if (tierHeroIds.length === 0) return null;
 
-                  return (
-                    <div key={tier} className="rounded-xl overflow-hidden border border-white/5">
-                      <div className="flex items-stretch">
-                        <div className={`w-16 flex items-center justify-center bg-gradient-to-br ${config.color} flex-shrink-0`}>
-                          <span className="text-2xl font-bold text-white">{tier}</span>
-                        </div>
-                        <div className={`flex-1 p-4 ${config.bgColor}`}>
-                          <div className="flex flex-wrap gap-2">
-                            {tierHeroes.map(hero => (
-                              <div
-                                key={hero.heroId}
-                                className="w-14 h-14 rounded-lg overflow-hidden border border-white/10 hover:border-primary-500 transition-colors"
-                                title={hero.name}
-                              >
-                                <img src={hero.icon} alt={hero.name} className="w-full h-full object-cover" />
-                              </div>
-                            ))}
+                    const config = TIER_CONFIG[tier];
+                    const tierHeroes = tierHeroIds
+                      .map(id => heroes?.find(h => h.heroId === id))
+                      .filter(Boolean) as Hero[];
+
+                    return (
+                      <div key={tier} className="rounded-xl overflow-hidden border border-white/5">
+                        <div className="flex items-stretch">
+                          <div className={`w-16 flex items-center justify-center bg-gradient-to-br ${config.color} flex-shrink-0`}>
+                            <span className="text-2xl font-bold text-white">{tier}</span>
+                          </div>
+                          <div className={`flex-1 p-4 ${config.bgColor}`}>
+                            <div className="flex flex-wrap gap-2">
+                              {tierHeroes.map(hero => (
+                                <div
+                                  key={hero.heroId}
+                                  className="w-14 h-14 rounded-lg overflow-hidden border border-white/10"
+                                  title={hero.name}
+                                >
+                                  <img src={hero.icon} alt={hero.name} className="w-full h-full object-cover" />
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+
+                  {/* Watermark */}
+                  <div className="pt-3 mt-3 border-t border-white/10 flex items-center justify-between text-xs text-gray-500">
+                    <span>hokhub.com</span>
+                    <span>{new Date(selectedTierList.createdAt).toLocaleDateString()}</span>
+                  </div>
+                </div>
               </div>
             </motion.div>
           </motion.div>
@@ -792,24 +968,24 @@ export function TierListPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-3 md:p-4 bg-black/95 md:bg-black/90 backdrop-blur-sm"
             onClick={() => setShowSaveModal(false)}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-md bg-dark-300 rounded-2xl overflow-hidden"
+              className="relative w-full max-w-md bg-dark-300 rounded-xl md:rounded-2xl overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Header */}
-              <div className="p-6 border-b border-white/5">
-                <h2 className="text-xl font-bold text-white">Save Tier List</h2>
-                <p className="text-sm text-gray-400 mt-1">Share your tier list with the community</p>
+              <div className="p-4 md:p-6 border-b border-white/5">
+                <h2 className="text-lg md:text-xl font-bold text-white">Save Tier List</h2>
+                <p className="text-xs md:text-sm text-gray-400 mt-1">Share your tier list with the community</p>
               </div>
 
               {/* Modal Content */}
-              <div className="p-6 space-y-4">
+              <div className="p-4 md:p-6 space-y-3 md:space-y-4">
                 {/* Summary */}
                 <div className="p-4 bg-dark-200/50 rounded-xl space-y-2">
                   <p className="text-xs text-gray-500 uppercase tracking-wide">Summary</p>
@@ -861,19 +1037,19 @@ export function TierListPage() {
               </div>
 
               {/* Modal Footer */}
-              <div className="p-6 border-t border-white/5 flex gap-3">
+              <div className="p-4 md:p-6 border-t border-white/5 flex gap-2 md:gap-3">
                 <button
                   onClick={handleSave}
                   disabled={isSaving || !tierListTitle.trim() || !creatorName.trim()}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white text-dark-400 rounded-xl font-medium hover:bg-gray-100 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+                  className="flex-1 flex items-center justify-center gap-1.5 md:gap-2 px-3 md:px-4 py-2.5 md:py-3 bg-white text-dark-400 rounded-xl text-sm font-medium hover:bg-gray-100 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
                 >
-                  <Save className="w-4 h-4" />
+                  <Save className="w-3.5 md:w-4 h-3.5 md:h-4" />
                   {isSaving ? 'Saving...' : 'Save Tier List'}
                 </button>
                 <button
                   onClick={() => setShowSaveModal(false)}
                   disabled={isSaving}
-                  className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-colors"
+                  className="px-4 md:px-6 py-2.5 md:py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl text-sm transition-colors"
                 >
                   Cancel
                 </button>

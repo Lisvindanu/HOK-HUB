@@ -13,6 +13,12 @@ export default defineConfig({
         secure: false,
         rewrite: (path) => path,
       },
+      '/proxy-image': {
+        target: 'https://world.honorofkings.com',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace('/proxy-image', ''),
+      },
     },
   },
 })

@@ -22,7 +22,7 @@ interface SeriesData {
   coverImage: string;
 }
 
-const TIER_ORDER = ['Legendary', 'Epic', 'Limited', 'Rare', 'Common', 'No Tier'];
+const TIER_ORDER = ['Flawless', 'Mythic', 'Precious', 'Legend', 'Epic', 'Rare', 'No Tag'];
 const ITEMS_PER_PAGE = 48;
 
 export function SkinsPage() {
@@ -61,7 +61,7 @@ export function SkinsPage() {
     if (!allSkinsData.length) return [];
     const tierMap = new Map<string, SkinWithHero[]>();
     allSkinsData.forEach((skin) => {
-      const tier = skin.skinTier || 'No Tier';
+      const tier = skin.tierName || 'No Tag';
       if (!tierMap.has(tier)) tierMap.set(tier, []);
       tierMap.get(tier)!.push(skin);
     });
@@ -80,7 +80,7 @@ export function SkinsPage() {
           skin.skinName.toLowerCase().includes(searchQuery.toLowerCase()) ||
           skin.hero.name.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesHero = !selectedHero || skin.hero.name === selectedHero;
-        const matchesTier = !selectedTier || (skin.skinTier || 'No Tier') === selectedTier;
+        const matchesTier = !selectedTier || (skin.tierName || 'No Tag') === selectedTier;
         const matchesSeries = !selectedSeriesFilter || skin.skinSeries === selectedSeriesFilter;
         return matchesSearch && matchesHero && matchesTier && matchesSeries;
       })
@@ -201,19 +201,19 @@ export function SkinsPage() {
   return (
     <div className="min-h-screen bg-dark-400">
       {/* Header */}
-      <section className="pt-28 pb-8 border-b border-white/5">
-        <div className="container mx-auto px-6 lg:px-8">
+      <section className="pt-20 md:pt-28 pb-6 md:pb-8 border-b border-white/5">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="flex items-start justify-between mb-4">
+            <div className="flex items-start justify-between mb-3 md:mb-4">
               <div>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-3">
+                <h1 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-2 md:mb-3">
                   Skins
                 </h1>
-                <p className="text-gray-400 text-lg">
+                <p className="text-gray-400 text-sm md:text-lg">
                   {viewMode === 'series'
                     ? `Explore ${seriesData.length} skin collections`
                     : `Browse all ${stats.total} skins`
@@ -222,7 +222,7 @@ export function SkinsPage() {
               </div>
               <button
                 onClick={downloadJSON}
-                className="flex items-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/15 text-white rounded-xl text-sm transition-colors"
+                className="flex items-center gap-2 px-3 md:px-4 py-2 md:py-2.5 bg-white/10 hover:bg-white/15 text-white rounded-xl text-xs md:text-sm transition-colors"
               >
                 <Download className="w-4 h-4" />
                 <span className="hidden sm:inline">Export JSON</span>
@@ -230,14 +230,14 @@ export function SkinsPage() {
             </div>
 
             {/* Stats Pills */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-lg text-green-400 text-sm">
+            <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
+              <span className="px-2 md:px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-lg text-green-400 text-xs md:text-sm">
                 {stats.withSeries} categorized
               </span>
-              <span className="px-3 py-1 bg-orange-500/10 border border-orange-500/20 rounded-lg text-orange-400 text-sm">
+              <span className="px-2 md:px-3 py-1 bg-orange-500/10 border border-orange-500/20 rounded-lg text-orange-400 text-xs md:text-sm">
                 {stats.withoutSeries} uncategorized
               </span>
-              <span className="px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-400 text-sm">
+              <span className="px-2 md:px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-400 text-xs md:text-sm">
                 {stats.completionRate}% complete
               </span>
             </div>
@@ -247,21 +247,21 @@ export function SkinsPage() {
 
       {/* Contribution Banner */}
       {stats.withoutSeries > 0 && (
-        <section className="py-4 border-b border-white/5">
-          <div className="container mx-auto px-6 lg:px-8">
-            <div className="flex items-center gap-4 p-4 bg-blue-500/5 border border-blue-500/10 rounded-xl">
-              <AlertCircle className="w-5 h-5 text-blue-400 flex-shrink-0" />
+        <section className="py-3 md:py-4 border-b border-white/5">
+          <div className="container mx-auto px-4 md:px-6 lg:px-8">
+            <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-blue-500/5 border border-blue-500/10 rounded-xl">
+              <AlertCircle className="w-4 md:w-5 h-4 md:h-5 text-blue-400 flex-shrink-0" />
               <div className="flex-1">
-                <p className="text-sm text-gray-300">
-                  <span className="text-white font-medium">{stats.withoutSeries} skins</span> are missing series data.
+                <p className="text-xs md:text-sm text-gray-300">
+                  <span className="text-white font-medium">{stats.withoutSeries} skins</span> missing series
                 </p>
               </div>
               <Link
                 to="/contribute"
-                className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors"
+                className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-blue-500 hover:bg-blue-600 text-white text-xs md:text-sm font-medium rounded-lg transition-colors"
               >
-                <Users className="w-4 h-4" />
-                <span>Contribute</span>
+                <Users className="w-3.5 md:w-4 h-3.5 md:h-4" />
+                <span className="hidden sm:inline">Contribute</span>
               </Link>
             </div>
           </div>
@@ -269,44 +269,44 @@ export function SkinsPage() {
       )}
 
       {/* Controls */}
-      <section className="sticky top-20 z-30 bg-dark-400/95 backdrop-blur-xl border-b border-white/5">
-        <div className="container mx-auto px-6 lg:px-8 py-4">
-          <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4">
+      <section className="sticky top-16 md:top-20 z-30 bg-dark-400/95 backdrop-blur-xl border-b border-white/5">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 py-3 md:py-4">
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 md:gap-4">
             {/* View Mode Tabs */}
             <div className="flex items-center gap-1 bg-dark-300/50 p-1 rounded-xl border border-white/5">
               <button
                 onClick={() => setViewMode('series')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition-all ${
                   viewMode === 'series'
                     ? 'bg-white text-dark-400'
                     : 'text-gray-400 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <Grid3x3 className="w-4 h-4" />
+                <Grid3x3 className="w-3.5 md:w-4 h-3.5 md:h-4" />
                 Series
               </button>
               <button
                 onClick={() => setViewMode('all')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition-all ${
                   viewMode === 'all'
                     ? 'bg-white text-dark-400'
                     : 'text-gray-400 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <List className="w-4 h-4" />
+                <List className="w-3.5 md:w-4 h-3.5 md:h-4" />
                 All Skins
               </button>
             </div>
 
             {/* Search */}
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+              <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 md:w-5 h-4 md:h-5 text-gray-500" />
               <input
                 type="text"
-                placeholder={viewMode === 'series' ? 'Search series...' : 'Search skins or heroes...'}
+                placeholder={viewMode === 'series' ? 'Search series...' : 'Search skins...'}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-dark-300/50 border border-white/10 rounded-xl focus:outline-none focus:border-primary-500/50 focus:bg-dark-300 text-white placeholder-gray-500 transition-all"
+                className="w-full pl-10 md:pl-12 pr-4 py-2.5 md:py-3 bg-dark-300/50 border border-white/10 rounded-xl focus:outline-none focus:border-primary-500/50 focus:bg-dark-300 text-white text-sm placeholder-gray-500 transition-all"
               />
               {searchQuery && (
                 <button
@@ -379,14 +379,14 @@ export function SkinsPage() {
       </section>
 
       {/* Content */}
-      <section className="py-8">
-        <div className="container mx-auto px-6 lg:px-8">
+      <section className="py-6 md:py-8">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8">
           {/* Series View */}
           {viewMode === 'series' && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4"
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4"
             >
               {filteredSeries.map((series, index) => (
                 <motion.button
@@ -428,20 +428,20 @@ export function SkinsPage() {
 
           {/* All Skins View */}
           {viewMode === 'all' && (
-            <div className="space-y-10">
+            <div className="space-y-8 md:space-y-10">
               {paginatedSkinsByTier.map((tierGroup) => (
                 <motion.div
                   key={tierGroup.tier}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                 >
-                  <div className="flex items-center gap-4 mb-4">
-                    <h2 className="text-xl font-semibold text-white">{tierGroup.tier}</h2>
+                  <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
+                    <h2 className="text-lg md:text-xl font-semibold text-white">{tierGroup.tier}</h2>
                     <div className="h-px flex-1 bg-white/5" />
-                    <span className="text-sm text-gray-500">{tierGroup.skins.length} skins</span>
+                    <span className="text-xs md:text-sm text-gray-500">{tierGroup.skins.length} skins</span>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
                     {tierGroup.skins.map((skin, idx) => (
                       <motion.button
                         key={`${skin.hero.heroId}-${idx}`}
@@ -462,6 +462,34 @@ export function SkinsPage() {
                             loading="lazy"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-dark-400 via-dark-400/20 to-transparent" />
+
+                          {/* Tier Badge */}
+                          {skin.tierName && (
+                            <div
+                              className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide shadow-lg"
+                              style={{
+                                backgroundColor: skin.tierColor || '#8B5CF6',
+                                color: '#fff',
+                                textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                              }}
+                            >
+                              {skin.tierName}
+                            </div>
+                          )}
+
+                          {/* Collab Badge */}
+                          {skin.collab && (
+                            <div
+                              className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide shadow-lg"
+                              style={{
+                                backgroundColor: skin.collab.color || '#FFD700',
+                                color: '#fff',
+                                textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                              }}
+                            >
+                              {skin.collab.name}
+                            </div>
+                          )}
 
                           {/* Skin info */}
                           <div className="absolute bottom-0 left-0 right-0 p-3">
@@ -565,21 +593,21 @@ export function SkinsPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-2 md:p-4 bg-black/95 md:bg-black/90 backdrop-blur-sm"
             onClick={() => setSelectedSkin(null)}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden bg-dark-300 rounded-2xl"
+              className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden bg-dark-300 rounded-xl md:rounded-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <button
                 onClick={() => setSelectedSkin(null)}
-                className="absolute top-4 right-4 z-10 p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+                className="absolute top-3 right-3 md:top-4 md:right-4 z-10 p-2 md:p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
               >
-                <X className="w-5 h-5 text-white" />
+                <X className="w-4 md:w-5 h-4 md:h-5 text-white" />
               </button>
 
               <div className="relative aspect-[16/10] overflow-hidden">
@@ -590,20 +618,43 @@ export function SkinsPage() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-dark-300 via-transparent to-transparent" />
 
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <div className="flex items-center gap-3 mb-3">
+                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
+                  <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
                     <img
                       src={selectedSkin.hero.icon}
                       alt={selectedSkin.hero.name}
-                      className="w-10 h-10 rounded-full border-2 border-white/20"
+                      className="w-8 md:w-10 h-8 md:h-10 rounded-full border-2 border-white/20"
                     />
-                    <span className="text-gray-300">{selectedSkin.hero.name}</span>
+                    <span className="text-sm md:text-base text-gray-300">{selectedSkin.hero.name}</span>
                   </div>
-                  <h2 className="text-3xl font-bold text-white mb-3">{selectedSkin.skinName}</h2>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedSkin.skinTier && (
-                      <span className="px-3 py-1 bg-purple-500/20 border border-purple-500/30 rounded-lg text-purple-300 text-sm">
-                        {selectedSkin.skinTier}
+                  <h2 className="text-xl md:text-3xl font-bold text-white mb-2 md:mb-3">{selectedSkin.skinName}</h2>
+                  <div className="flex flex-wrap gap-1.5 md:gap-2">
+                    {selectedSkin.tierName && (
+                      <span
+                        className="px-3 py-1 rounded-lg text-sm font-semibold"
+                        style={{
+                          backgroundColor: `${selectedSkin.tierColor}33` || '#8B5CF633',
+                          borderColor: `${selectedSkin.tierColor}66` || '#8B5CF666',
+                          color: selectedSkin.tierColor || '#8B5CF6',
+                          borderWidth: '1px',
+                          borderStyle: 'solid'
+                        }}
+                      >
+                        {selectedSkin.tierName}
+                      </span>
+                    )}
+                    {selectedSkin.collab && (
+                      <span
+                        className="px-3 py-1 rounded-lg text-sm font-semibold"
+                        style={{
+                          backgroundColor: `${selectedSkin.collab.color}33`,
+                          borderColor: `${selectedSkin.collab.color}66`,
+                          color: selectedSkin.collab.color,
+                          borderWidth: '1px',
+                          borderStyle: 'solid'
+                        }}
+                      >
+                        {selectedSkin.collab.name}
                       </span>
                     )}
                     {selectedSkin.skinSeries && (
@@ -626,25 +677,25 @@ export function SkinsPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-2 md:p-4 bg-black/95 md:bg-black/90 backdrop-blur-sm"
             onClick={() => setSelectedSeries(null)}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-5xl max-h-[90vh] overflow-y-auto bg-dark-300 rounded-2xl"
+              className="relative w-full max-w-5xl max-h-[90vh] overflow-y-auto bg-dark-300 rounded-xl md:rounded-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <button
                 onClick={() => setSelectedSeries(null)}
-                className="absolute top-4 right-4 z-10 p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+                className="absolute top-3 right-3 md:top-4 md:right-4 z-10 p-2 md:p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
               >
-                <X className="w-5 h-5 text-white" />
+                <X className="w-4 md:w-5 h-4 md:h-5 text-white" />
               </button>
 
               {/* Main Image */}
-              <div className="relative aspect-[16/9] overflow-hidden rounded-t-2xl">
+              <div className="relative aspect-[4/3] md:aspect-[16/9] overflow-hidden rounded-t-xl md:rounded-t-2xl">
                 <img
                   src={selectedSeries.skins[selectedSkinIndex]?.skinCover || selectedSeries.skins[selectedSkinIndex]?.skinImage}
                   alt={selectedSeries.skins[selectedSkinIndex]?.skinName}
@@ -660,34 +711,34 @@ export function SkinsPage() {
                         e.stopPropagation();
                         setSelectedSkinIndex((prev) => (prev > 0 ? prev - 1 : selectedSeries.skins.length - 1));
                       }}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+                      className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 p-2 md:p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
                     >
-                      <ChevronLeft className="w-5 h-5 text-white" />
+                      <ChevronLeft className="w-4 md:w-5 h-4 md:h-5 text-white" />
                     </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedSkinIndex((prev) => (prev < selectedSeries.skins.length - 1 ? prev + 1 : 0));
                       }}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+                      className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 p-2 md:p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
                     >
-                      <ChevronRight className="w-5 h-5 text-white" />
+                      <ChevronRight className="w-4 md:w-5 h-4 md:h-5 text-white" />
                     </button>
                   </>
                 )}
 
                 {/* Skin Info */}
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <h2 className="text-3xl font-bold text-white mb-2">
+                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
+                  <h2 className="text-xl md:text-3xl font-bold text-white mb-1 md:mb-2">
                     {selectedSeries.skins[selectedSkinIndex]?.skinName}
                   </h2>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 md:gap-3">
                     <img
                       src={selectedSeries.skins[selectedSkinIndex]?.hero.icon}
                       alt={selectedSeries.skins[selectedSkinIndex]?.hero.name}
-                      className="w-8 h-8 rounded-full border-2 border-white/20"
+                      className="w-6 md:w-8 h-6 md:h-8 rounded-full border-2 border-white/20"
                     />
-                    <span className="text-gray-300">
+                    <span className="text-sm md:text-base text-gray-300">
                       {selectedSeries.skins[selectedSkinIndex]?.hero.name}
                     </span>
                   </div>
@@ -695,14 +746,14 @@ export function SkinsPage() {
               </div>
 
               {/* Thumbnails */}
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-white">{selectedSeries.name}</h3>
-                  <span className="text-sm text-gray-500">
+              <div className="p-4 md:p-6">
+                <div className="flex items-center justify-between mb-3 md:mb-4">
+                  <h3 className="text-base md:text-lg font-semibold text-white">{selectedSeries.name}</h3>
+                  <span className="text-xs md:text-sm text-gray-500">
                     {selectedSkinIndex + 1} of {selectedSeries.skins.length}
                   </span>
                 </div>
-                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
+                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-1.5 md:gap-2">
                   {selectedSeries.skins.map((skin, index) => (
                     <button
                       key={index}

@@ -27,7 +27,6 @@ export function CounterPage() {
   const [applyInverse, setApplyInverse] = useState(true);
 
   const roles = ['All', 'Tank', 'Fighter', 'Assassin', 'Mage', 'Marksman', 'Support'];
-  const lanes = ['All', 'Clash Lane', 'Jungle', 'Mid Lane', 'Farm Lane', 'Roaming'];
 
   const filteredSuggestHeroes = useMemo(() => {
     if (!heroes) return [];
@@ -140,8 +139,8 @@ export function CounterPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-dark-400 pt-28 pb-12">
-        <div className="container mx-auto px-6 lg:px-8">
+      <div className="min-h-screen bg-dark-400 pt-20 md:pt-28 pb-12">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8">
           <Loading message="Loading counter data..." />
         </div>
       </div>
@@ -151,22 +150,22 @@ export function CounterPage() {
   return (
     <div className="min-h-screen bg-dark-400">
       {/* Header */}
-      <section className="pt-28 pb-6 border-b border-white/5">
-        <div className="container mx-auto px-6 lg:px-8">
+      <section className="pt-20 md:pt-28 pb-4 md:pb-6 border-b border-white/5">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl flex items-center justify-center">
-                <Shield className="w-6 h-6 text-white" />
+            <div className="flex items-center gap-2.5 md:gap-3 mb-3 md:mb-4">
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl flex items-center justify-center">
+                <Shield className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl md:text-4xl font-display font-bold text-white">
+                <h1 className="text-2xl md:text-4xl font-display font-bold text-white">
                   Counter Picks
                 </h1>
-                <p className="text-gray-400 text-sm">
+                <p className="text-gray-400 text-xs md:text-sm">
                   Find counters and synergies for any hero
                 </p>
               </div>
@@ -176,16 +175,16 @@ export function CounterPage() {
       </section>
 
       {/* Sticky Search Bar */}
-      <div className="sticky top-20 z-30 bg-dark-400/90 backdrop-blur-xl border-b border-white/5">
-        <div className="container mx-auto px-6 lg:px-8 py-4">
+      <div className="sticky top-16 md:top-20 z-30 bg-dark-400/90 backdrop-blur-xl border-b border-white/5">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 py-3 md:py-4">
           <div className="relative max-w-md">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+            <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 md:w-5 h-4 md:h-5 text-gray-500" />
             <input
               type="text"
               placeholder="Search for a hero..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-dark-300/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary-500/50 transition-colors"
+              className="w-full pl-10 md:pl-12 pr-4 py-2.5 md:py-3 bg-dark-300/50 border border-white/10 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary-500/50 transition-colors"
             />
           </div>
         </div>
@@ -199,11 +198,11 @@ export function CounterPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="py-8"
+            className="py-6 md:py-8"
           >
-            <div className="container mx-auto px-6 lg:px-8">
+            <div className="container mx-auto px-4 md:px-6 lg:px-8">
               {filteredHeroes.length > 0 ? (
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-3">
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-2 md:gap-3">
                   {filteredHeroes.map((hero, index) => (
                     <motion.button
                       key={hero.heroId}

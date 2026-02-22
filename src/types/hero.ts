@@ -6,6 +6,11 @@ export interface Skill {
   skillImg: string;
 }
 
+export interface SkinCollabTag {
+  name: string;
+  color: string;
+}
+
 export interface Skin {
   skinName: string;
   skinImg?: string; // Old format (camp)
@@ -14,6 +19,12 @@ export interface Skin {
   skinImage2?: string; // New format (world)
   skinSeries?: string; // New format (world)
   skinLink?: string; // New format (world)
+  // Tier info
+  tier?: string; // NO_TAG, RARE, EPIC, LEGEND, PRECIOUS, MYTHIC, FLAWLESS
+  tierName?: string; // Display name
+  tierColor?: string; // Hex color
+  collab?: SkinCollabTag; // Collaboration tag
+  tag?: string; // Special tag (LIMITED, BLESSED, etc.)
 }
 
 export interface HeroRelation {
@@ -37,6 +48,32 @@ export interface HeroWorld {
   height?: string;
 }
 
+export interface Arcana {
+  id: number;
+  name: string;
+  icon: string;
+  description: string;
+  level: number;
+  color: number;
+}
+
+export interface PassiveSkill {
+  id: number;
+  name: string;
+}
+
+export interface Equipment {
+  id: number;
+  name: string;
+  icon: string;
+  description: string;
+  price: number;
+  type: number;
+  level: number;
+  isCore: boolean;
+  passiveSkills: PassiveSkill[];
+}
+
 export interface Hero {
   title: string;
   name: string;
@@ -50,8 +87,9 @@ export interface Hero {
   attackPercentage: string;
   abilityPercentage: string;
   difficultyPercentage: string;
-  emblems: any[];
-  emblemTips: string;
+  arcana: Arcana[];
+  recommendedEquipment: Equipment[];
+  buildTitle: string;
   bestPartners: Record<string, HeroRelation>;
   suppressingHeroes: Record<string, HeroRelation>;
   suppressedHeroes: Record<string, HeroRelation>;

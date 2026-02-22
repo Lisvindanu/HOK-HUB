@@ -61,8 +61,8 @@ export function HeroesPage() {
   return (
     <div className="min-h-screen bg-dark-400">
       {/* Header Section */}
-      <section className="pt-28 pb-12 border-b border-white/5">
-        <div className="container mx-auto px-6 lg:px-8">
+      <section className="pt-20 md:pt-28 pb-8 md:pb-12 border-b border-white/5">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -79,8 +79,8 @@ export function HeroesPage() {
       </section>
 
       {/* Search & Filters Section */}
-      <section className="sticky top-20 z-30 bg-dark-400/95 backdrop-blur-xl border-b border-white/5">
-        <div className="container mx-auto px-6 lg:px-8 py-4">
+      <section className="sticky top-16 md:top-20 z-30 bg-dark-400/95 backdrop-blur-xl border-b border-white/5">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 py-3 md:py-4">
           <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4">
             {/* Search Bar */}
             <div className="relative flex-1 max-w-md">
@@ -313,7 +313,7 @@ export function HeroesPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
-              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4"
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4"
             >
               {filteredAndSortedHeroes.map((hero, index) => (
                 <motion.div

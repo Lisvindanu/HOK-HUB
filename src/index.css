@@ -5,10 +5,32 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    overflow-x: hidden;
+  }
+
   body {
     @apply bg-dark-300 text-white font-sans antialiased;
     margin: 0;
     min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Mobile safe areas */
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .safe-area-inset-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  /* Fix for mobile viewport height */
+  @supports (height: 100dvh) {
+    .min-h-screen {
+      min-height: 100dvh;
+    }
   }
 }
 
@@ -92,4 +114,40 @@
 
 .animate-glow {
   animation: glow 2s ease-in-out infinite;
+}
+
+/* Mobile specific styles */
+@media (max-width: 768px) {
+  /* Add bottom padding for bottom nav */
+  main, .main-content {
+    padding-bottom: 5rem;
+  }
+
+  /* Reduce padding on mobile */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Hide scrollbars on mobile for cleaner look */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  body {
+    scrollbar-width: none;
+  }
+
+  /* Prevent horizontal scroll */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Touch feedback */
+@media (hover: none) {
+  .touch-feedback:active {
+    opacity: 0.7;
+    transform: scale(0.98);
+  }
 }

@@ -87,16 +87,17 @@ export function AuthPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="min-h-screen bg-dark-400">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 pt-20 md:pt-28 pb-12">
       <div className="max-w-md mx-auto">
-        <div className="card-hover p-8">
+        <div className="card-hover p-5 md:p-8">
           {/* Header */}
-          <div className="flex items-center justify-center mb-6">
-            <div className="p-3 bg-primary-500/20 rounded-full">
-              <User className="w-12 h-12 text-primary-400" />
+          <div className="flex items-center justify-center mb-4 md:mb-6">
+            <div className="p-2.5 md:p-3 bg-primary-500/20 rounded-full">
+              <User className="w-10 h-10 md:w-12 md:h-12 text-primary-400" />
             </div>
           </div>
-          <h1 className="text-3xl font-display font-bold mb-2 text-center">
+          <h1 className="text-2xl md:text-3xl font-display font-bold mb-2 text-center">
             {activeTab === 'login' ? 'Welcome Back' : 'Join HoK Hub'}
           </h1>
           <p className="text-gray-400 text-center mb-8">
@@ -284,12 +285,13 @@ export function AuthPage() {
           )}
 
           {/* Footer Info */}
-          <div className="mt-6 pt-6 border-t border-white/10">
-            <p className="text-xs text-gray-500 text-center">
+          <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t border-white/10">
+            <p className="text-[10px] md:text-xs text-gray-500 text-center">
               By continuing, you agree to track your contributions and allow your name to appear on the leaderboard
             </p>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

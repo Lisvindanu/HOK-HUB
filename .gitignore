@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Sensitive files (contains VPS credentials)
+AI-AGENT-CONTEXT.md
+
+# Scraper output (large JSON files)
+scripts/output/

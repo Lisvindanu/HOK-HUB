@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { Github, ExternalLink, Mail, MessageCircle } from 'lucide-react';
+import { Github, ExternalLink, Mail } from 'lucide-react';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -18,8 +18,7 @@ export function Footer() {
   ];
 
   const community = [
-    { name: 'GitHub', href: 'https://github.com/Lisvindanu/hok-hub', icon: Github },
-    { name: 'Discord', href: 'https://discord.gg/honorofkings', icon: MessageCircle },
+    { name: 'GitHub', href: 'https://github.com/Lisvindanu', icon: Github },
   ];
 
   return (
@@ -124,18 +123,7 @@ export function Footer() {
                   anaphygon@protonmail.com
                 </a>
               </li>
-              <li>
-                <a
-                  href="https://github.com/Lisvindanu/hok-hub/issues"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-gray-400 hover:text-primary-400 transition-colors inline-flex items-center gap-1"
-                >
-                  Report an Issue
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              </li>
-            </ul>
+                          </ul>
           </div>
         </div>
 

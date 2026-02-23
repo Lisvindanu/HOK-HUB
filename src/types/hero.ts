@@ -80,6 +80,7 @@ export interface Hero {
   heroId: number;
   role: string;
   lane: string;
+  lanes?: string[];
   icon: string;
   skill: Skill[];
   skins: Skin[];

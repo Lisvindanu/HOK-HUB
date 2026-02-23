@@ -13,7 +13,9 @@ export function filterHeroes(heroes: Hero[], filter: HeroFilter): Hero[] {
   }
 
   if (filter.lane && filter.lane !== 'All') {
-    filtered = filtered.filter(hero => hero.lane === filter.lane);
+    filtered = filtered.filter(hero =>
+      hero.lanes?.includes(filter.lane as string) || hero.lane === filter.lane
+    );
   }
 
   if (filter.tier && filter.tier !== 'All') {

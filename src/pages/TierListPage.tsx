@@ -353,7 +353,7 @@ export function TierListPage() {
   const availableHeroes = useMemo(() => {
     if (!heroes) return [];
     if (tierListLane === 'All') return heroes;
-    return heroes.filter(h => h.lane === tierListLane);
+    return heroes.filter(h => h.lanes?.includes(tierListLane) || h.lane === tierListLane);
   }, [heroes, tierListLane]);
 
   const unassignedHeroIds = useMemo(() => {
@@ -642,7 +642,7 @@ export function TierListPage() {
                         )}
                         {lane !== 'All' && heroes && (
                           <span className="text-[10px] opacity-70">
-                            {heroes.filter(h => h.lane === lane).length}
+                            {heroes.filter(h => h.lanes?.includes(lane) || h.lane === lane).length}
                           </span>
                         )}
                       </button>

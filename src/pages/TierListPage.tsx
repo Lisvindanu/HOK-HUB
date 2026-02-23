@@ -474,6 +474,7 @@ export function TierListPage() {
       clone.style.position = 'absolute';
       clone.style.left = '-9999px';
       clone.style.top = '0';
+      clone.style.width = `${tierListRef.current.offsetWidth}px`;
       document.body.appendChild(clone);
 
       const canvas = await html2canvas(clone, {

@@ -5,16 +5,16 @@ import { Loading } from '../components/ui/Loading';
 import { Trophy, Users, ListChecks, ThumbsUp, X, Loader2, Clock, CheckCircle, XCircle } from 'lucide-react';
 
 const RANK_TIERS = [
-  { name: 'Legend',      abbr: 'Le', minPts: 5000, color1: '#FFD700', color2: '#FF6B00', border: '#FFD700', glow: '#FFD700', textColor: '#FFD700' },
-  { name: 'Epic',        abbr: 'Ep', minPts: 3500, color1: '#FF6D00', color2: '#FF1744', border: '#FF8C00', glow: '#FF6D00', textColor: '#FF8C00' },
-  { name: 'Mythic',      abbr: 'My', minPts: 2000, color1: '#FF1744', color2: '#9C0027', border: '#FF4569', glow: '#FF1744', textColor: '#FF4569' },
-  { name: 'Grand Master',abbr: 'GM', minPts: 1250, color1: '#F97316', color2: '#7C2D12', border: '#FB923C', glow: '#F97316', textColor: '#FB923C' },
-  { name: 'Master',      abbr: 'Ma', minPts: 750,  color1: '#A855F7', color2: '#4C1D95', border: '#C084FC', glow: '#A855F7', textColor: '#C084FC' },
-  { name: 'Diamond',     abbr: 'Di', minPts: 400,  color1: '#60A5FA', color2: '#1D4ED8', border: '#93C5FD', glow: '#60A5FA', textColor: '#93C5FD' },
-  { name: 'Platinum',    abbr: 'Pt', minPts: 200,  color1: '#22D3EE', color2: '#0E7490', border: '#67E8F9', glow: '#22D3EE', textColor: '#67E8F9' },
-  { name: 'Gold',        abbr: 'Go', minPts: 75,   color1: '#FBBF24', color2: '#B45309', border: '#FCD34D', glow: '#FBBF24', textColor: '#FCD34D' },
-  { name: 'Silver',      abbr: 'Si', minPts: 25,   color1: '#D1D5DB', color2: '#6B7280', border: '#E5E7EB', glow: '#9CA3AF', textColor: '#D1D5DB' },
-  { name: 'Bronze',      abbr: 'Br', minPts: 0,    color1: '#D97706', color2: '#78350F', border: '#F59E0B', glow: '#D97706', textColor: '#F59E0B' },
+  { name: 'Legend',       minPts: 5000, image: '/assets/rankimage/gm.png',       glow: '#FFD700', textColor: '#FFD700' },
+  { name: 'Epic',         minPts: 3500, image: '/assets/rankimage/gm.png',       glow: '#FF6D00', textColor: '#FF8C00' },
+  { name: 'Mythic',       minPts: 2000, image: '/assets/rankimage/gm.png',       glow: '#FF1744', textColor: '#FF4569' },
+  { name: 'Grand Master', minPts: 1250, image: '/assets/rankimage/gm.png',       glow: '#F97316', textColor: '#FB923C' },
+  { name: 'Master',       minPts: 750,  image: '/assets/rankimage/master.png',   glow: '#A855F7', textColor: '#C084FC' },
+  { name: 'Diamond',      minPts: 400,  image: '/assets/rankimage/diamond.png',  glow: '#60A5FA', textColor: '#93C5FD' },
+  { name: 'Platinum',     minPts: 200,  image: '/assets/rankimage/platinum.png', glow: '#22D3EE', textColor: '#67E8F9' },
+  { name: 'Gold',         minPts: 75,   image: '/assets/rankimage/gold.png',     glow: '#FBBF24', textColor: '#FCD34D' },
+  { name: 'Silver',       minPts: 25,   image: '/assets/rankimage/silver.png',   glow: '#9CA3AF', textColor: '#D1D5DB' },
+  { name: 'Bronze',       minPts: 0,    image: '/assets/rankimage/bronze.png',   glow: '#D97706', textColor: '#F59E0B' },
 ] as const;
 
 type RankTier = typeof RANK_TIERS[number];
@@ -26,49 +26,16 @@ function getRankTier(points: number): RankTier {
   return RANK_TIERS[RANK_TIERS.length - 1];
 }
 
-function RankBadge({ points, idx }: { points: number; idx: number }) {
+function RankBadge({ points }: { points: number }) {
   const tier = getRankTier(points);
-  const gradId = `rg-${idx}-${tier.abbr}`;
   return (
     <div className="flex flex-col items-center" title={`${tier.name} (${points} pts)`}>
-      <svg
-        width="44" height="44" viewBox="0 0 44 44" fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        style={{ filter: `drop-shadow(0 0 5px ${tier.glow}99)` }}
-      >
-        <defs>
-          <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor={tier.color1} />
-            <stop offset="100%" stopColor={tier.color2} />
-          </linearGradient>
-        </defs>
-        {/* Outer hexagon (pointy-top) */}
-        <polygon
-          points="22,2 39,11.5 39,32.5 22,42 5,32.5 5,11.5"
-          fill={`url(#${gradId})`}
-          stroke={tier.border}
-          strokeWidth="1.5"
-        />
-        {/* Inner ring */}
-        <polygon
-          points="22,8 34,15 34,29 22,36 10,29 10,15"
-          fill="none"
-          stroke="rgba(255,255,255,0.3)"
-          strokeWidth="1"
-        />
-        {/* Rank abbreviation */}
-        <text
-          x="22" y="27"
-          textAnchor="middle"
-          fontSize={tier.abbr === 'GM' ? '10' : '12'}
-          fontWeight="bold"
-          fill="white"
-          fontFamily="system-ui,sans-serif"
-          style={{ letterSpacing: tier.abbr === 'GM' ? '0.5px' : undefined }}
-        >
-          {tier.abbr}
-        </text>
-      </svg>
+      <img
+        src={tier.image}
+        alt={tier.name}
+        className="w-11 h-11 object-contain"
+        style={{ filter: `drop-shadow(0 0 6px ${tier.glow}99)` }}
+      />
       <p className="text-[9px] font-bold mt-0.5 leading-none" style={{ color: tier.textColor }}>
         {tier.name === 'Grand Master' ? 'G.Master' : tier.name}
       </p>
@@ -198,7 +165,7 @@ export function ContributorsPage() {
                 <div className="flex items-start gap-3 md:gap-4">
                   {/* Rank Badge */}
                   <div className="flex-shrink-0 w-12 flex flex-col items-center gap-0.5">
-                    <RankBadge points={points} idx={index} />
+                    <RankBadge points={points} />
                     <p className="text-xs font-bold text-gray-500">#{rank}</p>
                   </div>
 

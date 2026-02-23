@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useHeroes } from '../hooks/useHeroes';
 import { Loading } from '../components/ui/Loading';
 import type { Hero } from '../types/hero';
@@ -73,11 +73,22 @@ function createMatchState(banCount: number): MatchState {
 
 const ROLES = ['All', 'Tank', 'Fighter', 'Assassin', 'Mage', 'Marksman', 'Support'];
 
+function useMobile() {
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  useEffect(() => {
+    const update = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+  return isMobile;
+}
+
 const SERIES_OPTIONS: DraftConfig['seriesType'][] = ['BO1', 'BO3', 'BO5', 'BO7'];
 const BAN_OPTIONS = [3, 4, 5, 6];
 
 export function DraftPage() {
   const { data: heroesData, isLoading } = useHeroes();
+  const isMobile = useMobile();
   const [phase, setPhase] = useState<'config' | 'drafting' | 'complete'>('config');
   const [config, setConfig] = useState<DraftConfig>({
     team1: 'Blue Team',
@@ -576,6 +587,300 @@ export function DraftPage() {
   const isCurrentRed = currentDraftStep?.team === 'red';
   const isCurrentBan = currentDraftStep?.action === 'ban';
 
+  // ─── MOBILE DRAFT LAYOUT ──────────────────────────────────────────────────────
+  if (isMobile) {
+    const mBanSz = 22;
+    const mPickW = 30;
+    const mPickH = 40;
+
+    const MobileBanSlot = ({ hero, isActive }: { hero: Hero | null; isActive: boolean }) => (
+      <div
+        className={`relative rounded overflow-hidden flex-shrink-0 ${isActive ? 'ring-1 ring-red-400' : ''}`}
+        style={{ width: mBanSz, height: mBanSz, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
+      >
+        {hero ? (
+          <>
+            <img src={hero.icon} alt={hero.name} className="w-full h-full object-cover grayscale opacity-50" />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+              <X className="w-2 h-2 text-red-300" />
+            </div>
+          </>
+        ) : isActive ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-1 h-1 rounded-full bg-red-400 animate-ping" />
+          </div>
+        ) : null}
+      </div>
+    );
+
+    const MobilePickSlot = ({ hero, isActive, isBlue, idx }: { hero: Hero | null; isActive: boolean; isBlue: boolean; idx: number }) => (
+      <div
+        className={`relative rounded overflow-hidden flex-shrink-0 ${isActive ? `ring-1 ${isBlue ? 'ring-blue-400' : 'ring-red-400'} animate-pulse` : ''}`}
+        style={{
+          width: mPickW, height: mPickH,
+          background: 'rgba(255,255,255,0.04)',
+          border: hero
+            ? `1px solid ${isBlue ? 'rgba(59,130,246,0.35)' : 'rgba(239,68,68,0.35)'}`
+            : '1px solid rgba(255,255,255,0.06)',
+        }}
+      >
+        {hero ? (
+          <img src={hero.icon} alt={hero.name} className="w-full h-full object-cover" />
+        ) : isActive ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className={`w-1.5 h-1.5 rounded-full animate-ping ${isBlue ? 'bg-blue-400' : 'bg-red-400'}`} />
+          </div>
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-[9px] text-white/10 font-bold">{idx + 1}</span>
+          </div>
+        )}
+      </div>
+    );
+
+    return (
+      <div
+        className="flex flex-col overflow-hidden select-none"
+        style={{ height: 'calc(100dvh - 64px)', background: 'linear-gradient(180deg, #0a0d1a 0%, #080c16 100%)' }}
+      >
+        {/* ── TOP BAR ── */}
+        <div
+          className="flex-shrink-0 flex items-center justify-between gap-2 px-3 py-2 border-b border-white/5"
+          style={{ background: 'rgba(15,19,35,0.95)' }}
+        >
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="text-xs font-bold text-blue-300 truncate max-w-[70px]">{config.team1}</span>
+            <div className="flex gap-0.5">
+              {Array.from({ length: neededToWin }).map((_, i) => (
+                <div key={i} className={`w-2.5 h-2.5 rounded-full border-2 transition-all ${i < seriesScore.blue ? 'bg-blue-400 border-blue-400' : 'border-white/20'}`} />
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <span className="text-white/30 text-[11px]">{config.seriesType}</span>
+            <span className={`text-[9px] px-1 py-0.5 rounded font-bold border ${config.mode === 'GBP' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'bg-white/5 text-white/20 border-white/10'}`}>
+              {config.mode}
+            </span>
+            {matchStates.length > 1 && (
+              <div className="flex gap-0.5">
+                {matchStates.map((_, i) => (
+                  <button key={i} onClick={() => setMatchIndex(i)} className={`px-1.5 py-0.5 rounded text-[9px] font-medium ${i === matchIndex ? 'bg-primary-500 text-white' : 'text-white/30'}`}>
+                    G{i + 1}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1.5 min-w-0">
+            <div className="flex gap-0.5">
+              {Array.from({ length: neededToWin }).map((_, i) => (
+                <div key={i} className={`w-2.5 h-2.5 rounded-full border-2 transition-all ${i < seriesScore.red ? 'bg-red-400 border-red-400' : 'border-white/20'}`} />
+              ))}
+            </div>
+            <span className="text-xs font-bold text-red-300 truncate max-w-[70px]">{config.team2}</span>
+          </div>
+
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <button onClick={undoLast} disabled={currentStep === 0} className="p-1.5 rounded text-white/30 hover:text-white disabled:opacity-20 transition-all">
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
+            <button onClick={resetDraft} className="text-[10px] px-2 py-1 rounded bg-white/5 text-white/40 border border-white/10">
+              Reset
+            </button>
+          </div>
+        </div>
+
+        {/* ── TURN BANNER ── */}
+        {!isDraftComplete && currentDraftStep && (
+          <div
+            className={`flex-shrink-0 py-1.5 text-center text-[11px] font-bold uppercase tracking-widest ${isCurrentBlue ? 'text-blue-300' : 'text-red-300'}`}
+            style={{
+              background: isCurrentBlue
+                ? 'linear-gradient(90deg, rgba(59,130,246,0.15) 0%, transparent 100%)'
+                : 'linear-gradient(270deg, rgba(239,68,68,0.15) 0%, transparent 100%)',
+              borderBottom: isCurrentBlue ? '1px solid rgba(59,130,246,0.2)' : '1px solid rgba(239,68,68,0.2)',
+            }}
+          >
+            {isCurrentBlue ? config.team1 : config.team2}
+            <span className="mx-1.5 text-white/20">·</span>
+            <span className={isCurrentBan ? 'text-red-400' : ''}>{isCurrentBan ? '⊗ BANNING' : '◎ PICKING'}</span>
+            {selectedHero && <span className="ml-1.5 text-white/50 normal-case tracking-normal font-normal">— {selectedHero.name}</span>}
+          </div>
+        )}
+
+        {/* ── BOARD: BANS + PICKS ── */}
+        {currentMatch && (
+          <div
+            className="flex-shrink-0 px-2 py-2"
+            style={{ background: 'rgba(255,255,255,0.015)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+          >
+            <div className="flex items-stretch">
+              {/* Blue side */}
+              <div className="flex-1 flex flex-col gap-1.5">
+                <div className="flex items-center gap-1">
+                  <span className="text-[8px] text-blue-400/40 uppercase tracking-wider w-8 flex-shrink-0">Bans</span>
+                  <div className="flex gap-0.5 flex-wrap">
+                    {currentMatch.bans.blue.map((hero, i) => (
+                      <MobileBanSlot key={i} hero={hero} isActive={!isDraftComplete && isCurrentBlue && isCurrentBan && i === activeSlotIndex} />
+                    ))}
+                  </div>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="text-[8px] text-blue-400/40 uppercase tracking-wider w-8 flex-shrink-0">Picks</span>
+                  <div className="flex gap-0.5">
+                    {currentMatch.picks.blue.map((hero, i) => (
+                      <MobilePickSlot key={i} hero={hero} isActive={!isDraftComplete && isCurrentBlue && !isCurrentBan && i === activeSlotIndex} isBlue={true} idx={i} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="w-px bg-white/10 mx-2 self-stretch" />
+
+              {/* Red side */}
+              <div className="flex-1 flex flex-col gap-1.5 items-end">
+                <div className="flex items-center gap-1 justify-end">
+                  <div className="flex gap-0.5 flex-wrap justify-end">
+                    {currentMatch.bans.red.map((hero, i) => (
+                      <MobileBanSlot key={i} hero={hero} isActive={!isDraftComplete && isCurrentRed && isCurrentBan && i === activeSlotIndex} />
+                    ))}
+                  </div>
+                  <span className="text-[8px] text-red-400/40 uppercase tracking-wider w-8 text-right flex-shrink-0">Bans</span>
+                </div>
+                <div className="flex items-center gap-1 justify-end">
+                  <div className="flex gap-0.5">
+                    {currentMatch.picks.red.map((hero, i) => (
+                      <MobilePickSlot key={i} hero={hero} isActive={!isDraftComplete && isCurrentRed && !isCurrentBan && i === activeSlotIndex} isBlue={false} idx={i} />
+                    ))}
+                  </div>
+                  <span className="text-[8px] text-red-400/40 uppercase tracking-wider w-8 text-right flex-shrink-0">Picks</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── DRAFT COMPLETE or HERO PICKER ── */}
+        {isDraftComplete ? (
+          <div className="flex-1 overflow-y-auto flex items-center justify-center p-4">
+            <DraftComplete
+              match={currentMatch}
+              team1={config.team1}
+              team2={config.team2}
+              matchIndex={matchIndex}
+              seriesComplete={seriesComplete}
+              onSetWinner={setMatchWinner}
+              onNextMatch={nextMatch}
+              onReset={resetDraft}
+            />
+          </div>
+        ) : (
+          <>
+            {/* Lock-in bar */}
+            <div
+              className={`flex-shrink-0 px-3 py-2 border-b border-white/5 transition-colors ${
+                selectedHero ? (isCurrentBan ? 'bg-red-950/20' : 'bg-blue-950/20') : ''
+              }`}
+            >
+              {selectedHero ? (
+                <div className="flex items-center gap-2.5">
+                  <img src={selectedHero.icon} alt={selectedHero.name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white text-sm font-bold truncate">{selectedHero.name}</p>
+                    <p className="text-white/40 text-[11px]">{selectedHero.role} · {selectedHero.lane}</p>
+                  </div>
+                  <button
+                    onClick={lockIn}
+                    className={`flex-shrink-0 px-5 py-2 rounded-xl font-bold text-sm shadow-lg ${
+                      isCurrentBan ? 'bg-red-500 hover:bg-red-400 text-white' : 'bg-blue-500 hover:bg-blue-400 text-white'
+                    }`}
+                  >
+                    {isCurrentBan ? '⊗ Ban' : '✓ Pick'}
+                  </button>
+                </div>
+              ) : (
+                <p className="text-white/20 text-xs text-center py-0.5">
+                  Select a hero to {isCurrentBan ? 'ban' : 'pick'}
+                </p>
+              )}
+            </div>
+
+            {/* Search + role filter */}
+            <div className="flex-shrink-0 px-3 py-2 space-y-1.5 border-b border-white/5">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="Search heroes..."
+                  className="w-full pl-8 pr-3 py-1.5 rounded-lg text-white placeholder-white/20 focus:outline-none text-xs"
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
+                />
+              </div>
+              <div className="flex gap-1 overflow-x-auto pb-0.5" style={{ scrollbarWidth: 'none' }}>
+                {ROLES.map(r => (
+                  <button
+                    key={r}
+                    onClick={() => setRoleFilter(r)}
+                    className={`flex-shrink-0 px-3 py-1 rounded-full text-[11px] font-semibold transition-all ${
+                      roleFilter === r ? 'bg-primary-500 text-white' : 'bg-white/5 text-white/40'
+                    }`}
+                  >
+                    {r}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Hero grid — 5 columns */}
+            <div className="flex-1 min-h-0 overflow-y-auto px-2 py-2">
+              <div className="grid grid-cols-5 gap-1.5">
+                {filteredHeroes.map(hero => {
+                  const activeTeam = currentDraftStep?.team;
+                  const isGbpLocked = activeTeam ? gbpLockedIds[activeTeam].has(hero.heroId) : false;
+                  const isTaken = takenHeroIds.has(hero.heroId) || isGbpLocked;
+                  const isSelected = selectedHero?.heroId === hero.heroId;
+                  return (
+                    <motion.button
+                      key={hero.heroId}
+                      onClick={() => !isTaken && setSelectedHero(isSelected ? null : hero)}
+                      whileTap={!isTaken ? { scale: 0.92 } : undefined}
+                      title={hero.name}
+                      className={`relative rounded-lg overflow-hidden ${
+                        isTaken ? 'opacity-20' : isSelected
+                          ? isCurrentBan ? 'ring-2 ring-red-400 shadow-[0_0_10px_rgba(248,113,113,0.5)]' : 'ring-2 ring-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)]'
+                          : ''
+                      }`}
+                      style={{ background: 'rgba(255,255,255,0.04)' }}
+                    >
+                      <div className="aspect-square w-full overflow-hidden">
+                        <img src={hero.icon} alt={hero.name} className="w-full h-full object-cover" loading="lazy" />
+                        {isTaken && (
+                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                            {isGbpLocked ? <span className="text-[7px] text-amber-400 font-bold">GBP</span> : <X className="w-3 h-3 text-white/50" />}
+                          </div>
+                        )}
+                        {isSelected && <div className={`absolute inset-0 ${isCurrentBan ? 'bg-red-500/20' : 'bg-blue-500/20'}`} />}
+                      </div>
+                    </motion.button>
+                  );
+                })}
+                {filteredHeroes.length === 0 && (
+                  <div className="col-span-5 py-8 text-center text-white/20 text-sm">No heroes found</div>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  // ─── DESKTOP DRAFT LAYOUT ─────────────────────────────────────────────────────
   return (
     <div className="flex flex-col" style={{ height: 'calc(100dvh - 64px)', background: 'linear-gradient(180deg, #0a0d1a 0%, #080c16 100%)' }}>
 

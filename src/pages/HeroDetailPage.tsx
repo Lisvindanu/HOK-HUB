@@ -263,47 +263,72 @@ export function HeroDetailPage() {
                   transition={{ duration: 0.4, delay: 0.32 }}
                   className="p-4 md:p-6 bg-dark-300/50 border border-white/5 rounded-2xl"
                 >
-                  <h2 className="text-lg md:text-xl font-semibold text-white mb-4 md:mb-6">Skills</h2>
+                  <div className="flex items-center justify-between mb-4 md:mb-6">
+                    <h2 className="text-lg md:text-xl font-semibold text-white">Skills</h2>
+                    {hero.skill.length > 5 && (
+                      <span className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-1 rounded-lg">
+                        Multi-Mode Hero • {hero.skill.length} Skills
+                      </span>
+                    )}
+                  </div>
                   <div className="space-y-3 md:space-y-4">
-                    {hero.skill.map((skill, index) => (
-                      <div
-                        key={index}
-                        className="flex gap-3 md:gap-4 p-3 md:p-4 bg-dark-200/50 rounded-xl border border-white/5 hover:border-primary-500/20 transition-all"
-                      >
-                        <div className="flex-shrink-0">
-                          <img
-                            src={skill.skillImg}
-                            alt={skill.skillName}
-                            className="w-12 h-12 md:w-14 md:h-14 rounded-xl border border-white/10"
-                            onError={(e) => {
-                              e.currentTarget.src = 'https://via.placeholder.com/56?text=?';
-                            }}
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="text-sm font-semibold text-white">
-                              {index === 0 ? 'Passive' : `Skill ${index}`}: {skill.skillName}
-                            </h3>
+                    {hero.skill.map((skill, index) => {
+                      // Detect skill type for better labeling
+                      let skillLabel = '';
+                      if (index === 0) {
+                        skillLabel = 'Passive';
+                      } else if (skill.skillName.toLowerCase().includes('awakening')) {
+                        skillLabel = 'Ultimate';
+                      } else {
+                        // For multi-mode heroes (>5 skills), just show skill name
+                        // For normal heroes, show "Skill 1, 2, 3, Ultimate"
+                        if (hero.skill.length > 5) {
+                          skillLabel = '';
+                        } else {
+                          skillLabel = index === 4 ? 'Ultimate' : `Skill ${index}`;
+                        }
+                      }
+
+                      return (
+                        <div
+                          key={index}
+                          className="flex gap-3 md:gap-4 p-3 md:p-4 bg-dark-200/50 rounded-xl border border-white/5 hover:border-primary-500/20 transition-all"
+                        >
+                          <div className="flex-shrink-0">
+                            <img
+                              src={skill.skillImg}
+                              alt={skill.skillName}
+                              className="w-12 h-12 md:w-14 md:h-14 rounded-xl border border-white/10"
+                              onError={(e) => {
+                                e.currentTarget.src = 'https://via.placeholder.com/56?text=?';
+                              }}
+                            />
                           </div>
-                          <p className="text-xs text-gray-400 leading-relaxed line-clamp-3">
-                            {skill.skillDesc}
-                          </p>
-                          <div className="flex gap-4 mt-2">
-                            {skill.cooldown && skill.cooldown[0] > 0 && (
-                              <span className="text-[10px] text-blue-400">
-                                CD: {skill.cooldown.join('/')}s
-                              </span>
-                            )}
-                            {skill.cost && skill.cost[0] > 0 && (
-                              <span className="text-[10px] text-cyan-400">
-                                Cost: {skill.cost.join('/')}
-                              </span>
-                            )}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="text-sm font-semibold text-white">
+                                {skillLabel && `${skillLabel}: `}{skill.skillName}
+                              </h3>
+                            </div>
+                            <p className="text-xs text-gray-400 leading-relaxed line-clamp-3">
+                              {skill.skillDesc}
+                            </p>
+                            <div className="flex gap-4 mt-2">
+                              {skill.cooldown && skill.cooldown[0] > 0 && (
+                                <span className="text-[10px] text-blue-400">
+                                  CD: {skill.cooldown.join('/')}s
+                                </span>
+                              )}
+                              {skill.cost && skill.cost[0] > 0 && (
+                                <span className="text-[10px] text-cyan-400">
+                                  Cost: {skill.cost.join('/')}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </motion.div>
               )}

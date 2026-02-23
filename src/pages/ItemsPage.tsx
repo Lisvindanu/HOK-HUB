@@ -1,9 +1,11 @@
 import { useState, useMemo } from 'react';
-import { Search, Filter, Coins, Swords, Sparkles, Shield, Footprints, Trees, Users } from 'lucide-react';
+import { Search, Filter, Coins, Swords, Sparkles, Shield, Footprints, Trees, Users, List, GitBranch, ArrowRight } from 'lucide-react';
 import { useItems } from '../hooks/useItems';
 import { Loading } from '../components/ui/Loading';
 import { motion } from 'framer-motion';
 import type { Item } from '../types/hero';
+
+type ViewMode = 'list' | 'buildtree';
 
 const ITEM_TYPES = [
   { id: 0, name: 'All', icon: Filter },
@@ -24,6 +26,7 @@ const ITEM_LEVELS = [
 
 export function ItemsPage() {
   const { data: items, isLoading, error } = useItems();
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState(0);
   const [selectedLevel, setSelectedLevel] = useState(0);
@@ -66,9 +69,37 @@ export function ItemsPage() {
     <div className="min-h-screen bg-dark-400 py-8">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-display font-bold text-white mb-2">Equipment</h1>
-          <p className="text-gray-400">Browse all {items?.length || 0} items in Honor of Kings</p>
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-display font-bold text-white mb-1">Equipment</h1>
+            <p className="text-gray-400 text-sm">Browse all {items?.length || 0} items in Honor of Kings</p>
+          </div>
+
+          {/* View Toggle */}
+          <div className="flex gap-2 bg-dark-300 p-1 rounded-lg">
+            <button
+              onClick={() => setViewMode('list')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-all text-sm ${
+                viewMode === 'list'
+                  ? 'bg-primary-500 text-white'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <List className="w-4 h-4" />
+              All Items
+            </button>
+            <button
+              onClick={() => setViewMode('buildtree')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-all text-sm ${
+                viewMode === 'buildtree'
+                  ? 'bg-primary-500 text-white'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <GitBranch className="w-4 h-4" />
+              Build Tree
+            </button>
+          </div>
         </div>
 
         {/* Filters */}
@@ -125,60 +156,41 @@ export function ItemsPage() {
         </div>
 
         {/* Results count */}
-        <p className="text-gray-500 mb-4">Showing {filteredItems.length} items</p>
+        <p className="text-gray-500 mb-4">
+          {viewMode === 'list' ? `Showing ${filteredItems.length} items` : 'Select an item to see its build path'}
+        </p>
 
-        {/* Items Grid by Type */}
-        {groupedItems.map((group) => (
+        {/* LIST VIEW */}
+        {viewMode === 'list' && groupedItems.map((group) => (
           <div key={group.type} className="mb-8">
-            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2 border-b border-white/10 pb-2">
               {group.typeName}
               <span className="text-sm font-normal text-gray-500">({group.items.length})</span>
             </h2>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-1">
               {group.items.map((item) => (
                 <motion.div
                   key={item.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="group cursor-pointer"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="group cursor-pointer py-2 border-b border-white/5 hover:bg-white/5 -mx-2 px-2 rounded transition-colors"
                   onClick={() => setSelectedItem(item)}
                 >
-                  <div className={`relative bg-dark-300 rounded-xl p-3 border transition-all hover:border-primary-500/50 ${
-                    item.isTopEquip ? 'border-amber-500/30' : 'border-white/10'
-                  }`}>
-                    {/* Top Equipment Badge */}
-                    {item.isTopEquip && (
-                      <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                        TOP
-                      </div>
-                    )}
-
-                    {/* Icon */}
-                    <div className="aspect-square mb-2 rounded-lg overflow-hidden bg-dark-400">
-                      <img
-                        src={item.icon}
-                        alt={item.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform"
-                      />
+                  <div className="flex items-center gap-3">
+                    <div className="relative flex-shrink-0">
+                      <img src={item.icon} alt={item.name} className="w-10 h-10 rounded-lg object-cover" />
+                      <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[10px] font-medium text-amber-400 bg-dark-400/90 px-1.5 rounded">
+                        {item.price}
+                      </span>
                     </div>
-
-                    {/* Name */}
-                    <h3 className="text-sm font-medium text-white truncate mb-1">{item.name}</h3>
-
-                    {/* Price */}
-                    <div className="flex items-center gap-1 text-amber-400 text-xs">
-                      <Coins className="w-3 h-3" />
-                      {item.price}
-                    </div>
-
-                    {/* Level Badge */}
-                    <div className={`mt-2 text-[10px] font-medium px-2 py-0.5 rounded-full inline-block ${
-                      item.level === 3 ? 'bg-purple-500/20 text-purple-400' :
-                      item.level === 2 ? 'bg-blue-500/20 text-blue-400' :
-                      'bg-gray-500/20 text-gray-400'
-                    }`}>
-                      {item.levelName}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-medium text-white truncate group-hover:text-primary-400 transition-colors">
+                        {item.name}
+                      </h3>
+                      {item.description && (
+                        <p className="text-xs text-gray-500 truncate">{item.description.split('\n')[0]}</p>
+                      )}
                     </div>
                   </div>
                 </motion.div>
@@ -186,6 +198,79 @@ export function ItemsPage() {
             </div>
           </div>
         ))}
+
+        {/* BUILD TREE VIEW */}
+        {viewMode === 'buildtree' && (
+          <div className="space-y-6">
+            {/* Advanced Items with build paths */}
+            {groupedItems.map((group) => {
+              const advancedItems = group.items.filter(i => i.level === 3 && (i.buildsFrom?.length ?? 0) > 0);
+              if (advancedItems.length === 0) return null;
+
+              return (
+                <div key={group.type} className="mb-8">
+                  <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2 border-b border-white/10 pb-2">
+                    {group.typeName} Build Paths
+                  </h2>
+
+                  <div className="space-y-4">
+                    {advancedItems.map((item) => (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-dark-300 rounded-xl p-4 border border-white/5"
+                      >
+                        {/* Build Path: Components -> Final Item */}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {/* Component Items */}
+                          {(item.buildsFrom || []).map((comp, idx) => (
+                            <div key={comp.id} className="flex items-center gap-2">
+                              <div
+                                className="flex items-center gap-2 bg-dark-400 rounded-lg px-3 py-2 cursor-pointer hover:bg-dark-200 transition-colors"
+                                onClick={() => {
+                                  const fullItem = items?.find(i => i.id === comp.id);
+                                  if (fullItem) setSelectedItem(fullItem);
+                                }}
+                              >
+                                <img src={comp.icon} alt={comp.name} className="w-8 h-8 rounded" />
+                                <div>
+                                  <p className="text-sm text-white">{comp.name}</p>
+                                  <p className="text-xs text-amber-400">{comp.price}</p>
+                                </div>
+                              </div>
+                              {idx < (item.buildsFrom?.length ?? 0) - 1 && (
+                                <span className="text-gray-600">+</span>
+                              )}
+                            </div>
+                          ))}
+
+                          {/* Arrow */}
+                          <ArrowRight className="w-5 h-5 text-primary-500 mx-2" />
+
+                          {/* Final Item */}
+                          <div
+                            className="flex items-center gap-2 bg-primary-500/20 border border-primary-500/30 rounded-lg px-3 py-2 cursor-pointer hover:bg-primary-500/30 transition-colors"
+                            onClick={() => setSelectedItem(item)}
+                          >
+                            <img src={item.icon} alt={item.name} className="w-10 h-10 rounded" />
+                            <div>
+                              <p className="text-sm font-medium text-white">{item.name}</p>
+                              <p className="text-xs text-amber-400">{item.price} Gold</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Description */}
+                        <p className="text-xs text-gray-500 mt-2">{item.description}</p>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Item Detail Modal */}
         {selectedItem && (
@@ -222,7 +307,7 @@ export function ItemsPage() {
               </div>
 
               {/* Passive Skills */}
-              {selectedItem.passiveSkills.length > 0 && (
+              {(selectedItem.passiveSkills?.length ?? 0) > 0 && (
                 <div className="mb-4">
                   <h3 className="text-sm font-semibold text-gray-400 mb-2">Passive Skills</h3>
                   {selectedItem.passiveSkills.map((skill, idx) => (
@@ -230,6 +315,52 @@ export function ItemsPage() {
                       <p className="text-white text-sm whitespace-pre-line">{skill.description}</p>
                     </div>
                   ))}
+                </div>
+              )}
+
+              {/* Builds From */}
+              {(selectedItem.buildsFrom?.length ?? 0) > 0 && (
+                <div className="mb-4">
+                  <h3 className="text-sm font-semibold text-gray-400 mb-2">Required Components</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedItem.buildsFrom?.map((comp) => (
+                      <div
+                        key={comp.id}
+                        className="flex items-center gap-2 bg-dark-400 rounded-lg px-2 py-1 cursor-pointer hover:bg-dark-200"
+                        onClick={() => {
+                          const fullItem = items?.find(i => i.id === comp.id);
+                          if (fullItem) setSelectedItem(fullItem);
+                        }}
+                      >
+                        <img src={comp.icon} alt={comp.name} className="w-6 h-6 rounded" />
+                        <span className="text-sm text-white">{comp.name}</span>
+                        <span className="text-xs text-amber-400">{comp.price}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Upgrades To */}
+              {(selectedItem.upgradesTo?.length ?? 0) > 0 && (
+                <div className="mb-4">
+                  <h3 className="text-sm font-semibold text-gray-400 mb-2">Can Upgrade To</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedItem.upgradesTo?.map((upgrade) => (
+                      <div
+                        key={upgrade.id}
+                        className="flex items-center gap-2 bg-primary-500/20 border border-primary-500/30 rounded-lg px-2 py-1 cursor-pointer hover:bg-primary-500/30"
+                        onClick={() => {
+                          const fullItem = items?.find(i => i.id === upgrade.id);
+                          if (fullItem) setSelectedItem(fullItem);
+                        }}
+                      >
+                        <img src={upgrade.icon} alt={upgrade.name} className="w-6 h-6 rounded" />
+                        <span className="text-sm text-white">{upgrade.name}</span>
+                        <span className="text-xs text-amber-400">{upgrade.price}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 

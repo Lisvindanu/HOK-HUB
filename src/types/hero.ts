@@ -130,6 +130,13 @@ export interface ItemPassiveSkill {
   description: string;
 }
 
+export interface ItemReference {
+  id: number;
+  name: string;
+  icon: string;
+  price?: number;
+}
+
 export interface Item {
   id: number;
   name: string;
@@ -141,7 +148,8 @@ export interface Item {
   level: number;
   levelName: string;
   isTopEquip: boolean;
-  preEquipIds: number[];
+  buildsFrom: ItemReference[];
+  upgradesTo: ItemReference[];
   passiveSkills: ItemPassiveSkill[];
   effects: ItemEffect[];
 }

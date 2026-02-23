@@ -159,43 +159,44 @@ export function ArcanaPage() {
         {/* Results count */}
         <p className="text-gray-500 mb-4">Showing {filteredArcana.length} arcana</p>
 
-        {/* Arcana Grid by Level */}
+        {/* Arcana List by Level - Clean Layout */}
         {groupedArcana.map((group) => (
           <div key={group.level} className="mb-8">
-            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2 border-b border-white/10 pb-2">
               Level {group.level}
               <span className="text-sm font-normal text-gray-500">({group.arcana.length})</span>
             </h2>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {/* 3 columns desktop, 2 tablet, 1 mobile */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-1">
               {group.arcana.map((arc) => {
                 const colorClasses = getColorClasses(arc.color);
                 return (
                   <motion.div
                     key={arc.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="group cursor-pointer"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="group cursor-pointer py-2 border-b border-white/5 hover:bg-white/5 -mx-2 px-2 rounded transition-colors"
                     onClick={() => setSelectedArcana(arc)}
                   >
-                    <div className={`relative bg-dark-300 rounded-xl p-3 border transition-all hover:shadow-lg ${colorClasses.border} hover:${colorClasses.glow}`}>
-                      {/* Icon */}
-                      <div className={`aspect-square mb-2 rounded-lg overflow-hidden ${colorClasses.bg}`}>
+                    <div className="flex items-center gap-3">
+                      {/* Icon with color indicator */}
+                      <div className={`relative flex-shrink-0 p-1 rounded-lg ${colorClasses.bg}`}>
                         <img
                           src={arc.icon}
                           alt={arc.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                          className="w-9 h-9 rounded object-cover"
                         />
                       </div>
 
-                      {/* Name */}
-                      <h3 className="text-sm font-medium text-white truncate mb-1">
-                        {arc.name.replace(/^Lvl \d+: /, '')}
-                      </h3>
-
-                      {/* Color Badge */}
-                      <div className={`text-[10px] font-medium px-2 py-0.5 rounded-full inline-block ${colorClasses.bg} ${colorClasses.text}`}>
-                        {arc.colorName}
+                      {/* Name & Stats */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-medium text-white truncate group-hover:text-primary-400 transition-colors">
+                          {arc.name.replace(/^Lvl \d+: /, '')}
+                        </h3>
+                        <p className={`text-xs ${colorClasses.text} truncate`}>
+                          {arc.description}
+                        </p>
                       </div>
                     </div>
                   </motion.div>

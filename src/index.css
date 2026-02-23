@@ -84,6 +84,24 @@
   .border-glow {
     box-shadow: 0 0 20px rgba(14, 165, 233, 0.2);
   }
+
+  /* 3D Card Flip */
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .transform-style-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
 }
 
 /* Custom scrollbar */

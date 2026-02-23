@@ -1361,8 +1361,13 @@ export function TierListPage() {
                     disabled={!!user}
                     className="w-full px-4 py-3 bg-dark-200/50 border border-white/10 rounded-xl focus:outline-none focus:border-primary-500/50 text-white placeholder-gray-500 disabled:opacity-60"
                   />
-                  {user && (
+                  {user ? (
                     <p className="text-xs text-gray-500 mt-1">Logged in as {user.name}</p>
+                  ) : (
+                    <p className="text-xs text-amber-400/80 mt-1.5">
+                      ⚠ Not logged in — tier list won't be linked to your contributor profile.{' '}
+                      <Link to="/auth" className="text-primary-400 hover:text-primary-300 underline">Login →</Link>
+                    </p>
                   )}
                 </div>
               </div>

@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { Sword, Wand2, ChevronRight } from 'lucide-react';
+import { Sword, Wand2 } from 'lucide-react';
 import type { Hero } from '../../types/hero';
 import { getTierColor } from '../../lib/utils';
 
@@ -89,9 +89,9 @@ export function HeroCard({ hero }: HeroCardProps) {
               <img
                 src={hero.icon}
                 alt=""
-                className="w-full h-full object-cover grayscale opacity-[0.08] scale-125"
+                className="w-full h-full object-cover grayscale opacity-20 scale-110 blur-[2px]"
               />
-              <div className="absolute inset-0 bg-dark-400/90" />
+              <div className="absolute inset-0 bg-gradient-to-b from-dark-400/70 via-dark-400/80 to-dark-400/90" />
             </div>
 
             {/* TCG Inner Frame */}
@@ -181,27 +181,21 @@ export function HeroCard({ hero }: HeroCardProps) {
               <div className="flex-1" />
 
               {/* Stats Section - TCG Style */}
-              <div className="border-t border-amber-500/20 pt-2 mb-2">
+              <div className="border-t border-amber-500/20 pt-2">
                 <div className="grid grid-cols-3 gap-1.5">
-                  <div className="text-center p-1 bg-dark-400/50 rounded border border-green-500/20">
-                    <span className="text-green-400 font-bold text-[11px] block">{hero.stats.winRate}</span>
+                  <div className="text-center p-1.5 bg-dark-400/50 rounded border border-green-500/20">
+                    <span className="text-green-400 font-bold text-xs block">{hero.stats.winRate}</span>
                     <p className="text-[7px] text-green-500/70 uppercase tracking-wider">Win</p>
                   </div>
-                  <div className="text-center p-1 bg-dark-400/50 rounded border border-blue-500/20">
-                    <span className="text-blue-400 font-bold text-[11px] block">{hero.stats.pickRate}</span>
+                  <div className="text-center p-1.5 bg-dark-400/50 rounded border border-blue-500/20">
+                    <span className="text-blue-400 font-bold text-xs block">{hero.stats.pickRate}</span>
                     <p className="text-[7px] text-blue-500/70 uppercase tracking-wider">Pick</p>
                   </div>
-                  <div className="text-center p-1 bg-dark-400/50 rounded border border-red-500/20">
-                    <span className="text-red-400 font-bold text-[11px] block">{hero.stats.banRate}</span>
+                  <div className="text-center p-1.5 bg-dark-400/50 rounded border border-red-500/20">
+                    <span className="text-red-400 font-bold text-xs block">{hero.stats.banRate}</span>
                     <p className="text-[7px] text-red-500/70 uppercase tracking-wider">Ban</p>
                   </div>
                 </div>
-              </div>
-
-              {/* CTA - View Details */}
-              <div className="flex items-center justify-center gap-1 py-1.5 text-gray-500 group-hover:text-primary-400 transition-colors">
-                <span className="text-[9px] font-medium uppercase tracking-wider">View Details</span>
-                <ChevronRight className="w-3 h-3" />
               </div>
             </div>
           </div>

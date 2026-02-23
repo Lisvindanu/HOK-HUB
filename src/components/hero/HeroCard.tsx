@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { Sword, Wand2 } from 'lucide-react';
 import type { Hero } from '../../types/hero';
@@ -35,172 +36,214 @@ const ROLE_GLOW: Record<string, { border: string; shadow: string; text: string }
 const PHYSICAL_ROLES = ['Tank', 'Fighter', 'Assassin', 'Marksman'];
 
 export function HeroCard({ hero }: HeroCardProps) {
+  const [isFlipped, setIsFlipped] = useState(false);
+
   const lanes = hero.lanes && hero.lanes.length > 0 ? hero.lanes : [hero.lane];
   const roleGlow = ROLE_GLOW[hero.role] || ROLE_GLOW['Fighter'];
   const skills = hero.skill?.slice(0, 4) || [];
   const isPhysical = PHYSICAL_ROLES.includes(hero.role);
 
+  // Use best skin image for watermark, fallback to icon
+  const bestSkin = hero.skins && hero.skins.length > 0 ? hero.skins[0] : null;
+  const watermarkImage = bestSkin?.skinImage || bestSkin?.skinCover || hero.icon;
+
+  // Handle tap for mobile
+  const handleTap = (e: React.MouseEvent | React.TouchEvent) => {
+    // Check if it's a touch device
+    if ('ontouchstart' in window) {
+      e.preventDefault();
+      setIsFlipped(!isFlipped);
+    }
+  };
+
   return (
-    <Link
-      to="/heroes/$heroId"
-      params={{ heroId: hero.heroId.toString() }}
-      className="group block perspective-1000"
-    >
-      <div className="relative w-full aspect-[3/4] transform-style-3d transition-transform duration-700 ease-out group-hover:rotate-y-180">
+    <div className="group block perspective-1000">
+      <div
+        className={`relative w-full aspect-[3/4] transform-style-3d transition-transform duration-700 ease-out ${
+          isFlipped ? 'rotate-y-180' : ''
+        } md:group-hover:rotate-y-180`}
+        onClick={handleTap}
+        onTouchEnd={handleTap}
+      >
         {/* Front Side */}
         <div className="absolute inset-0 backface-hidden">
-          <div className="relative h-full overflow-hidden rounded-2xl bg-dark-300/50 border border-white/10 transition-all duration-300">
-            {/* Hero Image */}
-            <div className="relative h-full overflow-hidden">
-              <img
-                src={hero.icon}
-                alt={hero.name}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
+          <Link
+            to="/heroes/$heroId"
+            params={{ heroId: hero.heroId.toString() }}
+            className="block h-full"
+            onClick={(e) => {
+              // On mobile, first tap flips, second tap navigates
+              if ('ontouchstart' in window && !isFlipped) {
+                e.preventDefault();
+              }
+            }}
+          >
+            <div className="relative h-full overflow-hidden rounded-2xl bg-dark-300/50 border border-white/10 transition-all duration-300">
+              {/* Hero Image */}
+              <div className="relative h-full overflow-hidden">
+                <img
+                  src={hero.icon}
+                  alt={hero.name}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
 
-              {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-dark-400 via-dark-400/30 to-transparent" />
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-dark-400 via-dark-400/30 to-transparent" />
 
-              {/* Tier Badge */}
-              <div className="absolute top-3 right-3">
-                <span className={`px-2.5 py-1 rounded-lg text-xs font-bold bg-dark-400/90 backdrop-blur-sm border border-white/10 ${getTierColor(hero.stats.tier)}`}>
-                  {hero.stats.tier}
-                </span>
-              </div>
+                {/* Tier Badge */}
+                <div className="absolute top-3 right-3">
+                  <span className={`px-2.5 py-1 rounded-lg text-xs font-bold bg-dark-400/90 backdrop-blur-sm border border-white/10 ${getTierColor(hero.stats.tier)}`}>
+                    {hero.stats.tier}
+                  </span>
+                </div>
 
-              {/* Hero Info - Overlaid at bottom */}
-              <div className="absolute bottom-0 left-0 right-0 p-4">
-                <h3 className="font-bold text-white text-lg leading-tight drop-shadow-lg">
-                  {hero.name}
-                </h3>
-                <p className={`text-sm font-medium mt-1 ${roleGlow.text}`}>
-                  {hero.role}
-                </p>
+                {/* Tap hint for mobile */}
+                <div className="md:hidden absolute top-3 left-3">
+                  <span className="px-2 py-1 rounded-lg text-[10px] font-medium bg-dark-400/80 backdrop-blur-sm border border-white/10 text-gray-400">
+                    Tap
+                  </span>
+                </div>
+
+                {/* Hero Info - Overlaid at bottom */}
+                <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <h3 className="font-bold text-white text-lg leading-tight drop-shadow-lg">
+                    {hero.name}
+                  </h3>
+                  <p className={`text-sm font-medium mt-1 ${roleGlow.text}`}>
+                    {hero.role}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          </Link>
         </div>
 
         {/* Back Side - TCG Style */}
         <div className="absolute inset-0 backface-hidden rotate-y-180">
-          <div className={`relative h-full overflow-hidden rounded-2xl border-2 ${roleGlow.border} shadow-lg ${roleGlow.shadow} transition-shadow duration-300`}>
-            {/* Grayscale Watermark Background */}
-            <div className="absolute inset-0">
-              <img
-                src={hero.icon}
-                alt=""
-                className="w-full h-full object-cover grayscale opacity-20 scale-110 blur-[2px]"
-              />
-              <div className="absolute inset-0 bg-gradient-to-b from-dark-400/70 via-dark-400/80 to-dark-400/90" />
-            </div>
+          <Link
+            to="/heroes/$heroId"
+            params={{ heroId: hero.heroId.toString() }}
+            className="block h-full"
+          >
+            <div className={`relative h-full overflow-hidden rounded-2xl border-2 ${roleGlow.border} shadow-lg ${roleGlow.shadow} transition-shadow duration-300`}>
+              {/* Skin/Hero Watermark Background - Larger & More Visible */}
+              <div className="absolute inset-0 overflow-hidden">
+                <img
+                  src={watermarkImage}
+                  alt=""
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] object-cover grayscale opacity-[0.35] blur-[1px]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-dark-400/60 via-dark-400/70 to-dark-400/80" />
+              </div>
 
-            {/* TCG Inner Frame */}
-            <div className="absolute inset-2 border border-amber-500/20 rounded-xl pointer-events-none" />
+              {/* TCG Inner Frame */}
+              <div className="absolute inset-2 border border-amber-500/30 rounded-xl pointer-events-none" />
 
-            {/* Content */}
-            <div className="relative h-full p-3 flex flex-col">
-              {/* Header with Mini Avatar */}
-              <div className="flex items-center gap-2.5 mb-2.5">
-                <div className={`w-11 h-11 rounded-full overflow-hidden border-2 ${roleGlow.border} shadow-md ${roleGlow.shadow}`}>
-                  <img
-                    src={hero.icon}
-                    alt={hero.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-white text-sm truncate">{hero.name}</h3>
-                  <div className="flex items-center gap-1.5">
-                    {/* Damage Type Icon */}
-                    {isPhysical ? (
-                      <Sword className="w-3 h-3 text-orange-400" />
-                    ) : (
-                      <Wand2 className="w-3 h-3 text-cyan-400" />
-                    )}
-                    <p className={`text-[11px] font-semibold ${roleGlow.text}`}>{hero.role}</p>
+              {/* Content */}
+              <div className="relative h-full p-3 flex flex-col">
+                {/* Header with Mini Avatar */}
+                <div className="flex items-center gap-2.5 mb-3">
+                  <div className={`w-12 h-12 rounded-full overflow-hidden border-2 ${roleGlow.border} shadow-md ${roleGlow.shadow}`}>
+                    <img
+                      src={hero.icon}
+                      alt={hero.name}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                </div>
-                <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold bg-dark-400/80 ${getTierColor(hero.stats.tier)}`}>
-                  {hero.stats.tier}
-                </span>
-              </div>
-
-              {/* Lanes Section */}
-              <div className="mb-2">
-                <p className="text-[8px] text-amber-500/70 uppercase tracking-widest font-semibold mb-1">Lanes</p>
-                <div className="flex flex-wrap gap-1">
-                  {lanes.map((lane) => (
-                    <div
-                      key={lane}
-                      className="flex items-center gap-1 px-1.5 py-0.5 bg-dark-400/60 rounded border border-white/10"
-                    >
-                      {LANE_ICONS[lane] && (
-                        <img
-                          src={LANE_ICONS[lane]}
-                          alt={lane}
-                          className="w-3.5 h-3.5 object-contain"
-                        />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-white text-base truncate drop-shadow-md">{hero.name}</h3>
+                    <div className="flex items-center gap-1.5">
+                      {/* Damage Type Icon */}
+                      {isPhysical ? (
+                        <Sword className="w-3.5 h-3.5 text-orange-400" />
+                      ) : (
+                        <Wand2 className="w-3.5 h-3.5 text-cyan-400" />
                       )}
-                      <span className="text-[9px] text-white font-medium">
-                        {formatLane(lane)}
-                      </span>
+                      <p className={`text-xs font-semibold ${roleGlow.text}`}>{hero.role}</p>
                     </div>
-                  ))}
+                  </div>
+                  <span className={`px-2 py-1 rounded text-xs font-bold bg-dark-400/80 ${getTierColor(hero.stats.tier)}`}>
+                    {hero.stats.tier}
+                  </span>
                 </div>
-              </div>
 
-              {/* Skills Section */}
-              {skills.length > 0 && (
-                <div className="mb-2">
-                  <p className="text-[8px] text-amber-500/70 uppercase tracking-widest font-semibold mb-1">Skills</p>
-                  <div className="flex gap-1">
-                    {skills.map((skill, index) => (
+                {/* Lanes Section */}
+                <div className="mb-3">
+                  <p className="text-[9px] text-amber-400/80 uppercase tracking-widest font-semibold mb-1.5">Lanes</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {lanes.map((lane) => (
                       <div
-                        key={index}
-                        className="w-7 h-7 rounded overflow-hidden border border-white/20 bg-dark-400/60"
-                        title={skill.skillName}
+                        key={lane}
+                        className="flex items-center gap-1.5 px-2 py-1 bg-dark-400/70 rounded-lg border border-white/15"
                       >
-                        {skill.skillImg ? (
+                        {LANE_ICONS[lane] && (
                           <img
-                            src={skill.skillImg}
-                            alt={skill.skillName}
-                            className="w-full h-full object-cover"
+                            src={LANE_ICONS[lane]}
+                            alt={lane}
+                            className="w-4 h-4 object-contain"
                           />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-[9px] text-gray-500">
-                            {index === 0 ? 'P' : index}
-                          </div>
                         )}
+                        <span className="text-[10px] text-white font-medium">
+                          {formatLane(lane)}
+                        </span>
                       </div>
                     ))}
                   </div>
                 </div>
-              )}
 
-              {/* Spacer */}
-              <div className="flex-1" />
+                {/* Skills Section */}
+                {skills.length > 0 && (
+                  <div className="mb-3">
+                    <p className="text-[9px] text-amber-400/80 uppercase tracking-widest font-semibold mb-1.5">Skills</p>
+                    <div className="flex gap-1.5">
+                      {skills.map((skill, index) => (
+                        <div
+                          key={index}
+                          className="w-9 h-9 rounded-lg overflow-hidden border border-white/25 bg-dark-400/60 shadow-sm"
+                          title={skill.skillName}
+                        >
+                          {skill.skillImg ? (
+                            <img
+                              src={skill.skillImg}
+                              alt={skill.skillName}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-xs text-gray-500 font-medium">
+                              {index === 0 ? 'P' : index}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-              {/* Stats Section - TCG Style */}
-              <div className="border-t border-amber-500/20 pt-2">
-                <div className="grid grid-cols-3 gap-1.5">
-                  <div className="text-center p-1.5 bg-dark-400/50 rounded border border-green-500/20">
-                    <span className="text-green-400 font-bold text-xs block">{hero.stats.winRate}</span>
-                    <p className="text-[7px] text-green-500/70 uppercase tracking-wider">Win</p>
-                  </div>
-                  <div className="text-center p-1.5 bg-dark-400/50 rounded border border-blue-500/20">
-                    <span className="text-blue-400 font-bold text-xs block">{hero.stats.pickRate}</span>
-                    <p className="text-[7px] text-blue-500/70 uppercase tracking-wider">Pick</p>
-                  </div>
-                  <div className="text-center p-1.5 bg-dark-400/50 rounded border border-red-500/20">
-                    <span className="text-red-400 font-bold text-xs block">{hero.stats.banRate}</span>
-                    <p className="text-[7px] text-red-500/70 uppercase tracking-wider">Ban</p>
+                {/* Spacer */}
+                <div className="flex-1" />
+
+                {/* Stats Section - TCG Style */}
+                <div className="border-t border-amber-500/30 pt-3">
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="text-center p-2 bg-dark-400/60 rounded-lg border border-green-500/30">
+                      <span className="text-green-400 font-bold text-sm block">{hero.stats.winRate}</span>
+                      <p className="text-[8px] text-green-500/80 uppercase tracking-wider font-medium">Win</p>
+                    </div>
+                    <div className="text-center p-2 bg-dark-400/60 rounded-lg border border-blue-500/30">
+                      <span className="text-blue-400 font-bold text-sm block">{hero.stats.pickRate}</span>
+                      <p className="text-[8px] text-blue-500/80 uppercase tracking-wider font-medium">Pick</p>
+                    </div>
+                    <div className="text-center p-2 bg-dark-400/60 rounded-lg border border-red-500/30">
+                      <span className="text-red-400 font-bold text-sm block">{hero.stats.banRate}</span>
+                      <p className="text-[8px] text-red-500/80 uppercase tracking-wider font-medium">Ban</p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

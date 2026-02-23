@@ -118,13 +118,13 @@ export function HeroCard({ hero }: HeroCardProps) {
         </div>
 
         {/* Back Side - TCG Style */}
-        <div className="absolute inset-0 backface-hidden rotate-y-180">
+        <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180">
           <Link
             to="/heroes/$heroId"
             params={{ heroId: hero.heroId.toString() }}
-            className="block h-full"
+            className="block w-full h-full"
           >
-            <div className={`relative h-full overflow-hidden rounded-2xl border-2 ${roleGlow.border} shadow-lg ${roleGlow.shadow} transition-shadow duration-300`}>
+            <div className={`relative w-full h-full overflow-hidden rounded-2xl border-2 ${roleGlow.border} shadow-lg ${roleGlow.shadow} transition-shadow duration-300 bg-dark-400`}>
               {/* Skin/Hero Watermark Background - Larger & More Visible */}
               <div className="absolute inset-0 overflow-hidden">
                 <img

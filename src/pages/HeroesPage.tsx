@@ -11,6 +11,14 @@ const roles: (HeroRole | 'All')[] = ['All', 'Tank', 'Fighter', 'Assassin', 'Mage
 const lanes = ['All', 'Clash Lane', 'Jungling', 'Mid Lane', 'Farm Lane', 'Roaming'];
 const tiers = ['All', 'S+', 'S', 'A', 'B', 'C', 'D'];
 
+const LANE_ICONS: Record<string, string> = {
+  'Clash Lane': '/assets/lanes/clash-lane.webp',
+  'Jungling': '/assets/lanes/jungle.webp',
+  'Mid Lane': '/assets/lanes/mid-lane.webp',
+  'Farm Lane': '/assets/lanes/farm-lane.webp',
+  'Roaming': '/assets/lanes/roamer.webp',
+};
+
 const formatLaneLabel = (lane: string): string => {
   if (lane === 'All') return 'All Lanes';
   if (lane === 'Jungling') return 'Jungle';
@@ -192,13 +200,18 @@ export function HeroesPage() {
                       <button
                         key={lane}
                         onClick={() => setFilter({ ...filter, lane })}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                           filter.lane === lane
                             ? 'bg-white text-dark-400'
                             : 'bg-dark-300/50 text-gray-400 hover:text-white'
                         }`}
+                        title={lane === 'All' ? 'All Lanes' : lane}
                       >
-                        {formatLaneLabel(lane)}
+                        {LANE_ICONS[lane] ? (
+                          <img src={LANE_ICONS[lane]} alt={lane} className="w-5 h-5 object-contain" />
+                        ) : (
+                          <span>{formatLaneLabel(lane)}</span>
+                        )}
                       </button>
                     ))}
                   </div>
@@ -237,13 +250,18 @@ export function HeroesPage() {
                   <button
                     key={lane}
                     onClick={() => setFilter({ ...filter, lane })}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                       filter.lane === lane
                         ? 'bg-primary-500/20 text-primary-400 border border-primary-500/30'
                         : 'text-gray-400 hover:text-white hover:bg-white/5'
                     }`}
+                    title={lane === 'All' ? 'All Lanes' : lane}
                   >
-                    {formatLaneLabel(lane)}
+                    {LANE_ICONS[lane] ? (
+                      <img src={LANE_ICONS[lane]} alt={lane} className="w-5 h-5 object-contain" />
+                    ) : (
+                      <span>{formatLaneLabel(lane)}</span>
+                    )}
                   </button>
                 ))}
               </div>

@@ -10,6 +10,7 @@ export function HeroDetailPage() {
   const { heroId } = useParams({ from: '/heroes/$heroId' });
   const { data: hero, isLoading } = useHeroById(parseInt(heroId));
   const [selectedSkinIndex, setSelectedSkinIndex] = useState<number | null>(null);
+  const [activeSkillMode, setActiveSkillMode] = useState(0);
 
   if (isLoading) {
     return (
@@ -34,6 +35,46 @@ export function HeroDetailPage() {
   }
 
   const hasAttributes = hero.survivalPercentage && hero.survivalPercentage !== '0%';
+
+  // Helper: Group skills for multi-mode heroes
+  const getSkillGroups = () => {
+    if (!hero.skill || hero.skill.length <= 5) {
+      return [{ name: 'Skills', skills: hero.skill || [] }];
+    }
+
+    // Chicha pattern: 4+4+4 (3 weapon modes)
+    if (hero.name === 'Chicha' && hero.skill.length === 12) {
+      return [
+        { name: 'Polearm', skills: hero.skill.slice(0, 4) },
+        { name: 'Dagger-Axe', skills: hero.skill.slice(4, 8) },
+        { name: 'Bow', skills: hero.skill.slice(8, 12) }
+      ];
+    }
+
+    // Li Xin pattern: 5 base + 5 light + 5 dark
+    if (hero.name === 'Li Xin' && hero.skill.length === 15) {
+      return [
+        { name: 'Base', skills: hero.skill.slice(0, 5) },
+        { name: 'Light Form', skills: hero.skill.slice(5, 10) },
+        { name: 'Dark Form', skills: hero.skill.slice(10, 15) }
+      ];
+    }
+
+    // Generic multi-mode: try to split evenly
+    const skillsPerMode = hero.skill.length <= 10 ? 5 : 4;
+    const modes = Math.ceil(hero.skill.length / skillsPerMode);
+    const groups = [];
+    for (let i = 0; i < modes; i++) {
+      groups.push({
+        name: `Mode ${i + 1}`,
+        skills: hero.skill.slice(i * skillsPerMode, (i + 1) * skillsPerMode)
+      });
+    }
+    return groups;
+  };
+
+  const skillGroups = getSkillGroups();
+  const isMultiMode = skillGroups.length > 1;
 
   return (
     <div className="min-h-screen bg-dark-400">
@@ -265,27 +306,50 @@ export function HeroDetailPage() {
                 >
                   <div className="flex items-center justify-between mb-4 md:mb-6">
                     <h2 className="text-lg md:text-xl font-semibold text-white">Skills</h2>
-                    {hero.skill.length > 5 && (
+                    {isMultiMode && (
                       <span className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-1 rounded-lg">
                         Multi-Mode Hero • {hero.skill.length} Skills
                       </span>
                     )}
                   </div>
+
+                  {/* Mode Tabs */}
+                  {isMultiMode && (
+                    <div className="flex gap-2 mb-4 overflow-x-auto">
+                      {skillGroups.map((group, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setActiveSkillMode(idx)}
+                          className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-all ${
+                            activeSkillMode === idx
+                              ? 'bg-primary-500 text-white'
+                              : 'bg-dark-200/50 text-gray-400 hover:bg-dark-200 hover:text-white'
+                          }`}
+                        >
+                          {group.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Skills Display */}
                   <div className="space-y-3 md:space-y-4">
-                    {hero.skill.map((skill, index) => {
-                      // Detect skill type for better labeling
+                    {skillGroups[activeSkillMode]?.skills.map((skill, index) => {
+                      // Determine skill label
                       let skillLabel = '';
                       if (index === 0) {
                         skillLabel = 'Passive';
                       } else if (skill.skillName.toLowerCase().includes('awakening')) {
                         skillLabel = 'Ultimate';
+                      } else if (!isMultiMode) {
+                        skillLabel = index === 4 ? 'Ultimate' : `Skill ${index}`;
                       } else {
-                        // For multi-mode heroes (>5 skills), just show skill name
-                        // For normal heroes, show "Skill 1, 2, 3, Ultimate"
-                        if (hero.skill.length > 5) {
-                          skillLabel = '';
-                        } else {
-                          skillLabel = index === 4 ? 'Ultimate' : `Skill ${index}`;
+                        // For multi-mode, show proper labels within each mode
+                        const skillsInMode = skillGroups[activeSkillMode].skills.length;
+                        if (index === skillsInMode - 1) {
+                          skillLabel = 'Ultimate';
+                        } else if (index > 0) {
+                          skillLabel = `Skill ${index}`;
                         }
                       }
 

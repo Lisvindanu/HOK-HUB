@@ -97,13 +97,15 @@ export function HeroDetailPage() {
                 transition={{ duration: 0.5, delay: 0.1 }}
                 className="flex-1"
               >
-                <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center gap-2 mb-3 flex-wrap">
                   <span className="px-3 py-1 rounded-lg bg-white/10 text-white/80 text-sm font-medium">
                     {hero.role}
                   </span>
-                  <span className="px-3 py-1 rounded-lg bg-white/5 text-white/60 text-sm">
-                    {hero.lane}
-                  </span>
+                  {(hero.lanes && hero.lanes.length > 0 ? hero.lanes : [hero.lane]).map((lane) => (
+                    <span key={lane} className="px-3 py-1 rounded-lg bg-white/5 text-white/60 text-sm">
+                      {lane}
+                    </span>
+                  ))}
                 </div>
 
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-4">

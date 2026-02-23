@@ -12,11 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TierListRouteImport } from './routes/tier-list'
 import { Route as SkinsRouteImport } from './routes/skins'
 import { Route as PatchNotesRouteImport } from './routes/patch-notes'
+import { Route as ItemsRouteImport } from './routes/items'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CountersRouteImport } from './routes/counters'
 import { Route as ContributorsRouteImport } from './routes/contributors'
 import { Route as ContributeRouteImport } from './routes/contribute'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ArcanaRouteImport } from './routes/arcana'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -36,6 +38,11 @@ const SkinsRoute = SkinsRouteImport.update({
 const PatchNotesRoute = PatchNotesRouteImport.update({
   id: '/patch-notes',
   path: '/patch-notes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ItemsRoute = ItemsRouteImport.update({
+  id: '/items',
+  path: '/items',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -61,6 +68,11 @@ const ContributeRoute = ContributeRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArcanaRoute = ArcanaRouteImport.update({
+  id: '/arcana',
+  path: '/arcana',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnalyticsRoute = AnalyticsRouteImport.update({
@@ -93,11 +105,13 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/analytics': typeof AnalyticsRoute
+  '/arcana': typeof ArcanaRoute
   '/auth': typeof AuthRoute
   '/contribute': typeof ContributeRoute
   '/contributors': typeof ContributorsRoute
   '/counters': typeof CountersRoute
   '/dashboard': typeof DashboardRoute
+  '/items': typeof ItemsRoute
   '/patch-notes': typeof PatchNotesRoute
   '/skins': typeof SkinsRoute
   '/tier-list': typeof TierListRoute
@@ -108,11 +122,13 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/analytics': typeof AnalyticsRoute
+  '/arcana': typeof ArcanaRoute
   '/auth': typeof AuthRoute
   '/contribute': typeof ContributeRoute
   '/contributors': typeof ContributorsRoute
   '/counters': typeof CountersRoute
   '/dashboard': typeof DashboardRoute
+  '/items': typeof ItemsRoute
   '/patch-notes': typeof PatchNotesRoute
   '/skins': typeof SkinsRoute
   '/tier-list': typeof TierListRoute
@@ -124,11 +140,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/analytics': typeof AnalyticsRoute
+  '/arcana': typeof ArcanaRoute
   '/auth': typeof AuthRoute
   '/contribute': typeof ContributeRoute
   '/contributors': typeof ContributorsRoute
   '/counters': typeof CountersRoute
   '/dashboard': typeof DashboardRoute
+  '/items': typeof ItemsRoute
   '/patch-notes': typeof PatchNotesRoute
   '/skins': typeof SkinsRoute
   '/tier-list': typeof TierListRoute
@@ -141,11 +159,13 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/analytics'
+    | '/arcana'
     | '/auth'
     | '/contribute'
     | '/contributors'
     | '/counters'
     | '/dashboard'
+    | '/items'
     | '/patch-notes'
     | '/skins'
     | '/tier-list'
@@ -156,11 +176,13 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/analytics'
+    | '/arcana'
     | '/auth'
     | '/contribute'
     | '/contributors'
     | '/counters'
     | '/dashboard'
+    | '/items'
     | '/patch-notes'
     | '/skins'
     | '/tier-list'
@@ -171,11 +193,13 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/analytics'
+    | '/arcana'
     | '/auth'
     | '/contribute'
     | '/contributors'
     | '/counters'
     | '/dashboard'
+    | '/items'
     | '/patch-notes'
     | '/skins'
     | '/tier-list'
@@ -187,11 +211,13 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   AnalyticsRoute: typeof AnalyticsRoute
+  ArcanaRoute: typeof ArcanaRoute
   AuthRoute: typeof AuthRoute
   ContributeRoute: typeof ContributeRoute
   ContributorsRoute: typeof ContributorsRoute
   CountersRoute: typeof CountersRoute
   DashboardRoute: typeof DashboardRoute
+  ItemsRoute: typeof ItemsRoute
   PatchNotesRoute: typeof PatchNotesRoute
   SkinsRoute: typeof SkinsRoute
   TierListRoute: typeof TierListRoute
@@ -220,6 +246,13 @@ declare module '@tanstack/react-router' {
       path: '/patch-notes'
       fullPath: '/patch-notes'
       preLoaderRoute: typeof PatchNotesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/items': {
+      id: '/items'
+      path: '/items'
+      fullPath: '/items'
+      preLoaderRoute: typeof ItemsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -255,6 +288,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/arcana': {
+      id: '/arcana'
+      path: '/arcana'
+      fullPath: '/arcana'
+      preLoaderRoute: typeof ArcanaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/analytics': {
@@ -299,11 +339,13 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AnalyticsRoute: AnalyticsRoute,
+  ArcanaRoute: ArcanaRoute,
   AuthRoute: AuthRoute,
   ContributeRoute: ContributeRoute,
   ContributorsRoute: ContributorsRoute,
   CountersRoute: CountersRoute,
   DashboardRoute: DashboardRoute,
+  ItemsRoute: ItemsRoute,
   PatchNotesRoute: PatchNotesRoute,
   SkinsRoute: SkinsRoute,
   TierListRoute: TierListRoute,

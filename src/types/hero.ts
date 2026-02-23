@@ -117,3 +117,49 @@ export interface HeroSortOption {
   field: 'name' | 'winRate' | 'pickRate' | 'banRate' | 'tier';
   order: 'asc' | 'desc';
 }
+
+// Item/Equipment types
+export interface ItemEffect {
+  effectType: number;
+  valueType: number;
+  value: number;
+}
+
+export interface ItemPassiveSkill {
+  id: number;
+  description: string;
+}
+
+export interface Item {
+  id: number;
+  name: string;
+  icon: string;
+  description: string;
+  price: number;
+  type: number;
+  typeName: string;
+  level: number;
+  levelName: string;
+  isTopEquip: boolean;
+  preEquipIds: number[];
+  passiveSkills: ItemPassiveSkill[];
+  effects: ItemEffect[];
+}
+
+// Arcana types
+export interface ArcanaEffect {
+  effectType: number;
+  valueType: number;
+  value: number;
+}
+
+export interface Arcana {
+  id: number;
+  name: string;
+  icon: string;
+  level: number;
+  description: string;
+  color: number;
+  colorName: string;
+  effects: ArcanaEffect[];
+}

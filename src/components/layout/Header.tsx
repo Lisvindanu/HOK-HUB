@@ -1,5 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router';
-import { Menu, X, ChevronDown, LogOut, LogIn, LayoutDashboard, BarChart3, Shield, Trophy, UserPlus, Home, Users, Layers, Sparkles, Zap, CreditCard } from 'lucide-react';
+import { Menu, X, ChevronDown, LogOut, LogIn, LayoutDashboard, BarChart3, Shield, Trophy, UserPlus, Home, Users, Layers, Sparkles, Zap, CreditCard, Swords, Gem } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useUser } from '../../hooks/useUser';
@@ -13,6 +13,8 @@ const mainNav = [
 
 const moreNav = [
   { name: 'Skins', href: '/skins', icon: Sparkles },
+  { name: 'Items', href: '/items', icon: Swords },
+  { name: 'Arcana', href: '/arcana', icon: Gem },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Counter Picks', href: '/counters', icon: Shield },
   { name: 'Contributors', href: '/contributors', icon: Trophy },

@@ -102,6 +102,26 @@
   .rotate-y-180 {
     transform: rotateY(180deg);
   }
+
+  /* Role-based Glow Shadows */
+  .shadow-blue-500\/30 {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.1);
+  }
+  .shadow-orange-500\/30 {
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.3), 0 0 40px rgba(249, 115, 22, 0.1);
+  }
+  .shadow-purple-500\/30 {
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.3), 0 0 40px rgba(168, 85, 247, 0.1);
+  }
+  .shadow-cyan-500\/30 {
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.3), 0 0 40px rgba(6, 182, 212, 0.1);
+  }
+  .shadow-yellow-500\/30 {
+    box-shadow: 0 0 20px rgba(234, 179, 8, 0.3), 0 0 40px rgba(234, 179, 8, 0.1);
+  }
+  .shadow-green-500\/30 {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.3), 0 0 40px rgba(34, 197, 94, 0.1);
+  }
 }
 
 /* Custom scrollbar */

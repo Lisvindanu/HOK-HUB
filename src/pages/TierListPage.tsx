@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useHeroes } from '../hooks/useHeroes';
 import { Loading } from '../components/ui/Loading';
 import { Link } from '@tanstack/react-router';
-import { Plus, Save, X, RotateCcw, Users, List as ListIcon, ThumbsUp, Calendar, TrendingUp, Share2, Check, Search, GripVertical, Download, Loader2 } from 'lucide-react';
+import { Plus, Save, X, RotateCcw, Users, List as ListIcon, ThumbsUp, Calendar, TrendingUp, Share2, Check, Search, GripVertical, Download, Loader2, MessageCircle, Send, Trash2, BadgeCheck, ChevronDown, ChevronUp } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -60,7 +60,7 @@ import {
   type DragEndEvent,
   type DragStartEvent
 } from '@dnd-kit/core';
-import { createTierList, fetchTierLists, voteTierList, type TierList } from '../api/tierLists';
+import { createTierList, fetchTierLists, voteTierList, fetchComments, postComment, deleteCommentApi, type TierList, type Comment } from '../api/tierLists';
 import { useAuth } from '../contexts/AuthContext';
 import { useUser } from '../hooks/useUser';
 
@@ -140,6 +140,295 @@ function DroppableTier({ tier, heroes, children }: { tier: TierKey | 'pool'; her
     </div>
   );
 }
+
+// ─── Comment Section Component ───────────────────────────────────────────────
+
+function buildTree(comments: Comment[]): (Comment & { children: Comment[] })[] {
+  const map = new Map<number, Comment & { children: Comment[] }>();
+  const roots: (Comment & { children: Comment[] })[] = [];
+  comments.forEach(c => map.set(c.id, { ...c, children: [] }));
+  comments.forEach(c => {
+    if (c.parentId && map.has(c.parentId)) {
+      map.get(c.parentId)!.children.push(map.get(c.id)!);
+    } else {
+      roots.push(map.get(c.id)!);
+    }
+  });
+  return roots;
+}
+
+function CommentItem({
+  comment,
+  depth,
+  token,
+  user,
+  onReply,
+  onDeleted,
+  replyingTo,
+  setReplyingTo,
+}: {
+  comment: Comment & { children: Comment[] };
+  depth: number;
+  token: string | null;
+  user: { id: string; name: string } | null;
+  onReply: (parentId: number, authorName: string, content: string) => Promise<void>;
+  onDeleted: (id: number) => void;
+  replyingTo: number | null;
+  setReplyingTo: (id: number | null) => void;
+}) {
+  const [replyText, setReplyText] = useState('');
+  const [replyName, setReplyName] = useState(user?.name || '');
+  const [submitting, setSubmitting] = useState(false);
+  const isReplying = replyingTo === comment.id;
+  const maxVisualDepth = 4;
+  const visualDepth = Math.min(depth, maxVisualDepth);
+
+  const handleReplySubmit = async () => {
+    if (!replyText.trim() || !replyName.trim()) return;
+    setSubmitting(true);
+    await onReply(comment.id, replyName.trim(), replyText.trim());
+    setReplyText('');
+    setSubmitting(false);
+    setReplyingTo(null);
+  };
+
+  const handleDelete = async () => {
+    if (!token) return;
+    try {
+      await deleteCommentApi(comment.id, token);
+      onDeleted(comment.id);
+    } catch {}
+  };
+
+  const timeAgo = (dateStr: string) => {
+    const diff = (Date.now() - new Date(dateStr).getTime()) / 1000;
+    if (diff < 60) return 'just now';
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    return `${Math.floor(diff / 86400)}d ago`;
+  };
+
+  return (
+    <div className={`${visualDepth > 0 ? 'ml-4 md:ml-6 border-l border-white/10 pl-3 md:pl-4' : ''}`}>
+      <div className="py-2.5 group">
+        <div className="flex items-start gap-2">
+          <div className="w-7 h-7 rounded-full bg-primary-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <span className="text-xs font-bold text-primary-400">{comment.authorName[0]?.toUpperCase()}</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+              <span className="text-sm font-semibold text-white">{comment.authorName}</span>
+              {comment.isVerified && (
+                <span title="Verified contributor">
+                  <BadgeCheck className="w-3.5 h-3.5 text-primary-400 flex-shrink-0" />
+                </span>
+              )}
+              <span className="text-xs text-gray-500">{timeAgo(comment.createdAt)}</span>
+            </div>
+            <p className="text-sm text-gray-300 break-words leading-relaxed">{comment.content}</p>
+            <div className="flex items-center gap-3 mt-1.5">
+              <button
+                onClick={() => setReplyingTo(isReplying ? null : comment.id)}
+                className="text-xs text-gray-500 hover:text-primary-400 transition-colors flex items-center gap-1"
+              >
+                <MessageCircle className="w-3 h-3" />
+                Reply
+              </button>
+              {token && user && String(comment.contributorId) === user.id && (
+                <button
+                  onClick={handleDelete}
+                  className="text-xs text-gray-600 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 flex items-center gap-1"
+                >
+                  <Trash2 className="w-3 h-3" />
+                  Delete
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {isReplying && (
+          <div className="mt-2 ml-9 space-y-2">
+            {!user && (
+              <input
+                type="text"
+                placeholder="Your name"
+                value={replyName}
+                onChange={e => setReplyName(e.target.value)}
+                className="w-full px-3 py-1.5 text-sm bg-dark-200/60 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary-500/50"
+              />
+            )}
+            <div className="flex gap-2">
+              <textarea
+                rows={2}
+                placeholder={`Reply to ${comment.authorName}...`}
+                value={replyText}
+                onChange={e => setReplyText(e.target.value)}
+                className="flex-1 px-3 py-1.5 text-sm bg-dark-200/60 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary-500/50 resize-none"
+              />
+              <button
+                onClick={handleReplySubmit}
+                disabled={submitting || !replyText.trim() || !replyName.trim()}
+                className="px-3 py-1.5 bg-primary-500/20 hover:bg-primary-500/30 text-primary-400 rounded-lg transition-colors disabled:opacity-50 flex-shrink-0"
+              >
+                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {comment.children.length > 0 && (
+        <div>
+          {comment.children.map(child => (
+            <CommentItem
+              key={child.id}
+              comment={child as Comment & { children: Comment[] }}
+              depth={depth + 1}
+              token={token}
+              user={user}
+              onReply={onReply}
+              onDeleted={onDeleted}
+              replyingTo={replyingTo}
+              setReplyingTo={setReplyingTo}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CommentSection({ tierListId }: { tierListId: string }) {
+  const { token, user } = useAuth();
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [newComment, setNewComment] = useState('');
+  const [authorName, setAuthorName] = useState(user?.name || '');
+  const [submitting, setSubmitting] = useState(false);
+  const [replyingTo, setReplyingTo] = useState<number | null>(null);
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    fetchComments(tierListId)
+      .then(setComments)
+      .catch(() => setComments([]))
+      .finally(() => setLoading(false));
+  }, [tierListId]);
+
+  const handlePost = async () => {
+    const name = user?.name || authorName.trim();
+    if (!newComment.trim() || !name) return;
+    setSubmitting(true);
+    try {
+      const comment = await postComment(tierListId, {
+        content: newComment.trim(),
+        authorName: name,
+        parentId: null,
+        token: token || undefined,
+      });
+      setComments(prev => [...prev, comment]);
+      setNewComment('');
+    } catch {}
+    setSubmitting(false);
+  };
+
+  const handleReply = async (parentId: number, replyAuthor: string, content: string) => {
+    const name = user?.name || replyAuthor;
+    const comment = await postComment(tierListId, {
+      content,
+      authorName: name,
+      parentId,
+      token: token || undefined,
+    });
+    setComments(prev => [...prev, comment]);
+  };
+
+  const handleDeleted = (id: number) => {
+    setComments(prev => prev.filter(c => c.id !== id));
+  };
+
+  const tree = buildTree(comments);
+
+  return (
+    <div className="border-t border-white/10 p-4 md:p-6">
+      <button
+        onClick={() => setCollapsed(v => !v)}
+        className="flex items-center gap-2 mb-4 w-full text-left"
+      >
+        <MessageCircle className="w-4 h-4 text-primary-400" />
+        <span className="text-sm font-semibold text-white">
+          Comments <span className="text-gray-500 font-normal">({comments.length})</span>
+        </span>
+        {collapsed ? <ChevronDown className="w-4 h-4 text-gray-500 ml-auto" /> : <ChevronUp className="w-4 h-4 text-gray-500 ml-auto" />}
+      </button>
+
+      {!collapsed && (
+        <>
+          {/* New comment form */}
+          <div className="mb-5 space-y-2">
+            {!user && (
+              <input
+                type="text"
+                placeholder="Your name"
+                value={authorName}
+                onChange={e => setAuthorName(e.target.value)}
+                className="w-full px-3 py-2 text-sm bg-dark-200/60 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary-500/50"
+              />
+            )}
+            <div className="flex gap-2">
+              <textarea
+                rows={2}
+                placeholder={user ? `Comment as ${user.name}...` : 'Write a comment...'}
+                value={newComment}
+                onChange={e => setNewComment(e.target.value)}
+                className="flex-1 px-3 py-2 text-sm bg-dark-200/60 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary-500/50 resize-none"
+              />
+              <button
+                onClick={handlePost}
+                disabled={submitting || !newComment.trim() || (!user && !authorName.trim())}
+                className="px-3 py-2 bg-primary-500/20 hover:bg-primary-500/30 text-primary-400 rounded-lg transition-colors disabled:opacity-50 self-end flex-shrink-0"
+              >
+                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              </button>
+            </div>
+            {!user && (
+              <p className="text-xs text-gray-500">
+                <Link to="/auth" className="text-primary-400 hover:underline">Login</Link> to get a verified badge on your comments.
+              </p>
+            )}
+          </div>
+
+          {/* Comments list */}
+          {loading ? (
+            <div className="text-center py-6 text-gray-500 text-sm">Loading comments...</div>
+          ) : tree.length === 0 ? (
+            <div className="text-center py-6 text-gray-600 text-sm">No comments yet. Be the first!</div>
+          ) : (
+            <div className="space-y-1">
+              {tree.map(comment => (
+                <CommentItem
+                  key={comment.id}
+                  comment={comment}
+                  depth={0}
+                  token={token}
+                  user={user}
+                  onReply={handleReply}
+                  onDeleted={handleDeleted}
+                  replyingTo={replyingTo}
+                  setReplyingTo={setReplyingTo}
+                />
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 export function TierListPage() {
   const { data: heroes, isLoading } = useHeroes();
@@ -1286,6 +1575,9 @@ export function TierListPage() {
                     <span>{new Date(selectedTierList.createdAt).toLocaleDateString()}</span>
                   </div>
                 </div>
+
+                {/* Comments */}
+                <CommentSection tierListId={selectedTierList.id} />
               </div>
             </motion.div>
           </motion.div>

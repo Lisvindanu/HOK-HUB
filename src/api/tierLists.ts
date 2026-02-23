@@ -91,6 +91,58 @@ export async function voteTierList(tierListId: string, token?: string): Promise<
   return data.tierList;
 }
 
+// Comments
+export interface Comment {
+  id: number;
+  tierListId: string;
+  parentId: number | null;
+  contributorId: number | null;
+  authorName: string;
+  content: string;
+  createdAt: string;
+  isVerified: boolean;
+}
+
+export async function fetchComments(tierListId: string): Promise<Comment[]> {
+  const response = await fetch(`${API_BASE_URL}/api/tier-lists/${tierListId}/comments`);
+  if (!response.ok) throw new Error('Failed to fetch comments');
+  const data = await response.json();
+  return data.comments;
+}
+
+export async function postComment(
+  tierListId: string,
+  params: { content: string; authorName: string; parentId?: number | null; token?: string }
+): Promise<Comment> {
+  const headers: HeadersInit = { 'Content-Type': 'application/json' };
+  if (params.token) headers['Authorization'] = `Bearer ${params.token}`;
+
+  const response = await fetch(`${API_BASE_URL}/api/tier-lists/${tierListId}/comments`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ content: params.content, authorName: params.authorName, parentId: params.parentId ?? null }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to post comment');
+  }
+
+  const data = await response.json();
+  return data.comment;
+}
+
+export async function deleteCommentApi(commentId: number, token: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/comments/${commentId}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to delete comment');
+  }
+}
+
 // Contributors
 export async function fetchContributors(): Promise<Contributor[]> {
   const response = await fetch(`${API_BASE_URL}/api/contributors`);

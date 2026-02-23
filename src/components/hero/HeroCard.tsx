@@ -37,6 +37,7 @@ const PHYSICAL_ROLES = ['Tank', 'Fighter', 'Assassin', 'Marksman'];
 
 export function HeroCard({ hero }: HeroCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const isTouchDevice = typeof window !== 'undefined' && 'ontouchstart' in window;
 
   const lanes = hero.lanes && hero.lanes.length > 0 ? hero.lanes : [hero.lane];
   const roleGlow = ROLE_GLOW[hero.role] || ROLE_GLOW['Fighter'];
@@ -47,12 +48,12 @@ export function HeroCard({ hero }: HeroCardProps) {
   const bestSkin = hero.skins && hero.skins.length > 0 ? hero.skins[0] : null;
   const watermarkImage = bestSkin?.skinImage || bestSkin?.skinCover || hero.icon;
 
-  // Handle tap for mobile
-  const handleTap = (e: React.MouseEvent | React.TouchEvent) => {
-    // Check if it's a touch device
-    if ('ontouchstart' in window) {
+  // Handle card flip on mobile - only flip, don't navigate
+  const handleCardClick = (e: React.MouseEvent) => {
+    if (isTouchDevice && !isFlipped) {
       e.preventDefault();
-      setIsFlipped(!isFlipped);
+      e.stopPropagation();
+      setIsFlipped(true);
     }
   };
 
@@ -62,18 +63,16 @@ export function HeroCard({ hero }: HeroCardProps) {
         className={`relative w-full aspect-[3/4] transform-style-3d transition-transform duration-700 ease-out ${
           isFlipped ? 'rotate-y-180' : ''
         } md:group-hover:rotate-y-180`}
-        onClick={handleTap}
-        onTouchEnd={handleTap}
       >
         {/* Front Side */}
-        <div className="absolute inset-0 backface-hidden">
+        <div className="absolute inset-0 backface-hidden" onClick={handleCardClick}>
           <Link
             to="/heroes/$heroId"
             params={{ heroId: hero.heroId.toString() }}
             className="block h-full"
             onClick={(e) => {
-              // On mobile, first tap flips, second tap navigates
-              if ('ontouchstart' in window && !isFlipped) {
+              // On mobile, first tap flips the card - prevent navigation
+              if (isTouchDevice) {
                 e.preventDefault();
               }
             }}

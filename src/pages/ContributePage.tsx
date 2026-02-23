@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useUser } from '../hooks/useUser';
 import { useNavigate, Link } from '@tanstack/react-router';
 
-type ContributionType = 'skin' | 'hero' | 'series';
+type ContributionType = 'skin' | 'hero' | 'series' | 'skin-edit';
 
 interface SkinFormData {
   heroId: number;
@@ -34,6 +34,17 @@ interface SeriesFormData {
   seriesName: string;
   description?: string;
   skins: SeriesSkin[];
+}
+
+interface SkinEditFormData {
+  heroId: number;
+  heroName: string;
+  skinName: string;
+  currentTier: string;
+  currentSeries: string;
+  newTier: string;
+  newSeries: string;
+  reason: string;
 }
 
 const ROLES = [
@@ -175,6 +186,17 @@ export function ContributePage() {
     skins: []
   });
 
+  const [skinEditForm, setSkinEditForm] = useState<SkinEditFormData>({
+    heroId: 0,
+    heroName: '',
+    skinName: '',
+    currentTier: '',
+    currentSeries: '',
+    newTier: '',
+    newSeries: '',
+    reason: ''
+  });
+
   const handleHeroSelect = (heroId: number) => {
     const selectedHero = heroes?.find(h => h.heroId === heroId);
     if (selectedHero) {
@@ -245,6 +267,15 @@ export function ContributePage() {
       }
       if (seriesForm.skins.some(s => !s.heroId || !s.skinName.trim())) {
         setErrorMessage('All skins must have a hero and skin name');
+        return false;
+      }
+    } else if (contributionType === 'skin-edit') {
+      if (!skinEditForm.heroId || !skinEditForm.skinName) {
+        setErrorMessage('Please select a hero and skin');
+        return false;
+      }
+      if (!skinEditForm.newTier && !skinEditForm.newSeries) {
+        setErrorMessage('Please provide at least one correction (tier or series)');
         return false;
       }
     }
@@ -318,6 +349,22 @@ export function ContributePage() {
           }))
         }
       };
+    } else if (contributionType === 'skin-edit') {
+      contributionData = {
+        type: 'skin-edit',
+        contributorId,
+        contributorName: user?.name || '',
+        data: {
+          heroId: skinEditForm.heroId,
+          heroName: skinEditForm.heroName,
+          skinName: skinEditForm.skinName,
+          currentTier: skinEditForm.currentTier,
+          currentSeries: skinEditForm.currentSeries,
+          newTier: skinEditForm.newTier,
+          newSeries: skinEditForm.newSeries,
+          reason: skinEditForm.reason
+        }
+      };
     }
 
     try {
@@ -335,6 +382,7 @@ export function ContributePage() {
         setSkinForm({ heroId: 0, heroName: '', skinName: '', skinSeries: '', skinTier: '', skinCover: '' });
         setHeroForm({ name: '', role: '', lane: '', icon: '', banner: '' });
         setSeriesForm({ seriesName: '', description: '', skins: [] });
+        setSkinEditForm({ heroId: 0, heroName: '', skinName: '', currentTier: '', currentSeries: '', newTier: '', newSeries: '', reason: '' });
         setTimeout(() => setSubmitStatus('idle'), 5000);
       } else {
         const error = await response.json();
@@ -498,11 +546,12 @@ export function ContributePage() {
             <label className="block text-sm font-semibold text-gray-300 mb-4 uppercase tracking-wide">
               Contribution Type
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {[
-                { type: 'skin' as ContributionType, label: 'Skin', desc: 'Add missing skin' },
-                { type: 'hero' as ContributionType, label: 'Hero', desc: 'Add new hero' },
-                { type: 'series' as ContributionType, label: 'Series', desc: 'Add skin series' },
+                { type: 'skin' as ContributionType, label: 'Add Skin', desc: 'Add missing skin' },
+                { type: 'hero' as ContributionType, label: 'Add Hero', desc: 'Add new hero' },
+                { type: 'series' as ContributionType, label: 'Add Series', desc: 'Add skin series' },
+                { type: 'skin-edit' as ContributionType, label: 'Fix Skin Tag', desc: 'Fix wrong tier/series' },
               ].map(item => (
                 <button
                   key={item.type}
@@ -890,6 +939,163 @@ export function ContributePage() {
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* Skin Edit Form */}
+          {contributionType === 'skin-edit' && (
+            <div className="space-y-6">
+              {/* Step 1: Select Hero */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wide">
+                  Select Hero <span className="text-red-400">*</span>
+                </label>
+                {skinEditForm.heroId === 0 ? (
+                  <HeroPicker
+                    onSelect={(heroId) => {
+                      const h = heroes?.find(h => h.heroId === heroId);
+                      if (h) setSkinEditForm({ ...skinEditForm, heroId, heroName: h.name, skinName: '', currentTier: '', currentSeries: '' });
+                    }}
+                    show={showHeroPicker}
+                    onToggle={() => setShowHeroPicker(!showHeroPicker)}
+                  />
+                ) : (
+                  <div className="flex items-center gap-4 p-4 bg-primary-500/10 border border-primary-500/30 rounded-lg">
+                    <img
+                      src={heroes?.find(h => h.heroId === skinEditForm.heroId)?.icon}
+                      alt={skinEditForm.heroName}
+                      className="w-14 h-14 rounded-full border-2 border-primary-500"
+                    />
+                    <div className="flex-1">
+                      <div className="font-bold text-lg">{skinEditForm.heroName}</div>
+                      <div className="text-sm text-gray-400">{heroes?.find(h => h.heroId === skinEditForm.heroId)?.role}</div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setSkinEditForm({ ...skinEditForm, heroId: 0, heroName: '', skinName: '', currentTier: '', currentSeries: '' });
+                        setShowHeroPicker(true);
+                      }}
+                      className="px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                    >
+                      Change
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Step 2: Select Skin */}
+              {skinEditForm.heroId !== 0 && (() => {
+                const heroSkins = heroes?.find(h => h.heroId === skinEditForm.heroId)?.skins || [];
+                return (
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wide">
+                      Select Skin to Fix <span className="text-red-400">*</span>
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-64 overflow-y-auto pr-1">
+                      {heroSkins.map((skin, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setSkinEditForm({
+                            ...skinEditForm,
+                            skinName: skin.skinName,
+                            currentTier: skin.tierName || '',
+                            currentSeries: skin.skinSeries || '',
+                            newTier: skin.tierName || '',
+                            newSeries: skin.skinSeries || ''
+                          })}
+                          className={`flex items-center gap-2 p-2 rounded-lg border text-left transition-all ${
+                            skinEditForm.skinName === skin.skinName
+                              ? 'border-primary-500 bg-primary-500/10'
+                              : 'border-white/10 hover:border-white/20 bg-dark-200/50'
+                          }`}
+                        >
+                          <img
+                            src={skin.skinCover || skin.skinImage}
+                            alt={skin.skinName}
+                            className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+                            onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/40?text=?'; }}
+                          />
+                          <div className="min-w-0">
+                            <p className="text-xs font-medium text-white truncate">{skin.skinName}</p>
+                            <p className="text-[10px] text-gray-500 truncate">{skin.tierName || 'No Tag'}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Step 3: Edit Tags */}
+              {skinEditForm.skinName && (
+                <>
+                  <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg text-sm text-amber-300">
+                    Editing tags for: <span className="font-bold text-white">{skinEditForm.skinName}</span>
+                  </div>
+
+                  {/* Current vs New Tier */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-1 uppercase tracking-wide">
+                      Tier
+                      {skinEditForm.currentTier && (
+                        <span className="text-xs text-gray-500 font-normal ml-2">Current: {skinEditForm.currentTier}</span>
+                      )}
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
+                      {TIERS.map(tier => (
+                        <button
+                          key={tier.value}
+                          onClick={() => setSkinEditForm({ ...skinEditForm, newTier: skinEditForm.newTier === tier.value ? '' : tier.value })}
+                          className={`px-3 py-2 rounded-lg border-2 transition-all text-xs font-bold uppercase tracking-wide ${
+                            skinEditForm.newTier === tier.value
+                              ? 'border-current text-white'
+                              : 'border-white/10 hover:border-white/20 text-gray-400'
+                          }`}
+                          style={skinEditForm.newTier === tier.value ? {
+                            borderColor: tier.color,
+                            backgroundColor: `${tier.color}33`,
+                            color: tier.color
+                          } : {}}
+                        >
+                          {tier.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* New Series */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-1 uppercase tracking-wide">
+                      Series
+                      {skinEditForm.currentSeries && (
+                        <span className="text-xs text-gray-500 font-normal ml-2">Current: {skinEditForm.currentSeries}</span>
+                      )}
+                    </label>
+                    <input
+                      type="text"
+                      list="series-suggestions"
+                      value={skinEditForm.newSeries}
+                      onChange={(e) => setSkinEditForm({ ...skinEditForm, newSeries: e.target.value })}
+                      placeholder="e.g. DETECTIVE CONAN, HELLFIRE..."
+                      className="w-full px-4 py-3 bg-dark-50 border border-white/10 rounded-lg focus:outline-none focus:border-primary-500 text-white"
+                    />
+                  </div>
+
+                  {/* Reason */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-1 uppercase tracking-wide">
+                      Reason / Source
+                    </label>
+                    <input
+                      type="text"
+                      value={skinEditForm.reason}
+                      onChange={(e) => setSkinEditForm({ ...skinEditForm, reason: e.target.value })}
+                      placeholder="e.g. Official HoK website shows this as Epic tier"
+                      className="w-full px-4 py-3 bg-dark-50 border border-white/10 rounded-lg focus:outline-none focus:border-primary-500 text-white"
+                    />
+                  </div>
+                </>
+              )}
             </div>
           )}
 

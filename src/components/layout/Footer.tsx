@@ -15,6 +15,7 @@ export function Footer() {
     { name: 'Contribute', path: '/contribute' },
     { name: 'Contributors', path: '/contributors' },
     { name: 'API Documentation', href: 'https://hokapi.project-n.site/', external: true },
+    { name: 'Top Up Games', href: 'https://magertopup.com', external: true },
   ];
 
   const community = [

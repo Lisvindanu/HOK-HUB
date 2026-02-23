@@ -1,5 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router';
-import { Menu, X, ChevronDown, LogOut, LogIn, LayoutDashboard, BarChart3, Shield, Trophy, UserPlus, Home, Users, Layers, Sparkles, Zap } from 'lucide-react';
+import { Menu, X, ChevronDown, LogOut, LogIn, LayoutDashboard, BarChart3, Shield, Trophy, UserPlus, Home, Users, Layers, Sparkles, Zap, CreditCard } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useUser } from '../../hooks/useUser';
@@ -17,6 +17,7 @@ const moreNav = [
   { name: 'Counter Picks', href: '/counters', icon: Shield },
   { name: 'Contributors', href: '/contributors', icon: Trophy },
   { name: 'Contribute', href: '/contribute', icon: UserPlus },
+  { name: 'Top Up', href: 'https://magertopup.com', icon: CreditCard, external: true },
 ];
 
 // Mobile bottom navigation
@@ -115,15 +116,29 @@ export function Header() {
                 <div className="absolute top-full left-0 mt-2 w-52 bg-dark-300/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden">
                   <div className="py-2">
                     {moreNav.map((item) => (
-                      <Link
-                        key={item.name}
-                        to={item.href}
-                        className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
-                        onClick={() => setMoreMenuOpen(false)}
-                      >
-                        <item.icon className="w-4 h-4 text-gray-500" />
-                        <span>{item.name}</span>
-                      </Link>
+                      'external' in item && item.external ? (
+                        <a
+                          key={item.name}
+                          href={item.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
+                          onClick={() => setMoreMenuOpen(false)}
+                        >
+                          <item.icon className="w-4 h-4 text-gray-500" />
+                          <span>{item.name}</span>
+                        </a>
+                      ) : (
+                        <Link
+                          key={item.name}
+                          to={item.href}
+                          className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
+                          onClick={() => setMoreMenuOpen(false)}
+                        >
+                          <item.icon className="w-4 h-4 text-gray-500" />
+                          <span>{item.name}</span>
+                        </Link>
+                      )
                     ))}
                   </div>
                 </div>
@@ -269,17 +284,33 @@ export function Header() {
                   <p className="text-xs text-gray-500 uppercase tracking-wider px-2 pt-6 pb-2">More</p>
                   <div className="space-y-1">
                     {moreNav.map((item) => (
-                      <Link
-                        key={item.name}
-                        to={item.href}
-                        className="flex items-center gap-4 p-4 bg-[#0d1229] rounded-xl border border-white/5 hover:border-primary-500/30 transition-all"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <div className="w-10 h-10 bg-[#1a1f3a] rounded-xl flex items-center justify-center">
-                          <item.icon className="w-5 h-5 text-primary-400" />
-                        </div>
-                        <span className="text-white font-medium">{item.name}</span>
-                      </Link>
+                      'external' in item && item.external ? (
+                        <a
+                          key={item.name}
+                          href={item.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-4 p-4 bg-[#0d1229] rounded-xl border border-white/5 hover:border-primary-500/30 transition-all"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <div className="w-10 h-10 bg-[#1a1f3a] rounded-xl flex items-center justify-center">
+                            <item.icon className="w-5 h-5 text-primary-400" />
+                          </div>
+                          <span className="text-white font-medium">{item.name}</span>
+                        </a>
+                      ) : (
+                        <Link
+                          key={item.name}
+                          to={item.href}
+                          className="flex items-center gap-4 p-4 bg-[#0d1229] rounded-xl border border-white/5 hover:border-primary-500/30 transition-all"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <div className="w-10 h-10 bg-[#1a1f3a] rounded-xl flex items-center justify-center">
+                            <item.icon className="w-5 h-5 text-primary-400" />
+                          </div>
+                          <span className="text-white font-medium">{item.name}</span>
+                        </Link>
+                      )
                     ))}
                   </div>
 

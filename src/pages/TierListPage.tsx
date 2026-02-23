@@ -76,6 +76,14 @@ const TIER_CONFIG = {
 const TIER_ORDER = ['S+', 'S', 'A', 'B', 'C', 'D'] as const;
 type TierKey = typeof TIER_ORDER[number];
 
+const LANE_ICONS: Record<string, string> = {
+  'Clash Lane': '/assets/lanes/clash-lane.webp',
+  'Jungle': '/assets/lanes/jungle.webp',
+  'Mid Lane': '/assets/lanes/mid-lane.webp',
+  'Farm Lane': '/assets/lanes/farm-lane.webp',
+  'Roam': '/assets/lanes/roamer.webp',
+};
+
 function DraggableHero({ hero, showName = false }: { hero: Hero; showName?: boolean }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: hero.heroId,
@@ -605,7 +613,7 @@ export function TierListPage() {
                 {/* Lane Filter */}
                 <div className="p-3 md:p-4 bg-dark-300/50 border border-white/5 rounded-xl">
                   <p className="text-xs text-gray-400 mb-2">Create tier list for:</p>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
                     {lanes.map(lane => (
                       <button
                         key={lane}
@@ -616,16 +624,25 @@ export function TierListPage() {
                             setTierAssignments({ 'S+': [], 'S': [], 'A': [], 'B': [], 'C': [], 'D': [] });
                           }
                         }}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all shrink-0 ${
                           tierListLane === lane
                             ? 'bg-primary-500 text-white'
                             : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
                         }`}
+                        title={lane === 'All' ? 'All Lanes' : lane}
                       >
-                        {lane === 'All' ? 'All Lanes' : lane.replace(' Lane', '')}
+                        {LANE_ICONS[lane] ? (
+                          <img
+                            src={LANE_ICONS[lane]}
+                            alt={lane}
+                            className="w-6 h-6 object-contain"
+                          />
+                        ) : (
+                          <span>{lane === 'All' ? 'All' : lane.replace(' Lane', '')}</span>
+                        )}
                         {lane !== 'All' && heroes && (
-                          <span className="ml-1 text-[10px] opacity-70">
-                            ({heroes.filter(h => h.lane === lane).length})
+                          <span className="text-[10px] opacity-70">
+                            {heroes.filter(h => h.lane === lane).length}
                           </span>
                         )}
                       </button>

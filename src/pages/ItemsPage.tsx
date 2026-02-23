@@ -12,7 +12,7 @@ const ITEM_TYPES = [
   { id: 3, name: 'Defense', icon: Shield },
   { id: 4, name: 'Boots', icon: Footprints },
   { id: 5, name: 'Jungling', icon: Trees },
-  { id: 6, name: 'Roaming', icon: Users },
+  { id: 7, name: 'Roaming', icon: Users },
 ];
 
 const ITEM_LEVELS = [

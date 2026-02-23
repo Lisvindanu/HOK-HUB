@@ -1,11 +1,89 @@
 import { useState, useMemo } from 'react';
-import { Search, X, ChevronDown } from 'lucide-react';
+import { Search, X, ChevronDown, Download } from 'lucide-react';
 import { useHeroes } from '../hooks/useHeroes';
 import { HeroCard } from '../components/hero/HeroCard';
 import { Loading } from '../components/ui/Loading';
 import { filterHeroes, sortHeroes } from '../lib/utils';
 import { motion } from 'framer-motion';
-import type { HeroFilter, HeroSortOption, HeroRole } from '../types/hero';
+import type { HeroFilter, HeroSortOption, HeroRole, Hero } from '../types/hero';
+
+// Export heroes data to CSV
+function exportHeroesToCSV(heroes: Hero[]) {
+  // CSV Header
+  const headers = [
+    'Hero Name',
+    'Title',
+    'Role',
+    'Lane(s)',
+    'Tier',
+    'Win Rate',
+    'Pick Rate',
+    'Ban Rate',
+    'Passive - Name',
+    'Passive - Description',
+    'Skill 1 - Name',
+    'Skill 1 - Description',
+    'Skill 1 - Cooldown',
+    'Skill 2 - Name',
+    'Skill 2 - Description',
+    'Skill 2 - Cooldown',
+    'Skill 3 (Ultimate) - Name',
+    'Skill 3 (Ultimate) - Description',
+    'Skill 3 (Ultimate) - Cooldown',
+  ];
+
+  // Helper to escape CSV values
+  const escapeCSV = (value: string | undefined) => {
+    if (!value) return '';
+    // Replace newlines with space, escape quotes
+    const cleaned = value.replace(/\n/g, ' ').replace(/"/g, '""');
+    return `"${cleaned}"`;
+  };
+
+  // Generate rows
+  const rows = heroes.map(hero => {
+    const skills = hero.skill || [];
+    const passive = skills[0];
+    const skill1 = skills[1];
+    const skill2 = skills[2];
+    const skill3 = skills[3];
+    const lanes = hero.lanes?.join(', ') || hero.lane || '';
+
+    return [
+      escapeCSV(hero.name),
+      escapeCSV(hero.title),
+      escapeCSV(hero.role),
+      escapeCSV(lanes),
+      escapeCSV(hero.stats.tier),
+      escapeCSV(hero.stats.winRate),
+      escapeCSV(hero.stats.pickRate),
+      escapeCSV(hero.stats.banRate),
+      escapeCSV(passive?.skillName),
+      escapeCSV(passive?.skillDesc),
+      escapeCSV(skill1?.skillName),
+      escapeCSV(skill1?.skillDesc),
+      escapeCSV(skill1?.cooldown?.join('/')),
+      escapeCSV(skill2?.skillName),
+      escapeCSV(skill2?.skillDesc),
+      escapeCSV(skill2?.cooldown?.join('/')),
+      escapeCSV(skill3?.skillName),
+      escapeCSV(skill3?.skillDesc),
+      escapeCSV(skill3?.cooldown?.join('/')),
+    ].join(',');
+  });
+
+  // Combine headers and rows
+  const csv = [headers.join(','), ...rows].join('\n');
+
+  // Download
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `hok-heroes-${new Date().toISOString().split('T')[0]}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
 
 const roles: (HeroRole | 'All')[] = ['All', 'Tank', 'Fighter', 'Assassin', 'Mage', 'Marksman', 'Support'];
 const lanes = ['All', 'Clash Lane', 'Jungling', 'Mid Lane', 'Farm Lane', 'Roaming'];
@@ -304,11 +382,19 @@ export function HeroesPage() {
       {/* Results Section */}
       <section className="py-8">
         <div className="container mx-auto px-6 lg:px-8">
-          {/* Results Count */}
-          <div className="mb-6">
+          {/* Results Count & Export */}
+          <div className="mb-6 flex items-center justify-between">
             <p className="text-sm text-gray-500">
               Showing <span className="text-white font-medium">{filteredAndSortedHeroes.length}</span> heroes
             </p>
+            <button
+              onClick={() => heroes && exportHeroesToCSV(heroes)}
+              className="flex items-center gap-2 px-4 py-2 bg-dark-300 hover:bg-dark-200 text-gray-300 hover:text-white rounded-lg transition-colors text-sm"
+              title="Export all heroes data to CSV"
+            >
+              <Download className="w-4 h-4" />
+              <span className="hidden sm:inline">Export CSV</span>
+            </button>
           </div>
 
           {/* Heroes Grid */}

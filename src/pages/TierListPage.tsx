@@ -78,10 +78,10 @@ type TierKey = typeof TIER_ORDER[number];
 
 const LANE_ICONS: Record<string, string> = {
   'Clash Lane': '/assets/lanes/clash-lane.webp',
-  'Jungle': '/assets/lanes/jungle.webp',
+  'Jungling': '/assets/lanes/jungle.webp',
   'Mid Lane': '/assets/lanes/mid-lane.webp',
   'Farm Lane': '/assets/lanes/farm-lane.webp',
-  'Roam': '/assets/lanes/roamer.webp',
+  'Roaming': '/assets/lanes/roamer.webp',
 };
 
 function DraggableHero({ hero, showName = false }: { hero: Hero; showName?: boolean }) {

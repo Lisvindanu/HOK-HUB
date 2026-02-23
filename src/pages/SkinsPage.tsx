@@ -167,6 +167,30 @@ export function SkinsPage() {
     URL.revokeObjectURL(url);
   };
 
+  const downloadSkinImage = async (skin: SkinWithHero) => {
+    const imageUrl = skin.skinCover || skin.skinImage;
+    if (!imageUrl) return;
+
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      // Create filename from hero name and skin name
+      const filename = `${skin.hero.name}-${skin.skinName}`.replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g, '_') + '.png';
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to download skin image:', error);
+      // Fallback: open image in new tab
+      window.open(imageUrl, '_blank');
+    }
+  };
+
   const stats = useMemo(() => {
     if (!heroes) return { total: 0, withSeries: 0, withoutSeries: 0, completionRate: 0 };
     const totalSkins = heroes.reduce((sum, h) => sum + h.skins.length, 0);
@@ -603,12 +627,24 @@ export function SkinsPage() {
               className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden bg-dark-300 rounded-xl md:rounded-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <button
-                onClick={() => setSelectedSkin(null)}
-                className="absolute top-3 right-3 md:top-4 md:right-4 z-10 p-2 md:p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
-              >
-                <X className="w-4 md:w-5 h-4 md:h-5 text-white" />
-              </button>
+              <div className="absolute top-3 right-3 md:top-4 md:right-4 z-10 flex items-center gap-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    downloadSkinImage(selectedSkin);
+                  }}
+                  className="p-2 md:p-2.5 bg-primary-500 hover:bg-primary-600 rounded-full transition-colors"
+                  title="Download Skin Image"
+                >
+                  <Download className="w-4 md:w-5 h-4 md:h-5 text-white" />
+                </button>
+                <button
+                  onClick={() => setSelectedSkin(null)}
+                  className="p-2 md:p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+                >
+                  <X className="w-4 md:w-5 h-4 md:h-5 text-white" />
+                </button>
+              </div>
 
               <div className="relative aspect-[16/10] overflow-hidden">
                 <img
@@ -687,12 +723,25 @@ export function SkinsPage() {
               className="relative w-full max-w-5xl max-h-[90vh] overflow-y-auto bg-dark-300 rounded-xl md:rounded-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <button
-                onClick={() => setSelectedSeries(null)}
-                className="absolute top-3 right-3 md:top-4 md:right-4 z-10 p-2 md:p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
-              >
-                <X className="w-4 md:w-5 h-4 md:h-5 text-white" />
-              </button>
+              <div className="absolute top-3 right-3 md:top-4 md:right-4 z-10 flex items-center gap-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const currentSkin = selectedSeries.skins[selectedSkinIndex];
+                    if (currentSkin) downloadSkinImage(currentSkin);
+                  }}
+                  className="p-2 md:p-2.5 bg-primary-500 hover:bg-primary-600 rounded-full transition-colors"
+                  title="Download Skin Image"
+                >
+                  <Download className="w-4 md:w-5 h-4 md:h-5 text-white" />
+                </button>
+                <button
+                  onClick={() => setSelectedSeries(null)}
+                  className="p-2 md:p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+                >
+                  <X className="w-4 md:w-5 h-4 md:h-5 text-white" />
+                </button>
+              </div>
 
               {/* Main Image */}
               <div className="relative aspect-[4/3] md:aspect-[16/9] overflow-hidden rounded-t-xl md:rounded-t-2xl">

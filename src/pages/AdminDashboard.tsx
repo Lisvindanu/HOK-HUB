@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { CheckCircle, XCircle, Eye, Clock, AlertCircle, LogIn, History, Filter, Users, User, Calendar } from 'lucide-react';
+import { CheckCircle, XCircle, Eye, Clock, AlertCircle, LogIn, History, Filter, Users, User, Calendar, Square, CheckSquare, Loader2 } from 'lucide-react';
 
 interface Contribution {
   id: string;
@@ -45,6 +45,9 @@ export function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [selectedContribution, setSelectedContribution] = useState<Contribution | null>(null);
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkLoading, setBulkLoading] = useState(false);
+  const [bulkStatus, setBulkStatus] = useState('');
 
   const API_BASE = 'https://hokapi.project-n.site';
 
@@ -163,6 +166,84 @@ export function AdminDashboard() {
       }
     } catch (error) {
       alert('Network error');
+    }
+  };
+
+  const handleBulkApprove = async () => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    if (!confirm(`Approve ${ids.length} contribution(s)?`)) return;
+
+    setBulkLoading(true);
+    setBulkStatus(`Approving ${ids.length} contributions...`);
+    try {
+      const response = await fetch(`${API_BASE}/api/contributions/approve-bulk`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ ids })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        const { approved, failed } = data.summary;
+        setBulkStatus(`Done: ${approved} approved${failed > 0 ? `, ${failed} failed` : ''}`);
+        setSelectedIds(new Set());
+        fetchContributions();
+        fetchHistory();
+      } else {
+        setBulkStatus(`Error: ${data.error || 'Unknown error'}`);
+      }
+    } catch {
+      setBulkStatus('Network error');
+    } finally {
+      setBulkLoading(false);
+      setTimeout(() => setBulkStatus(''), 3000);
+    }
+  };
+
+  const handleBulkReject = async () => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    if (!confirm(`Reject ${ids.length} contribution(s)?`)) return;
+
+    setBulkLoading(true);
+    setBulkStatus(`Rejecting ${ids.length} contributions...`);
+    try {
+      const response = await fetch(`${API_BASE}/api/contributions/reject-bulk`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ ids })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        const { rejected, failed } = data.summary;
+        setBulkStatus(`Done: ${rejected} rejected${failed > 0 ? `, ${failed} failed` : ''}`);
+        setSelectedIds(new Set());
+        fetchContributions();
+        fetchHistory();
+      } else {
+        setBulkStatus(`Error: ${data.error || 'Unknown error'}`);
+      }
+    } catch {
+      setBulkStatus('Network error');
+    } finally {
+      setBulkLoading(false);
+      setTimeout(() => setBulkStatus(''), 3000);
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredContributions.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredContributions.map(c => c.id)));
     }
   };
 
@@ -398,10 +479,10 @@ export function AdminDashboard() {
       {/* Contributions - Filter + List */}
       {!showHistory && !showContributors && (
         <>
-          {/* Filter */}
-          <div className="flex items-center gap-3 mb-4">
+          {/* Filter + Bulk Actions */}
+          <div className="flex flex-wrap items-center gap-3 mb-4">
             <Filter className="w-5 h-5 text-gray-400" />
-            <span className="text-sm text-gray-400">Filter by type:</span>
+            <span className="text-sm text-gray-400">Filter:</span>
             {(['all', 'skin', 'hero', 'series', 'counter'] as TypeFilter[]).map((type) => (
               <button
                 key={type}
@@ -415,7 +496,54 @@ export function AdminDashboard() {
                 {type === 'all' ? 'All' : type.charAt(0).toUpperCase() + type.slice(1)}
               </button>
             ))}
+
+            {/* Bulk controls */}
+            {filteredContributions.length > 0 && (
+              <div className="ml-auto flex flex-wrap items-center gap-2">
+                <button
+                  onClick={toggleSelectAll}
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-full text-sm bg-dark-50 text-gray-400 hover:text-white transition-colors"
+                >
+                  {selectedIds.size === filteredContributions.length && filteredContributions.length > 0
+                    ? <CheckSquare className="w-4 h-4 text-primary-400" />
+                    : <Square className="w-4 h-4" />}
+                  {selectedIds.size === filteredContributions.length && filteredContributions.length > 0
+                    ? 'Deselect All'
+                    : 'Select All'}
+                </button>
+
+                {selectedIds.size > 0 && (
+                  <>
+                    <span className="text-sm text-gray-400">{selectedIds.size} selected</span>
+                    <button
+                      onClick={handleBulkApprove}
+                      disabled={bulkLoading}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-green-500/20 hover:bg-green-500/30 text-green-400 disabled:opacity-50 transition-colors"
+                    >
+                      {bulkLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                      Approve ({selectedIds.size})
+                    </button>
+                    <button
+                      onClick={handleBulkReject}
+                      disabled={bulkLoading}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-red-500/20 hover:bg-red-500/30 text-red-400 disabled:opacity-50 transition-colors"
+                    >
+                      {bulkLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                      Reject ({selectedIds.size})
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
           </div>
+
+          {/* Bulk status message */}
+          {bulkStatus && (
+            <div className="mb-4 px-4 py-2 bg-dark-50 rounded-lg text-sm text-gray-300 flex items-center gap-2">
+              {bulkLoading && <Loader2 className="w-4 h-4 animate-spin text-primary-400" />}
+              {bulkStatus}
+            </div>
+          )}
 
           {/* List */}
           {filteredContributions.length === 0 ? (
@@ -428,9 +556,18 @@ export function AdminDashboard() {
               {filteredContributions.map((contribution) => (
                 <div
                   key={contribution.id}
-                  className="card-hover p-6 hover:border-primary-500/30"
+                  className={`card-hover p-6 hover:border-primary-500/30 transition-colors ${selectedIds.has(contribution.id) ? 'border-primary-500/40 bg-primary-500/5' : ''}`}
                 >
                   <div className="flex items-start justify-between gap-4">
+                    {/* Checkbox */}
+                    <button
+                      onClick={() => toggleSelect(contribution.id)}
+                      className="mt-1 flex-shrink-0 text-gray-500 hover:text-primary-400 transition-colors"
+                    >
+                      {selectedIds.has(contribution.id)
+                        ? <CheckSquare className="w-5 h-5 text-primary-400" />
+                        : <Square className="w-5 h-5" />}
+                    </button>
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2 flex-wrap">
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${

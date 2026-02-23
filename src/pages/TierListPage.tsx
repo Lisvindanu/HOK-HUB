@@ -163,6 +163,7 @@ export function TierListPage() {
   const [showHeroModal, setShowHeroModal] = useState(false);
   const [tierListLane, setTierListLane] = useState<string>('All'); // Main lane filter for tier list
   const [showShareMenu, setShowShareMenu] = useState<string | null>(null); // tier list id
+  const [urlTierListHandled, setUrlTierListHandled] = useState(false); // prevent re-opening from URL
   const tierListRef = useRef<HTMLDivElement>(null);
   const createTierListRef = useRef<HTMLDivElement>(null);
 
@@ -250,15 +251,16 @@ export function TierListPage() {
     if (mode === 'view') loadTierLists();
   }, [mode]);
 
-  // Auto-open tier list from URL param
+  // Auto-open tier list from URL param (only once)
   useEffect(() => {
-    if (tierListIdFromUrl && communityTierLists.length > 0 && !selectedTierList) {
+    if (tierListIdFromUrl && communityTierLists.length > 0 && !urlTierListHandled) {
       const tierList = communityTierLists.find(tl => tl.id === tierListIdFromUrl);
       if (tierList) {
         setSelectedTierList(tierList);
+        setUrlTierListHandled(true);
       }
     }
-  }, [tierListIdFromUrl, communityTierLists, selectedTierList]);
+  }, [tierListIdFromUrl, communityTierLists, urlTierListHandled]);
 
   const loadTierLists = async () => {
     setIsLoadingTierLists(true);

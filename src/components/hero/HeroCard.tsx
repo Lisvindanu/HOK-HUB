@@ -221,8 +221,8 @@ export function HeroCard({ hero }: HeroCardProps) {
                 {/* Spacer */}
                 <div className="flex-1" />
 
-                {/* Stats Section - TCG Style */}
-                <div className="border-t border-amber-500/30 pt-3">
+                {/* Stats Section - TCG Style (hidden on mobile) */}
+                <div className="hidden md:block border-t border-amber-500/30 pt-3">
                   <div className="grid grid-cols-3 gap-2">
                     <div className="text-center p-2 bg-dark-400/60 rounded-lg border border-green-500/30">
                       <span className="text-green-400 font-bold text-sm block">{hero.stats.winRate}</span>

@@ -2,7 +2,79 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchContributors } from '../api/tierLists';
 import { Loading } from '../components/ui/Loading';
-import { Trophy, Medal, Award, Users, ListChecks, ThumbsUp, X, Loader2, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Trophy, Users, ListChecks, ThumbsUp, X, Loader2, Clock, CheckCircle, XCircle } from 'lucide-react';
+
+const RANK_TIERS = [
+  { name: 'Legend',      abbr: 'Le', minPts: 5000, color1: '#FFD700', color2: '#FF6B00', border: '#FFD700', glow: '#FFD700', textColor: '#FFD700' },
+  { name: 'Epic',        abbr: 'Ep', minPts: 3500, color1: '#FF6D00', color2: '#FF1744', border: '#FF8C00', glow: '#FF6D00', textColor: '#FF8C00' },
+  { name: 'Mythic',      abbr: 'My', minPts: 2000, color1: '#FF1744', color2: '#9C0027', border: '#FF4569', glow: '#FF1744', textColor: '#FF4569' },
+  { name: 'Grand Master',abbr: 'GM', minPts: 1250, color1: '#F97316', color2: '#7C2D12', border: '#FB923C', glow: '#F97316', textColor: '#FB923C' },
+  { name: 'Master',      abbr: 'Ma', minPts: 750,  color1: '#A855F7', color2: '#4C1D95', border: '#C084FC', glow: '#A855F7', textColor: '#C084FC' },
+  { name: 'Diamond',     abbr: 'Di', minPts: 400,  color1: '#60A5FA', color2: '#1D4ED8', border: '#93C5FD', glow: '#60A5FA', textColor: '#93C5FD' },
+  { name: 'Platinum',    abbr: 'Pt', minPts: 200,  color1: '#22D3EE', color2: '#0E7490', border: '#67E8F9', glow: '#22D3EE', textColor: '#67E8F9' },
+  { name: 'Gold',        abbr: 'Go', minPts: 75,   color1: '#FBBF24', color2: '#B45309', border: '#FCD34D', glow: '#FBBF24', textColor: '#FCD34D' },
+  { name: 'Silver',      abbr: 'Si', minPts: 25,   color1: '#D1D5DB', color2: '#6B7280', border: '#E5E7EB', glow: '#9CA3AF', textColor: '#D1D5DB' },
+  { name: 'Bronze',      abbr: 'Br', minPts: 0,    color1: '#D97706', color2: '#78350F', border: '#F59E0B', glow: '#D97706', textColor: '#F59E0B' },
+] as const;
+
+type RankTier = typeof RANK_TIERS[number];
+
+function getRankTier(points: number): RankTier {
+  for (const tier of RANK_TIERS) {
+    if (points >= tier.minPts) return tier;
+  }
+  return RANK_TIERS[RANK_TIERS.length - 1];
+}
+
+function RankBadge({ points, idx }: { points: number; idx: number }) {
+  const tier = getRankTier(points);
+  const gradId = `rg-${idx}-${tier.abbr}`;
+  return (
+    <div className="flex flex-col items-center" title={`${tier.name} (${points} pts)`}>
+      <svg
+        width="44" height="44" viewBox="0 0 44 44" fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        style={{ filter: `drop-shadow(0 0 5px ${tier.glow}99)` }}
+      >
+        <defs>
+          <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor={tier.color1} />
+            <stop offset="100%" stopColor={tier.color2} />
+          </linearGradient>
+        </defs>
+        {/* Outer hexagon (pointy-top) */}
+        <polygon
+          points="22,2 39,11.5 39,32.5 22,42 5,32.5 5,11.5"
+          fill={`url(#${gradId})`}
+          stroke={tier.border}
+          strokeWidth="1.5"
+        />
+        {/* Inner ring */}
+        <polygon
+          points="22,8 34,15 34,29 22,36 10,29 10,15"
+          fill="none"
+          stroke="rgba(255,255,255,0.3)"
+          strokeWidth="1"
+        />
+        {/* Rank abbreviation */}
+        <text
+          x="22" y="27"
+          textAnchor="middle"
+          fontSize={tier.abbr === 'GM' ? '10' : '12'}
+          fontWeight="bold"
+          fill="white"
+          fontFamily="system-ui,sans-serif"
+          style={{ letterSpacing: tier.abbr === 'GM' ? '0.5px' : undefined }}
+        >
+          {tier.abbr}
+        </text>
+      </svg>
+      <p className="text-[9px] font-bold mt-0.5 leading-none" style={{ color: tier.textColor }}>
+        {tier.name === 'Grand Master' ? 'G.Master' : tier.name}
+      </p>
+    </div>
+  );
+}
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://hokapi.project-n.site';
 
@@ -115,8 +187,7 @@ export function ContributorsPage() {
         <div className="space-y-4">
           {contributors.map((contributor, index) => {
             const rank = index + 1;
-            const RankIcon = rank === 1 ? Trophy : rank === 2 ? Medal : rank === 3 ? Award : Users;
-            const rankColor = rank === 1 ? 'text-yellow-400' : rank === 2 ? 'text-gray-400' : rank === 3 ? 'text-orange-400' : 'text-gray-600';
+            const points = (contributor.totalContributions || 0) * 5 + contributor.totalTierLists * 10 + contributor.totalVotes;
 
             return (
               <button
@@ -125,10 +196,10 @@ export function ContributorsPage() {
                 className="w-full text-left bg-dark-200 border border-white/10 rounded-xl p-6 hover:border-primary-500/30 hover:bg-dark-100 transition-colors cursor-pointer"
               >
                 <div className="flex items-start gap-3 md:gap-4">
-                  {/* Rank */}
-                  <div className="flex-shrink-0 w-10 md:w-12 text-center">
-                    <RankIcon className={`w-6 md:w-8 h-6 md:h-8 mx-auto ${rankColor}`} />
-                    <p className="text-xs md:text-sm font-bold text-gray-400 mt-1">#{rank}</p>
+                  {/* Rank Badge */}
+                  <div className="flex-shrink-0 w-12 flex flex-col items-center gap-0.5">
+                    <RankBadge points={points} idx={index} />
+                    <p className="text-xs font-bold text-gray-500">#{rank}</p>
                   </div>
 
                   {/* Info */}
@@ -137,9 +208,7 @@ export function ContributorsPage() {
                       <h3 className="text-base md:text-xl font-bold text-white truncate">{contributor.name}</h3>
                       {/* Score - Mobile */}
                       <div className="flex-shrink-0 text-right md:hidden">
-                        <p className="text-xl font-bold text-primary-400">
-                          {(contributor.totalContributions || 0) * 5 + contributor.totalTierLists * 10 + contributor.totalVotes}
-                        </p>
+                        <p className="text-xl font-bold text-primary-400">{points}</p>
                         <p className="text-[10px] text-gray-500">pts</p>
                       </div>
                     </div>
@@ -161,9 +230,7 @@ export function ContributorsPage() {
 
                   {/* Score - Desktop */}
                   <div className="hidden md:block flex-shrink-0 text-right">
-                    <p className="text-3xl font-bold text-primary-400">
-                      {(contributor.totalContributions || 0) * 5 + contributor.totalTierLists * 10 + contributor.totalVotes}
-                    </p>
+                    <p className="text-3xl font-bold text-primary-400">{points}</p>
                     <p className="text-xs text-gray-500">Total Points</p>
                   </div>
                 </div>

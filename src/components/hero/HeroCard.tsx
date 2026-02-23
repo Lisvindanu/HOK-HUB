@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router';
+import { Sword, Wand2, ChevronRight } from 'lucide-react';
 import type { Hero } from '../../types/hero';
 import { getTierColor } from '../../lib/utils';
 
@@ -30,10 +31,14 @@ const ROLE_GLOW: Record<string, { border: string; shadow: string; text: string }
   'Support': { border: 'border-green-500/60', shadow: 'shadow-green-500/30', text: 'text-green-400' },
 };
 
+// Damage type based on role
+const PHYSICAL_ROLES = ['Tank', 'Fighter', 'Assassin', 'Marksman'];
+
 export function HeroCard({ hero }: HeroCardProps) {
   const lanes = hero.lanes && hero.lanes.length > 0 ? hero.lanes : [hero.lane];
   const roleGlow = ROLE_GLOW[hero.role] || ROLE_GLOW['Fighter'];
   const skills = hero.skill?.slice(0, 4) || [];
+  const isPhysical = PHYSICAL_ROLES.includes(hero.role);
 
   return (
     <Link
@@ -79,24 +84,24 @@ export function HeroCard({ hero }: HeroCardProps) {
         {/* Back Side - TCG Style */}
         <div className="absolute inset-0 backface-hidden rotate-y-180">
           <div className={`relative h-full overflow-hidden rounded-2xl border-2 ${roleGlow.border} shadow-lg ${roleGlow.shadow} transition-shadow duration-300`}>
-            {/* Frosted Glass Background - Hero Image */}
+            {/* Grayscale Watermark Background */}
             <div className="absolute inset-0">
               <img
                 src={hero.icon}
                 alt=""
-                className="w-full h-full object-cover blur-xl scale-110 opacity-20"
+                className="w-full h-full object-cover grayscale opacity-[0.08] scale-125"
               />
-              <div className="absolute inset-0 bg-dark-400/85" />
+              <div className="absolute inset-0 bg-dark-400/90" />
             </div>
 
             {/* TCG Inner Frame */}
-            <div className="absolute inset-2 border border-gradient-to-b from-amber-500/30 via-amber-600/20 to-amber-500/30 rounded-xl pointer-events-none" />
+            <div className="absolute inset-2 border border-amber-500/20 rounded-xl pointer-events-none" />
 
             {/* Content */}
-            <div className="relative h-full p-4 flex flex-col">
+            <div className="relative h-full p-3 flex flex-col">
               {/* Header with Mini Avatar */}
-              <div className="flex items-center gap-3 mb-3">
-                <div className={`w-12 h-12 rounded-full overflow-hidden border-2 ${roleGlow.border} shadow-md ${roleGlow.shadow}`}>
+              <div className="flex items-center gap-2.5 mb-2.5">
+                <div className={`w-11 h-11 rounded-full overflow-hidden border-2 ${roleGlow.border} shadow-md ${roleGlow.shadow}`}>
                   <img
                     src={hero.icon}
                     alt={hero.name}
@@ -104,31 +109,39 @@ export function HeroCard({ hero }: HeroCardProps) {
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-white text-base truncate">{hero.name}</h3>
-                  <p className={`text-xs font-semibold ${roleGlow.text}`}>{hero.role}</p>
+                  <h3 className="font-bold text-white text-sm truncate">{hero.name}</h3>
+                  <div className="flex items-center gap-1.5">
+                    {/* Damage Type Icon */}
+                    {isPhysical ? (
+                      <Sword className="w-3 h-3 text-orange-400" />
+                    ) : (
+                      <Wand2 className="w-3 h-3 text-cyan-400" />
+                    )}
+                    <p className={`text-[11px] font-semibold ${roleGlow.text}`}>{hero.role}</p>
+                  </div>
                 </div>
-                <span className={`px-2 py-0.5 rounded text-xs font-bold bg-dark-400/80 ${getTierColor(hero.stats.tier)}`}>
+                <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold bg-dark-400/80 ${getTierColor(hero.stats.tier)}`}>
                   {hero.stats.tier}
                 </span>
               </div>
 
               {/* Lanes Section */}
-              <div className="mb-3">
-                <p className="text-[9px] text-amber-500/80 uppercase tracking-widest font-semibold mb-1.5">Lanes</p>
-                <div className="flex flex-wrap gap-1.5">
+              <div className="mb-2">
+                <p className="text-[8px] text-amber-500/70 uppercase tracking-widest font-semibold mb-1">Lanes</p>
+                <div className="flex flex-wrap gap-1">
                   {lanes.map((lane) => (
                     <div
                       key={lane}
-                      className="flex items-center gap-1.5 px-2 py-1 bg-dark-400/60 rounded-lg border border-white/10"
+                      className="flex items-center gap-1 px-1.5 py-0.5 bg-dark-400/60 rounded border border-white/10"
                     >
                       {LANE_ICONS[lane] && (
                         <img
                           src={LANE_ICONS[lane]}
                           alt={lane}
-                          className="w-4 h-4 object-contain"
+                          className="w-3.5 h-3.5 object-contain"
                         />
                       )}
-                      <span className="text-[10px] text-white font-medium">
+                      <span className="text-[9px] text-white font-medium">
                         {formatLane(lane)}
                       </span>
                     </div>
@@ -138,13 +151,13 @@ export function HeroCard({ hero }: HeroCardProps) {
 
               {/* Skills Section */}
               {skills.length > 0 && (
-                <div className="mb-3">
-                  <p className="text-[9px] text-amber-500/80 uppercase tracking-widest font-semibold mb-1.5">Skills</p>
-                  <div className="flex gap-1.5">
+                <div className="mb-2">
+                  <p className="text-[8px] text-amber-500/70 uppercase tracking-widest font-semibold mb-1">Skills</p>
+                  <div className="flex gap-1">
                     {skills.map((skill, index) => (
                       <div
                         key={index}
-                        className="w-8 h-8 rounded-lg overflow-hidden border border-white/20 bg-dark-400/60"
+                        className="w-7 h-7 rounded overflow-hidden border border-white/20 bg-dark-400/60"
                         title={skill.skillName}
                       >
                         {skill.skillImg ? (
@@ -154,7 +167,7 @@ export function HeroCard({ hero }: HeroCardProps) {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-500">
+                          <div className="w-full h-full flex items-center justify-center text-[9px] text-gray-500">
                             {index === 0 ? 'P' : index}
                           </div>
                         )}
@@ -168,21 +181,27 @@ export function HeroCard({ hero }: HeroCardProps) {
               <div className="flex-1" />
 
               {/* Stats Section - TCG Style */}
-              <div className="border-t border-amber-500/20 pt-2">
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="text-center p-1.5 bg-dark-400/50 rounded-lg border border-green-500/20">
-                    <span className="text-green-400 font-bold text-sm block">{hero.stats.winRate}</span>
-                    <p className="text-[8px] text-green-500/70 uppercase tracking-wider">Win</p>
+              <div className="border-t border-amber-500/20 pt-2 mb-2">
+                <div className="grid grid-cols-3 gap-1.5">
+                  <div className="text-center p-1 bg-dark-400/50 rounded border border-green-500/20">
+                    <span className="text-green-400 font-bold text-[11px] block">{hero.stats.winRate}</span>
+                    <p className="text-[7px] text-green-500/70 uppercase tracking-wider">Win</p>
                   </div>
-                  <div className="text-center p-1.5 bg-dark-400/50 rounded-lg border border-blue-500/20">
-                    <span className="text-blue-400 font-bold text-sm block">{hero.stats.pickRate}</span>
-                    <p className="text-[8px] text-blue-500/70 uppercase tracking-wider">Pick</p>
+                  <div className="text-center p-1 bg-dark-400/50 rounded border border-blue-500/20">
+                    <span className="text-blue-400 font-bold text-[11px] block">{hero.stats.pickRate}</span>
+                    <p className="text-[7px] text-blue-500/70 uppercase tracking-wider">Pick</p>
                   </div>
-                  <div className="text-center p-1.5 bg-dark-400/50 rounded-lg border border-red-500/20">
-                    <span className="text-red-400 font-bold text-sm block">{hero.stats.banRate}</span>
-                    <p className="text-[8px] text-red-500/70 uppercase tracking-wider">Ban</p>
+                  <div className="text-center p-1 bg-dark-400/50 rounded border border-red-500/20">
+                    <span className="text-red-400 font-bold text-[11px] block">{hero.stats.banRate}</span>
+                    <p className="text-[7px] text-red-500/70 uppercase tracking-wider">Ban</p>
                   </div>
                 </div>
+              </div>
+
+              {/* CTA - View Details */}
+              <div className="flex items-center justify-center gap-1 py-1.5 text-gray-500 group-hover:text-primary-400 transition-colors">
+                <span className="text-[9px] font-medium uppercase tracking-wider">View Details</span>
+                <ChevronRight className="w-3 h-3" />
               </div>
             </div>
           </div>

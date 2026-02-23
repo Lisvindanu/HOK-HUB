@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useHeroes } from '../hooks/useHeroes';
 import { Loading } from '../components/ui/Loading';
-import { Link, useSearch } from '@tanstack/react-router';
+import { Link } from '@tanstack/react-router';
 import { Plus, Save, X, RotateCcw, Users, List as ListIcon, ThumbsUp, Calendar, TrendingUp, Share2, Check, Search, GripVertical, Download, Loader2 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -137,7 +137,9 @@ export function TierListPage() {
   const { data: heroes, isLoading } = useHeroes();
   const { token } = useAuth();
   const { data: user } = useUser();
-  const search = useSearch({ from: '/tier-list' });
+  // Get tier list ID from URL
+  const searchParams = new URLSearchParams(window.location.search);
+  const tierListIdFromUrl = searchParams.get('id');
   const [mode, setMode] = useState<'create' | 'view'>('view');
 
   const [communityTierLists, setCommunityTierLists] = useState<TierList[]>([]);
@@ -250,13 +252,13 @@ export function TierListPage() {
 
   // Auto-open tier list from URL param
   useEffect(() => {
-    if (search.id && communityTierLists.length > 0 && !selectedTierList) {
-      const tierList = communityTierLists.find(tl => tl.id === search.id);
+    if (tierListIdFromUrl && communityTierLists.length > 0 && !selectedTierList) {
+      const tierList = communityTierLists.find(tl => tl.id === tierListIdFromUrl);
       if (tierList) {
         setSelectedTierList(tierList);
       }
     }
-  }, [search.id, communityTierLists, selectedTierList]);
+  }, [tierListIdFromUrl, communityTierLists, selectedTierList]);
 
   const loadTierLists = async () => {
     setIsLoadingTierLists(true);

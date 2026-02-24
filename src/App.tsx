@@ -7,6 +7,7 @@ import { FeedbackModal } from './components/layout/FeedbackModal';
 
 function MascotGreeting() {
   const [visible, setVisible] = useState(false);
+  const [minimized, setMinimized] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -16,6 +17,19 @@ function MascotGreeting() {
   }, []);
 
   if (!visible) return null;
+
+  if (minimized) {
+    return (
+      <button
+        onClick={() => setMinimized(false)}
+        className="fixed bottom-20 md:bottom-6 left-4 z-[9999] w-12 h-12 rounded-full bg-primary-500 hover:bg-primary-400 shadow-lg flex items-center justify-center transition-all hover:scale-110"
+        title="Buka Arli"
+        style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}
+      >
+        <span className="text-xl">💬</span>
+      </button>
+    );
+  }
 
   return (
     <>
@@ -31,12 +45,12 @@ function MascotGreeting() {
           Punya saran? Klik aku! 💬
         </button>
 
-        {/* Video + close button */}
+        {/* Video + minimize button */}
         <div className="relative">
           <button
-            onClick={(e) => { e.stopPropagation(); setVisible(false); }}
+            onClick={(e) => { e.stopPropagation(); setMinimized(true); }}
             className="absolute -top-1 -right-1 w-5 h-5 bg-dark-300 border border-white/20 rounded-full text-gray-400 hover:text-white flex items-center justify-center z-10 shadow"
-            title="Tutup"
+            title="Sembunyikan"
           >
             <X className="w-3 h-3" />
           </button>

@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { ArrowRight, ArrowDown, Users, Crown, Palette, Shield } from 'lucide-react';
+import { ArrowRight, ArrowDown, Users, Crown, Palette, Shield, Zap, Layers, Package, BarChart2 } from 'lucide-react';
 import { useHeroes } from '../hooks/useHeroes';
 import { motion } from 'framer-motion';
 
@@ -10,26 +10,58 @@ export function HomePage() {
     {
       icon: Users,
       title: 'Hero Database',
-      description: 'Complete database of all 111 heroes with detailed stats and abilities',
+      description: '111+ heroes with stats, skills, equipment & arcana recommendations',
       href: '/heroes',
+      color: 'from-blue-500 to-blue-700',
     },
     {
       icon: Crown,
       title: 'Tier List',
-      description: 'Community-driven tier rankings updated for the current meta',
+      description: 'Community-voted tier rankings with voting, comments & meta discussions',
       href: '/tier-list',
+      color: 'from-amber-400 to-orange-600',
     },
     {
       icon: Shield,
       title: 'Counter Picks',
-      description: 'Find the best counters and synergies for any hero',
+      description: 'Find the best counters, synergies & strong-against matchups for any hero',
       href: '/counters',
+      color: 'from-red-500 to-rose-700',
     },
     {
       icon: Palette,
       title: 'Skin Gallery',
-      description: 'Browse and explore all skins across every hero',
+      description: 'Browse 1000+ skins — exclusive, limited, series & collaboration filters',
       href: '/skins',
+      color: 'from-pink-500 to-purple-600',
+    },
+    {
+      icon: Zap,
+      title: 'Patch Notes',
+      description: 'Track every hero buff, nerf & adjustment across all patches',
+      href: '/patch-notes',
+      color: 'from-green-500 to-emerald-700',
+    },
+    {
+      icon: Layers,
+      title: 'Draft Simulator',
+      description: 'Practice picks & bans before ranked matches with full draft mode',
+      href: '/draft',
+      color: 'from-violet-500 to-indigo-700',
+    },
+    {
+      icon: Package,
+      title: 'Items & Arcana',
+      description: 'Complete database of all items and arcana builds for every role',
+      href: '/items',
+      color: 'from-cyan-500 to-teal-700',
+    },
+    {
+      icon: BarChart2,
+      title: 'Analytics',
+      description: 'Win rates, pick rates & meta trends to sharpen your strategy',
+      href: '/analytics',
+      color: 'from-orange-400 to-rose-600',
     },
   ];
 
@@ -168,12 +200,19 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* Features Section - Clean Grid */}
-      <section className="py-24">
-        <div className="container mx-auto px-6 lg:px-8">
+      {/* Features Section - Glassmorphism */}
+      <section className="py-24 relative overflow-hidden">
+        {/* Background glow orbs */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 left-1/3 w-[600px] h-[600px] bg-primary-500/[0.07] rounded-full blur-[120px]" />
+          <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-violet-500/[0.07] rounded-full blur-[120px]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-blue-500/[0.05] rounded-full blur-[100px]" />
+        </div>
+
+        <div className="container mx-auto px-6 lg:px-8 relative z-10">
           {/* Section Header */}
           <motion.div
-            className="text-center mb-16"
+            className="text-center mb-14"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -183,33 +222,51 @@ export function HomePage() {
               Everything you need
             </h2>
             <p className="text-gray-400 max-w-xl mx-auto">
-              Comprehensive tools and data to help you improve your gameplay
+              All the tools to dominate the Rift — hero guides, tier lists, drafts & more
             </p>
           </motion.div>
 
-          {/* Feature Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Feature Cards — glass grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
             {features.map((feature, index) => (
               <motion.div
                 key={feature.title}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                transition={{ duration: 0.5, delay: index * 0.07 }}
+                className="h-full"
               >
                 <Link
                   to={feature.href}
-                  className="group block p-8 bg-dark-300/50 border border-white/5 rounded-2xl hover:bg-dark-300 hover:border-white/10 transition-all duration-300"
+                  className="group relative flex flex-col h-full p-5 md:p-6 rounded-3xl
+                    bg-white/[0.04] backdrop-blur-xl
+                    border border-white/[0.08]
+                    shadow-[inset_0_1px_0_0_rgba(255,255,255,0.07)]
+                    hover:bg-white/[0.08] hover:border-white/[0.16]
+                    hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12),0_24px_48px_-12px_rgba(0,0,0,0.4)]
+                    transition-all duration-300"
                 >
-                  <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-6 group-hover:bg-white/10 transition-colors">
-                    <feature.icon className="w-6 h-6 text-white/70" />
+                  {/* Icon */}
+                  <div className={`w-10 h-10 md:w-11 md:h-11 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 shadow-lg`}>
+                    <feature.icon className="w-5 h-5 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-primary-400 transition-colors">
+
+                  {/* Title */}
+                  <h3 className="text-sm md:text-base font-semibold text-white mb-1.5 group-hover:text-primary-300 transition-colors">
                     {feature.title}
                   </h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">
+
+                  {/* Description */}
+                  <p className="text-xs text-gray-500 leading-relaxed flex-1">
                     {feature.description}
                   </p>
+
+                  {/* Explore link */}
+                  <div className="mt-4 flex items-center gap-1 text-xs text-gray-600 group-hover:text-primary-400 transition-all">
+                    <span>Explore</span>
+                    <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                  </div>
                 </Link>
               </motion.div>
             ))}

@@ -1,5 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router';
-import { Menu, X, ChevronDown, LogOut, LogIn, LayoutDashboard, BarChart3, Shield, Trophy, UserPlus, Home, Users, Layers, Sparkles, Zap, CreditCard, Swords, Gem, Target } from 'lucide-react';
+import { Menu, X, ChevronDown, LogOut, LogIn, LayoutDashboard, BarChart3, Shield, Trophy, UserPlus, Home, Users, Layers, Sparkles, Zap, CreditCard, Swords, Gem, Target, ThumbsUp } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useUser } from '../../hooks/useUser';
@@ -20,6 +20,7 @@ const moreNav = [
   { name: 'Counter Picks', href: '/counters', icon: Shield },
   { name: 'Contributors', href: '/contributors', icon: Trophy },
   { name: 'Contribute', href: '/contribute', icon: UserPlus },
+  { name: 'Vote Fitur', href: '/vote', icon: ThumbsUp },
   { name: 'Top Up', href: 'https://magertopup.com', icon: CreditCard, external: true },
 ];
 

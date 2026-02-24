@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VoteRouteImport } from './routes/vote'
 import { Route as TierListRouteImport } from './routes/tier-list'
 import { Route as SkinsRouteImport } from './routes/skins'
 import { Route as PatchNotesRouteImport } from './routes/patch-notes'
@@ -26,6 +27,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as HeroesIndexRouteImport } from './routes/heroes/index'
 import { Route as HeroesHeroIdRouteImport } from './routes/heroes/$heroId'
 
+const VoteRoute = VoteRouteImport.update({
+  id: '/vote',
+  path: '/vote',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TierListRoute = TierListRouteImport.update({
   id: '/tier-list',
   path: '/tier-list',
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/patch-notes': typeof PatchNotesRoute
   '/skins': typeof SkinsRoute
   '/tier-list': typeof TierListRoute
+  '/vote': typeof VoteRoute
   '/heroes/$heroId': typeof HeroesHeroIdRoute
   '/heroes/': typeof HeroesIndexRoute
 }
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/patch-notes': typeof PatchNotesRoute
   '/skins': typeof SkinsRoute
   '/tier-list': typeof TierListRoute
+  '/vote': typeof VoteRoute
   '/heroes/$heroId': typeof HeroesHeroIdRoute
   '/heroes': typeof HeroesIndexRoute
 }
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/patch-notes': typeof PatchNotesRoute
   '/skins': typeof SkinsRoute
   '/tier-list': typeof TierListRoute
+  '/vote': typeof VoteRoute
   '/heroes/$heroId': typeof HeroesHeroIdRoute
   '/heroes/': typeof HeroesIndexRoute
 }
@@ -179,6 +188,7 @@ export interface FileRouteTypes {
     | '/patch-notes'
     | '/skins'
     | '/tier-list'
+    | '/vote'
     | '/heroes/$heroId'
     | '/heroes/'
   fileRoutesByTo: FileRoutesByTo
@@ -197,6 +207,7 @@ export interface FileRouteTypes {
     | '/patch-notes'
     | '/skins'
     | '/tier-list'
+    | '/vote'
     | '/heroes/$heroId'
     | '/heroes'
   id:
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/patch-notes'
     | '/skins'
     | '/tier-list'
+    | '/vote'
     | '/heroes/$heroId'
     | '/heroes/'
   fileRoutesById: FileRoutesById
@@ -234,12 +246,20 @@ export interface RootRouteChildren {
   PatchNotesRoute: typeof PatchNotesRoute
   SkinsRoute: typeof SkinsRoute
   TierListRoute: typeof TierListRoute
+  VoteRoute: typeof VoteRoute
   HeroesHeroIdRoute: typeof HeroesHeroIdRoute
   HeroesIndexRoute: typeof HeroesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/vote': {
+      id: '/vote'
+      path: '/vote'
+      fullPath: '/vote'
+      preLoaderRoute: typeof VoteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tier-list': {
       id: '/tier-list'
       path: '/tier-list'
@@ -370,6 +390,7 @@ const rootRouteChildren: RootRouteChildren = {
   PatchNotesRoute: PatchNotesRoute,
   SkinsRoute: SkinsRoute,
   TierListRoute: TierListRoute,
+  VoteRoute: VoteRoute,
   HeroesHeroIdRoute: HeroesHeroIdRoute,
   HeroesIndexRoute: HeroesIndexRoute,
 }

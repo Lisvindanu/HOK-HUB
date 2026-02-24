@@ -22,7 +22,7 @@ function MascotGreeting() {
     return (
       <button
         onClick={() => setMinimized(false)}
-        className="fixed bottom-20 md:bottom-6 left-4 z-[9999] w-12 h-12 rounded-full bg-primary-500 hover:bg-primary-400 shadow-lg flex items-center justify-center transition-all hover:scale-110"
+        className="hidden md:flex fixed bottom-6 left-4 z-[9999] w-12 h-12 rounded-full bg-primary-500 hover:bg-primary-400 shadow-lg items-center justify-center transition-all hover:scale-110"
         title="Buka Arli"
         style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}
       >
@@ -34,7 +34,7 @@ function MascotGreeting() {
   return (
     <>
       <div
-        className="fixed bottom-16 md:bottom-0 left-4 z-[9999] flex flex-col items-center"
+        className="hidden md:flex fixed bottom-0 left-4 z-[9999] flex-col items-center"
         style={{ filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.6))' }}
       >
         {/* Speech bubble */}

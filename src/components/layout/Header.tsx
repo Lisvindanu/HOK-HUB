@@ -11,16 +11,36 @@ const mainNav = [
   { name: 'Skins', href: '/skins' },
 ];
 
+const moreNavGroups = [
+  {
+    label: 'Game Tools',
+    items: [
+      { name: 'Counter Picks', href: '/counters', icon: Shield },
+      { name: 'Draft Pick', href: '/draft', icon: Target },
+      { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+    ],
+  },
+  {
+    label: 'Content',
+    items: [
+      { name: 'Skins', href: '/skins', icon: Sparkles },
+      { name: 'Items', href: '/items', icon: Swords },
+      { name: 'Arcana', href: '/arcana', icon: Gem },
+    ],
+  },
+  {
+    label: 'Community',
+    items: [
+      { name: 'Contributors', href: '/contributors', icon: Trophy },
+      { name: 'Contribute', href: '/contribute', icon: UserPlus },
+      { name: 'Vote Fitur', href: '/vote', icon: ThumbsUp },
+    ],
+  },
+];
+
+// flat list reused for mobile menu
 const moreNav = [
-  { name: 'Skins', href: '/skins', icon: Sparkles },
-  { name: 'Items', href: '/items', icon: Swords },
-  { name: 'Arcana', href: '/arcana', icon: Gem },
-  { name: 'Draft Pick', href: '/draft', icon: Target },
-  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
-  { name: 'Counter Picks', href: '/counters', icon: Shield },
-  { name: 'Contributors', href: '/contributors', icon: Trophy },
-  { name: 'Contribute', href: '/contribute', icon: UserPlus },
-  { name: 'Vote Fitur', href: '/vote', icon: ThumbsUp },
+  ...moreNavGroups.flatMap(g => g.items),
   { name: 'Top Up', href: 'https://magertopup.com', icon: CreditCard, external: true },
 ];
 
@@ -117,33 +137,41 @@ export function Header() {
               </button>
 
               {moreMenuOpen && (
-                <div className="absolute top-full left-0 mt-2 w-52 bg-dark-300/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden">
-                  <div className="py-2">
-                    {moreNav.map((item) => (
-                      'external' in item && item.external ? (
-                        <a
-                          key={item.name}
-                          href={item.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
-                          onClick={() => setMoreMenuOpen(false)}
-                        >
-                          <item.icon className="w-4 h-4 text-gray-500" />
-                          <span>{item.name}</span>
-                        </a>
-                      ) : (
-                        <Link
-                          key={item.name}
-                          to={item.href}
-                          className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
-                          onClick={() => setMoreMenuOpen(false)}
-                        >
-                          <item.icon className="w-4 h-4 text-gray-500" />
-                          <span>{item.name}</span>
-                        </Link>
-                      )
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[480px] bg-dark-300/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-5">
+                  <div className="grid grid-cols-3 gap-6">
+                    {moreNavGroups.map((group) => (
+                      <div key={group.label}>
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                          {group.label}
+                        </p>
+                        <div className="space-y-0.5">
+                          {group.items.map((item) => (
+                            <Link
+                              key={item.name}
+                              to={item.href}
+                              className="flex items-center gap-2.5 px-2 py-2 rounded-lg text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
+                              onClick={() => setMoreMenuOpen(false)}
+                            >
+                              <item.icon className="w-4 h-4 text-gray-500 shrink-0" />
+                              <span>{item.name}</span>
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
                     ))}
+                  </div>
+                  {/* Top Up CTA */}
+                  <div className="mt-4 pt-4 border-t border-white/5">
+                    <a
+                      href="https://magertopup.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2.5 px-3 py-2.5 bg-primary-500/10 hover:bg-primary-500/20 border border-primary-500/20 rounded-xl text-primary-400 text-sm transition-colors"
+                      onClick={() => setMoreMenuOpen(false)}
+                    >
+                      <CreditCard className="w-4 h-4 shrink-0" />
+                      <span>Top Up Games</span>
+                    </a>
                   </div>
                 </div>
               )}

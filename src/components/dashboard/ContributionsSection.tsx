@@ -27,14 +27,17 @@ const STATUS_CONFIG = {
 
 const TYPE_CONFIG: Record<string, { label: string; color: string; bgColor: string }> = {
   skin: { label: 'Skin', color: 'text-purple-400', bgColor: 'bg-purple-500/10' },
+  'skin-edit': { label: 'Skin Edit', color: 'text-pink-400', bgColor: 'bg-pink-500/10' },
   hero: { label: 'Hero', color: 'text-blue-400', bgColor: 'bg-blue-500/10' },
   series: { label: 'Series', color: 'text-orange-400', bgColor: 'bg-orange-500/10' },
   counter: { label: 'Counter', color: 'text-amber-400', bgColor: 'bg-amber-500/10' },
 };
 
+const DEFAULT_TYPE = { label: 'Other', color: 'text-gray-400', bgColor: 'bg-gray-500/10' };
+
 function ContributionCard({ contribution }: { contribution: Contribution }) {
   const status = STATUS_CONFIG[contribution.status];
-  const type = TYPE_CONFIG[contribution.type];
+  const type = TYPE_CONFIG[contribution.type] ?? DEFAULT_TYPE;
   const StatusIcon = status.icon;
 
   const getTitle = () => {

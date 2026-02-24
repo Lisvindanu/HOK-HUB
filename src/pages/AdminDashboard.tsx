@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
-import { CheckCircle, XCircle, Eye, Clock, AlertCircle, LogIn, History, Filter, Users, User, Calendar, Square, CheckSquare, Loader2 } from 'lucide-react';
+import { CheckCircle, XCircle, Eye, Clock, AlertCircle, LogIn, History, Filter, Users, User, Calendar, Square, CheckSquare, Loader2, MessageSquare } from 'lucide-react';
+import { fetchFeedbacks, markFeedbackRead, type FeedbackItem, type FeedbackCategory } from '../api/tierLists';
 
 interface Contribution {
   id: string;
@@ -42,6 +43,8 @@ export function AdminDashboard() {
   const [contributors, setContributors] = useState<Contributor[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [showContributors, setShowContributors] = useState(false);
+  const [showFeedbacks, setShowFeedbacks] = useState(false);
+  const [feedbacks, setFeedbacks] = useState<FeedbackItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedContribution, setSelectedContribution] = useState<Contribution | null>(null);
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
@@ -60,8 +63,17 @@ export function AdminDashboard() {
     }
   }, [token]);
 
+  const fetchFeedbacksData = async () => {
+    try {
+      const data = await fetchFeedbacks(token!);
+      setFeedbacks(data);
+    } catch {
+      // Silently fail
+    }
+  };
+
   const fetchAll = async () => {
-    await Promise.all([fetchContributions(), fetchHistory(), fetchContributors()]);
+    await Promise.all([fetchContributions(), fetchHistory(), fetchContributors(), fetchFeedbacksData()]);
     setLoading(false);
   };
 
@@ -327,18 +339,30 @@ export function AdminDashboard() {
         </div>
         <div className="flex flex-wrap gap-2">
           <button
-            onClick={() => { setShowContributors(!showContributors); setShowHistory(false); }}
+            onClick={() => { setShowContributors(!showContributors); setShowHistory(false); setShowFeedbacks(false); }}
             className={`btn-secondary flex items-center gap-2 ${showContributors ? 'bg-primary-500/20' : ''}`}
           >
             <Users className="w-4 h-4" />
             Contributors
           </button>
           <button
-            onClick={() => { setShowHistory(!showHistory); setShowContributors(false); }}
+            onClick={() => { setShowHistory(!showHistory); setShowContributors(false); setShowFeedbacks(false); }}
             className={`btn-secondary flex items-center gap-2 ${showHistory ? 'bg-primary-500/20' : ''}`}
           >
             <History className="w-4 h-4" />
             History
+          </button>
+          <button
+            onClick={() => { setShowFeedbacks(!showFeedbacks); setShowContributors(false); setShowHistory(false); if (!showFeedbacks) fetchFeedbacksData(); }}
+            className={`btn-secondary flex items-center gap-2 ${showFeedbacks ? 'bg-primary-500/20' : ''}`}
+          >
+            <MessageSquare className="w-4 h-4" />
+            Feedbacks
+            {feedbacks.filter(f => !f.is_read).length > 0 && (
+              <span className="bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                {feedbacks.filter(f => !f.is_read).length}
+              </span>
+            )}
           </button>
           <button onClick={handleLogout} className="btn-secondary">
             Logout
@@ -476,8 +500,79 @@ export function AdminDashboard() {
         </div>
       )}
 
+      {/* Feedbacks View */}
+      {showFeedbacks && (
+        <div className="card-hover p-6 mb-8">
+          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+            <MessageSquare className="w-6 h-6 text-primary-400" />
+            Kritik & Saran ({feedbacks.length})
+            {feedbacks.filter(f => !f.is_read).length > 0 && (
+              <span className="text-sm font-normal text-gray-400">
+                · {feedbacks.filter(f => !f.is_read).length} belum dibaca
+              </span>
+            )}
+          </h2>
+          {feedbacks.length === 0 ? (
+            <div className="text-center py-8 text-gray-400">Belum ada feedback</div>
+          ) : (
+            <div className="space-y-3 max-h-[600px] overflow-y-auto">
+              {feedbacks.map((fb) => {
+                const categoryConfig: Record<FeedbackCategory, { label: string; color: string; bg: string }> = {
+                  bug: { label: '🐛 Bug', color: 'text-red-400', bg: 'bg-red-500/10' },
+                  feature: { label: '✨ Fitur Baru', color: 'text-blue-400', bg: 'bg-blue-500/10' },
+                  suggestion: { label: '💡 Saran', color: 'text-yellow-400', bg: 'bg-yellow-500/10' },
+                  criticism: { label: '📝 Kritik', color: 'text-orange-400', bg: 'bg-orange-500/10' },
+                  compliment: { label: '❤️ Pujian', color: 'text-pink-400', bg: 'bg-pink-500/10' },
+                  other: { label: '💬 Lainnya', color: 'text-gray-400', bg: 'bg-gray-500/10' },
+                };
+                const cat = categoryConfig[fb.category] || categoryConfig.other;
+                return (
+                  <div
+                    key={fb.id}
+                    className={`p-4 rounded-lg border ${fb.is_read ? 'border-white/5 bg-dark-50' : 'border-primary-500/30 bg-primary-500/5'}`}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
+                          <span className={`px-2 py-0.5 rounded text-xs font-medium ${cat.bg} ${cat.color}`}>
+                            {cat.label}
+                          </span>
+                          {!fb.is_read && (
+                            <span className="px-2 py-0.5 rounded text-xs font-medium bg-primary-500/20 text-primary-400">
+                              Baru
+                            </span>
+                          )}
+                          <span className="text-xs text-gray-500">
+                            {new Date(fb.created_at).toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                        <p className="text-sm font-medium text-white mb-1">
+                          {fb.name || 'Anonymous'}
+                        </p>
+                        <p className="text-sm text-gray-300 whitespace-pre-wrap">{fb.message}</p>
+                      </div>
+                      {!fb.is_read && (
+                        <button
+                          onClick={async () => {
+                            await markFeedbackRead(fb.id, token!);
+                            setFeedbacks(prev => prev.map(f => f.id === fb.id ? { ...f, is_read: true } : f));
+                          }}
+                          className="shrink-0 text-xs text-gray-400 hover:text-white border border-white/10 hover:border-white/20 px-2 py-1 rounded transition-colors"
+                        >
+                          Tandai dibaca
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Contributions - Filter + List */}
-      {!showHistory && !showContributors && (
+      {!showHistory && !showContributors && !showFeedbacks && (
         <>
           {/* Filter + Bulk Actions */}
           <div className="flex flex-wrap items-center gap-3 mb-4">

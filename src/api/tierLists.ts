@@ -184,3 +184,48 @@ export async function loginContributor(email: string, password: string): Promise
 
   return await response.json();
 }
+
+// Feedback
+export type FeedbackCategory = 'bug' | 'feature' | 'suggestion' | 'criticism' | 'compliment' | 'other';
+
+export async function submitFeedback(params: {
+  name?: string;
+  category: FeedbackCategory;
+  message: string;
+}): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/feedback`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to submit feedback');
+  }
+}
+
+export interface FeedbackItem {
+  id: number;
+  name: string;
+  category: FeedbackCategory;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+}
+
+export async function fetchFeedbacks(token: string): Promise<FeedbackItem[]> {
+  const response = await fetch(`${API_BASE_URL}/api/feedback`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  if (!response.ok) throw new Error('Failed to fetch feedbacks');
+  const data = await response.json();
+  return data.feedbacks;
+}
+
+export async function markFeedbackRead(id: number, token: string): Promise<void> {
+  await fetch(`${API_BASE_URL}/api/feedback/${id}/read`, {
+    method: 'PATCH',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+}

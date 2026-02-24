@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import { Github, ExternalLink, Mail } from 'lucide-react';
+import { Github, ExternalLink, Mail, MessageSquarePlus } from 'lucide-react';
+import { FeedbackModal } from './FeedbackModal';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
+  const [showFeedback, setShowFeedback] = useState(false);
 
   const quickLinks = [
     { name: 'Heroes', path: '/heroes' },
@@ -23,6 +26,7 @@ export function Footer() {
   ];
 
   return (
+    <>
     <footer className="bg-dark-400 border-t border-white/5 mt-20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main Footer Content */}
@@ -125,7 +129,16 @@ export function Footer() {
                   anaphygon@protonmail.com
                 </a>
               </li>
-                          </ul>
+              <li>
+                <button
+                  onClick={() => setShowFeedback(true)}
+                  className="text-sm text-gray-400 hover:text-primary-400 transition-colors inline-flex items-center gap-2"
+                >
+                  <MessageSquarePlus className="w-4 h-4" />
+                  Kritik & Saran
+                </button>
+              </li>
+            </ul>
           </div>
         </div>
 
@@ -145,5 +158,8 @@ export function Footer() {
         </div>
       </div>
     </footer>
+
+    {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
+    </>
   );
 }

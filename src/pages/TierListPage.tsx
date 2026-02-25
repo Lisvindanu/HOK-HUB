@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useHeroes } from '../hooks/useHeroes';
 import { Loading } from '../components/ui/Loading';
 import { Link } from '@tanstack/react-router';
-import { Plus, Save, X, RotateCcw, Users, List as ListIcon, ThumbsUp, Calendar, TrendingUp, Share2, Check, Search, GripVertical, Download, Loader2, MessageCircle, Send, Trash2, BadgeCheck, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Save, X, RotateCcw, Users, List as ListIcon, ThumbsUp, Calendar, TrendingUp, Share2, Check, Search, GripVertical, Download, Loader2, MessageCircle, Send, Trash2, BadgeCheck, ChevronDown, ChevronUp, Pencil } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -60,7 +60,7 @@ import {
   type DragEndEvent,
   type DragStartEvent
 } from '@dnd-kit/core';
-import { createTierList, fetchTierLists, voteTierList, fetchComments, postComment, deleteCommentApi, type TierList, type Comment } from '../api/tierLists';
+import { createTierList, updateTierList, fetchTierLists, voteTierList, fetchComments, postComment, deleteCommentApi, type TierList, type Comment } from '../api/tierLists';
 import { useAuth } from '../contexts/AuthContext';
 import { useUser } from '../hooks/useUser';
 
@@ -432,7 +432,7 @@ function CommentSection({ tierListId }: { tierListId: string }) {
 
 export function TierListPage() {
   const { data: heroes, isLoading } = useHeroes();
-  const { token } = useAuth();
+  const { token, user: authUser } = useAuth();
   const { data: user } = useUser();
   // Get tier list ID from URL
   const searchParams = new URLSearchParams(window.location.search);
@@ -461,6 +461,7 @@ export function TierListPage() {
   const [tierListLane, setTierListLane] = useState<string>('All'); // Main lane filter for tier list
   const [showShareMenu, setShowShareMenu] = useState<string | null>(null); // tier list id
   const [urlTierListHandled, setUrlTierListHandled] = useState(false); // prevent re-opening from URL
+  const [editingTierListId, setEditingTierListId] = useState<string | null>(null);
   const tierListRef = useRef<HTMLDivElement>(null);
   const createTierListRef = useRef<HTMLDivElement>(null);
 
@@ -571,6 +572,15 @@ export function TierListPage() {
     } finally {
       setIsLoadingTierLists(false);
     }
+  };
+
+  const handleEdit = (tierList: TierList) => {
+    setTierAssignments(tierList.tiers as Record<TierKey, number[]>);
+    setTierListTitle(tierList.title);
+    setEditingTierListId(tierList.id);
+    setSelectedTierList(null);
+    setMode('create');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleVote = async (tierListId: string) => {
@@ -709,6 +719,8 @@ export function TierListPage() {
     setSelectedTier(null);
     setTierListLane('All');
     setPoolSearch('');
+    setEditingTierListId(null);
+    setTierListTitle('');
   };
 
   // Tap mode handlers
@@ -746,15 +758,25 @@ export function TierListPage() {
 
     setIsSaving(true);
     try {
-      const newTierList = await createTierList({
-        title: tierListTitle.trim(),
-        creatorName: creatorName.trim(),
-        tiers: tierAssignments,
-        token: token || undefined,
-      });
+      if (editingTierListId && token) {
+        const updated = await updateTierList({
+          id: editingTierListId,
+          title: tierListTitle.trim(),
+          tiers: tierAssignments,
+          token,
+        });
+        setCommunityTierLists(prev => prev.map(tl => tl.id === updated.id ? updated : tl));
+        setEditingTierListId(null);
+      } else {
+        const newTierList = await createTierList({
+          title: tierListTitle.trim(),
+          creatorName: creatorName.trim(),
+          tiers: tierAssignments,
+          token: token || undefined,
+        });
+        setCommunityTierLists(prev => [newTierList, ...prev]);
+      }
 
-      setCommunityTierLists(prev => [newTierList, ...prev]);
-      alert('Tier list saved successfully!');
       setShowSaveModal(false);
       setTierListTitle('');
       if (!user) setCreatorName('');
@@ -1393,6 +1415,15 @@ export function TierListPage() {
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
+                              {authUser && tierList.creatorId && String(authUser.id) === String(tierList.creatorId) && (
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleEdit(tierList); }}
+                                  className="p-1.5 hover:bg-primary-500/20 rounded-lg transition-colors"
+                                  title="Edit tier list"
+                                >
+                                  <Pencil className="w-4 h-4 text-primary-400" />
+                                </button>
+                              )}
                               <button
                                 onClick={(e) => { e.stopPropagation(); handleCopyLink(tierList.id); }}
                                 className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
@@ -1492,6 +1523,15 @@ export function TierListPage() {
                   </span>
                   <span className="text-gray-500">{new Date(selectedTierList.createdAt).toLocaleDateString()}</span>
                   <div className="ml-auto flex items-center gap-1.5 md:gap-2">
+                    {authUser && selectedTierList.creatorId && String(authUser.id) === String(selectedTierList.creatorId) && (
+                      <button
+                        onClick={() => handleEdit(selectedTierList)}
+                        className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 bg-primary-500/20 hover:bg-primary-500/30 text-primary-400 rounded-lg transition-colors"
+                      >
+                        <Pencil className="w-3.5 md:w-4 h-3.5 md:h-4" />
+                        <span className="text-xs md:text-sm hidden sm:inline">Edit</span>
+                      </button>
+                    )}
                     <button
                       onClick={handleDownload}
                       disabled={isDownloading}
@@ -1604,8 +1644,8 @@ export function TierListPage() {
             >
               {/* Modal Header */}
               <div className="p-4 md:p-6 border-b border-white/5">
-                <h2 className="text-lg md:text-xl font-bold text-white">Save Tier List</h2>
-                <p className="text-xs md:text-sm text-gray-400 mt-1">Share your tier list with the community</p>
+                <h2 className="text-lg md:text-xl font-bold text-white">{editingTierListId ? 'Update Tier List' : 'Save Tier List'}</h2>
+                <p className="text-xs md:text-sm text-gray-400 mt-1">{editingTierListId ? 'Save your changes' : 'Share your tier list with the community'}</p>
               </div>
 
               {/* Modal Content */}
@@ -1673,7 +1713,7 @@ export function TierListPage() {
                   className="flex-1 flex items-center justify-center gap-1.5 md:gap-2 px-3 md:px-4 py-2.5 md:py-3 bg-white text-dark-400 rounded-xl text-sm font-medium hover:bg-gray-100 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
                 >
                   <Save className="w-3.5 md:w-4 h-3.5 md:h-4" />
-                  {isSaving ? 'Saving...' : 'Save Tier List'}
+                  {isSaving ? 'Saving...' : editingTierListId ? 'Update Tier List' : 'Save Tier List'}
                 </button>
                 <button
                   onClick={() => setShowSaveModal(false)}

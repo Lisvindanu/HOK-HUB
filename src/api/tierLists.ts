@@ -20,6 +20,7 @@ export interface TierList {
   votes: number;
   votedBy: string[];
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface Contributor {
@@ -65,6 +66,30 @@ export async function createTierList(params: {
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error || 'Failed to create tier list');
+  }
+
+  const data = await response.json();
+  return data.tierList;
+}
+
+export async function updateTierList(params: {
+  id: string;
+  title?: string;
+  tiers?: TierListData;
+  token: string;
+}): Promise<TierList> {
+  const response = await fetch(`${API_BASE_URL}/api/tier-lists/${params.id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${params.token}`,
+    },
+    body: JSON.stringify({ title: params.title, tiers: params.tiers }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to update tier list');
   }
 
   const data = await response.json();

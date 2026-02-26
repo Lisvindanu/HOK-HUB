@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { fetchAdjustments, type HeroAdjustment } from '../api/heroes';
 import { Loading } from '../components/ui/Loading';
 import {
@@ -21,6 +21,14 @@ type FilterType = 'all' | 'buffs' | 'nerfs' | 'changes';
 // Seasons available in the API (S6 is earliest we have data for)
 const FIRST_AVAILABLE_SEASON = 6;
 
+const SKILL_INDEX_LABELS: Record<string, string> = {
+  '0': 'Passive',
+  '1': 'Skill 1',
+  '2': 'Skill 2',
+  '3': 'Skill 3',
+  '4': 'Ultimate',
+};
+
 export function PatchNotesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<FilterType>('all');
@@ -29,9 +37,10 @@ export function PatchNotesPage() {
   // Track the latest (max) season number so tabs don't shrink when browsing old seasons
   const [latestSeasonNum, setLatestSeasonNum] = useState<number | null>(null);
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, isFetching, error } = useQuery({
     queryKey: ['adjustments', selectedSeasonId],
     queryFn: () => fetchAdjustments(selectedSeasonId ?? undefined),
+    placeholderData: keepPreviousData,
   });
 
   // Lock in the latest season number from the initial/current-season load only
@@ -50,6 +59,9 @@ export function PatchNotesPage() {
         return { id: String(num), name: `S${num}` };
       }).reverse() // newest first
     : [];
+
+  // Extract version name from any adjustment that has it
+  const versionName = data?.adjustments.find(a => a.versionName)?.versionName ?? '';
 
   if (isLoading) {
     return (
@@ -95,8 +107,17 @@ export function PatchNotesPage() {
           <div className="flex items-center gap-2 text-sm text-gray-400 mb-2">
             <Calendar className="w-4 h-4" />
             <span>Season {data.season.name}</span>
+            {versionName && (
+              <>
+                <span className="text-gray-600">|</span>
+                <span className="text-primary-400">v{versionName}</span>
+              </>
+            )}
             <span className="text-gray-600">|</span>
             <span>{new Date(data.scrapedAt).toLocaleDateString()}</span>
+            {isFetching && (
+              <span className="w-3.5 h-3.5 border-2 border-primary-400 border-t-transparent rounded-full animate-spin" />
+            )}
           </div>
           <h1 className="text-3xl md:text-5xl font-display font-bold mb-2 md:mb-4">
             Patch Notes
@@ -263,6 +284,7 @@ export function PatchNotesPage() {
         </p>
 
         {/* Hero Cards Grid */}
+        <div className={`transition-opacity duration-200 ${isFetching ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
         {filteredAdjustments.length === 0 ? (
           <div className="text-center py-12">
             <Search className="w-12 h-12 text-gray-600 mx-auto mb-3" />
@@ -279,6 +301,7 @@ export function PatchNotesPage() {
             ))}
           </div>
         )}
+        </div>
       </div>
 
       {/* Detail Modal */}
@@ -557,7 +580,9 @@ function HeroDetailModal({ hero, onClose }: HeroDetailModalProps) {
                         />
                         <div>
                           <h4 className="font-bold text-white">{skill.skillName}</h4>
-                          <p className="text-xs text-gray-500">{skill.skillIndex}</p>
+                          <p className="text-xs text-gray-500">
+                            {SKILL_INDEX_LABELS[String(skill.skillIndex)] ?? `Skill ${skill.skillIndex}`}
+                          </p>
                         </div>
                       </div>
 

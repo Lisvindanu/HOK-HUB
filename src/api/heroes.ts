@@ -63,6 +63,8 @@ export interface HeroAdjustment {
   type: 'Stat Buffs' | 'Stat Changes' | 'Stat Nerfs' | string;
   tagEnum: number;
   tagColor: string;
+  versionName?: string;
+  versionPublishTime?: string;
   stats: {
     winRate: number;
     pickRate: number;

@@ -81,8 +81,11 @@ export interface AdjustmentsResponse {
   adjustments: HeroAdjustment[];
 }
 
-export async function fetchAdjustments(): Promise<AdjustmentsResponse> {
-  const response = await fetch(`${API_BASE_URL}/api/adjustments`);
+export async function fetchAdjustments(seasonId?: string): Promise<AdjustmentsResponse> {
+  const url = seasonId
+    ? `${API_BASE_URL}/api/adjustments?season=${seasonId}`
+    : `${API_BASE_URL}/api/adjustments`;
+  const response = await fetch(url);
 
   if (!response.ok) {
     throw new Error('Failed to fetch adjustments');

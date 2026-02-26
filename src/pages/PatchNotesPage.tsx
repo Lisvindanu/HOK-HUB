@@ -18,15 +18,28 @@ import {
 
 type FilterType = 'all' | 'buffs' | 'nerfs' | 'changes';
 
+// Seasons available in the API (S6 is earliest we have data for)
+const FIRST_AVAILABLE_SEASON = 6;
+
 export function PatchNotesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<FilterType>('all');
   const [selectedHero, setSelectedHero] = useState<HeroAdjustment | null>(null);
+  const [selectedSeasonId, setSelectedSeasonId] = useState<string | null>(null); // null = current
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['adjustments'],
-    queryFn: fetchAdjustments,
+    queryKey: ['adjustments', selectedSeasonId],
+    queryFn: () => fetchAdjustments(selectedSeasonId ?? undefined),
   });
+
+  // Derive available season tabs from the current season id
+  const currentSeasonNum = data ? parseInt(data.season.id, 10) : null;
+  const availableSeasons: { id: string; name: string }[] = currentSeasonNum
+    ? Array.from({ length: currentSeasonNum - FIRST_AVAILABLE_SEASON + 1 }, (_, i) => {
+        const num = FIRST_AVAILABLE_SEASON + i;
+        return { id: String(num), name: `S${num}` };
+      }).reverse() // newest first
+    : [];
 
   if (isLoading) {
     return (
@@ -78,9 +91,43 @@ export function PatchNotesPage() {
           <h1 className="text-3xl md:text-5xl font-display font-bold mb-2 md:mb-4">
             Patch Notes
           </h1>
-          <p className="text-gray-400 text-sm md:text-lg">
-            Hero balance changes for the current season
+          <p className="text-gray-400 text-sm md:text-lg mb-4">
+            Hero balance changes by season
           </p>
+
+          {/* Season Selector */}
+          {availableSeasons.length > 0 && (
+            <div className="flex items-center gap-2">
+              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+                {availableSeasons.map((season) => {
+                  const isActive = selectedSeasonId === season.id ||
+                    (selectedSeasonId === null && season.id === String(currentSeasonNum));
+                  return (
+                    <button
+                      key={season.id}
+                      onClick={() => {
+                        setSelectedSeasonId(season.id === String(currentSeasonNum) ? null : season.id);
+                        setSearchQuery('');
+                        setFilterType('all');
+                      }}
+                      className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                        isActive
+                          ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/25'
+                          : 'bg-dark-200 border border-white/10 text-gray-400 hover:text-white hover:border-white/20'
+                      }`}
+                    >
+                      {season.name}
+                      {season.id === String(currentSeasonNum) && (
+                        <span className={`ml-1.5 text-xs ${isActive ? 'text-white/70' : 'text-primary-400'}`}>
+                          ●
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Stats Summary - Desktop */}

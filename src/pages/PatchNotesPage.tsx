@@ -429,7 +429,9 @@ function HeroDetailModal({ hero, onClose }: HeroDetailModalProps) {
   // Parse before/after values from description
   const parseChanges = (text: string) => {
     if (!text) return [];
-    const lines = text.split('\n').filter(l => l.trim());
+    // Normalize <br> tags to newlines before splitting
+    const normalized = text.replace(/<br\s*\/?>/gi, '\n');
+    const lines = normalized.split('\n').filter(l => l.trim());
     const changes: { label: string; before: string; after: string }[] = [];
 
     let currentLabel = '';
@@ -565,7 +567,7 @@ function HeroDetailModal({ hero, onClose }: HeroDetailModalProps) {
                         </div>
                       ) : (
                         <div className="text-sm text-gray-400 whitespace-pre-line">
-                          {skill.description}
+                          {skill.description.replace(/<br\s*\/?>/gi, '\n')}
                         </div>
                       )}
                     </div>

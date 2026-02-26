@@ -428,6 +428,7 @@ function HeroDetailModal({ hero, onClose }: HeroDetailModalProps) {
 
   // Parse before/after values from description
   const parseChanges = (text: string) => {
+    if (!text) return [];
     const lines = text.split('\n').filter(l => l.trim());
     const changes: { label: string; before: string; after: string }[] = [];
 
@@ -528,7 +529,7 @@ function HeroDetailModal({ hero, onClose }: HeroDetailModalProps) {
               </h3>
               <div className="space-y-4">
                 {hero.skillChanges.map((skill, idx) => {
-                  const changes = parseChanges(skill.descriptionText);
+                  const changes = parseChanges(skill.description);
 
                   return (
                     <div key={idx} className="bg-dark-200 rounded-xl p-4">
@@ -564,7 +565,7 @@ function HeroDetailModal({ hero, onClose }: HeroDetailModalProps) {
                         </div>
                       ) : (
                         <div className="text-sm text-gray-400 whitespace-pre-line">
-                          {skill.descriptionText}
+                          {skill.description}
                         </div>
                       )}
                     </div>

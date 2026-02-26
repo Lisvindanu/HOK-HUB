@@ -53,7 +53,6 @@ export interface SkillChange {
   skillIndex: string;
   title: string;
   description: string;
-  descriptionText: string;
 }
 
 export interface HeroAdjustment {

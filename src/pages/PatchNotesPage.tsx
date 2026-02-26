@@ -361,8 +361,8 @@ function HeroAdjustmentCard({ adjustment, onClick }: HeroAdjustmentCardProps) {
   };
 
   const getWinRateColor = (rate: number) => {
-    if (rate >= 52) return 'text-green-400';
-    if (rate <= 48) return 'text-red-400';
+    if (rate >= 0.52) return 'text-green-400';
+    if (rate <= 0.48) return 'text-red-400';
     return 'text-gray-300';
   };
 
@@ -416,16 +416,16 @@ function HeroAdjustmentCard({ adjustment, onClick }: HeroAdjustmentCardProps) {
             <div className="flex items-center gap-1">
               <Target className="w-3 h-3 text-gray-500" />
               <span className={getWinRateColor(adjustment.stats.winRate)}>
-                {adjustment.stats.winRate.toFixed(1)}%
+                {(adjustment.stats.winRate * 100).toFixed(1)}%
               </span>
             </div>
             <div className="flex items-center gap-1">
               <Zap className="w-3 h-3 text-gray-500" />
-              <span className="text-gray-400">{adjustment.stats.pickRate.toFixed(1)}%</span>
+              <span className="text-gray-400">{(adjustment.stats.pickRate * 100).toFixed(1)}%</span>
             </div>
             <div className="flex items-center gap-1">
               <Ban className="w-3 h-3 text-gray-500" />
-              <span className="text-gray-400">{adjustment.stats.banRate.toFixed(1)}%</span>
+              <span className="text-gray-400">{(adjustment.stats.banRate * 100).toFixed(1)}%</span>
             </div>
           </div>
         </div>
@@ -560,17 +560,17 @@ function HeroDetailModal({ hero, onClose }: HeroDetailModalProps) {
           <div className="grid grid-cols-3 gap-3 mb-6">
             <div className="bg-dark-200 rounded-xl p-3 text-center">
               <Target className="w-5 h-5 text-gray-500 mx-auto mb-1" />
-              <p className="text-lg font-bold text-white">{hero.stats.winRate.toFixed(1)}%</p>
+              <p className="text-lg font-bold text-white">{(hero.stats.winRate * 100).toFixed(1)}%</p>
               <p className="text-xs text-gray-500">Win Rate</p>
             </div>
             <div className="bg-dark-200 rounded-xl p-3 text-center">
               <Zap className="w-5 h-5 text-gray-500 mx-auto mb-1" />
-              <p className="text-lg font-bold text-white">{hero.stats.pickRate.toFixed(1)}%</p>
+              <p className="text-lg font-bold text-white">{(hero.stats.pickRate * 100).toFixed(1)}%</p>
               <p className="text-xs text-gray-500">Pick Rate</p>
             </div>
             <div className="bg-dark-200 rounded-xl p-3 text-center">
               <Ban className="w-5 h-5 text-gray-500 mx-auto mb-1" />
-              <p className="text-lg font-bold text-white">{hero.stats.banRate.toFixed(1)}%</p>
+              <p className="text-lg font-bold text-white">{(hero.stats.banRate * 100).toFixed(1)}%</p>
               <p className="text-xs text-gray-500">Ban Rate</p>
             </div>
           </div>

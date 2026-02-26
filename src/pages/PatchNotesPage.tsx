@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import { fetchAdjustments, type HeroAdjustment } from '../api/heroes';
+import { fetchAdjustments, fetchHeroById, type HeroAdjustment } from '../api/heroes';
 import { Loading } from '../components/ui/Loading';
 import {
   TrendingUp,
@@ -440,6 +440,32 @@ interface HeroDetailModalProps {
 }
 
 function HeroDetailModal({ hero, onClose }: HeroDetailModalProps) {
+  // Fetch hero data to build skill position labels
+  const { data: heroData } = useQuery({
+    queryKey: ['hero', hero.heroId],
+    queryFn: () => fetchHeroById(hero.heroId),
+    staleTime: Infinity,
+  });
+
+  // Map skillName → position label using same logic as HeroDetailPage
+  const skillLabelMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    if (!heroData?.skill) return map;
+    const skills = heroData.skill;
+    skills.forEach((skill, index) => {
+      let label: string;
+      if (index === 0) {
+        label = 'Passive';
+      } else if (skill.skillName.toLowerCase().includes('awakening') || index === skills.length - 1) {
+        label = 'Ultimate';
+      } else {
+        label = `Skill ${index}`;
+      }
+      map[skill.skillName] = label;
+    });
+    return map;
+  }, [heroData]);
+
   const getTypeIcon = (type: string) => {
     if (type === 'Stat Buffs') return <TrendingUp className="w-4 h-4" />;
     if (type === 'Stat Nerfs') return <TrendingDown className="w-4 h-4" />;
@@ -573,6 +599,11 @@ function HeroDetailModal({ hero, onClose }: HeroDetailModalProps) {
                         />
                         <div>
                           <h4 className="font-bold text-white">{skill.skillName}</h4>
+                          {skillLabelMap[skill.skillName] && (
+                            <p className="text-xs text-primary-400 font-medium">
+                              {skillLabelMap[skill.skillName]}
+                            </p>
+                          )}
                         </div>
                       </div>
 

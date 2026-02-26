@@ -1,10 +1,19 @@
 import { Link } from '@tanstack/react-router';
-import { ArrowRight, ArrowDown, Users, Crown, Palette, Shield, Zap, Layers, Package, BarChart2 } from 'lucide-react';
+import { ArrowRight, ArrowDown, Users, Crown, Palette, Shield, Zap, Layers, Package, BarChart2, AlertTriangle, X } from 'lucide-react';
 import { useHeroes } from '../hooks/useHeroes';
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 
 export function HomePage() {
   const { data: heroes } = useHeroes();
+  const [bannerDismissed, setBannerDismissed] = useState(
+    () => localStorage.getItem('incident-banner-dismissed') === '1'
+  );
+
+  const dismissBanner = () => {
+    localStorage.setItem('incident-banner-dismissed', '1');
+    setBannerDismissed(true);
+  };
 
   const features = [
     {
@@ -70,6 +79,38 @@ export function HomePage() {
 
   return (
     <div className="min-h-screen bg-dark-400">
+
+      {/* Incident Banner */}
+      {!bannerDismissed && (
+        <div
+          className="relative flex items-center justify-between gap-3 px-4 py-3"
+          style={{ background: 'rgba(239,68,68,0.12)', borderBottom: '1px solid rgba(239,68,68,0.25)' }}
+        >
+          <div className="flex items-center gap-2.5 flex-1 min-w-0">
+            <AlertTriangle className="w-4 h-4 shrink-0" style={{ color: '#f87171' }} />
+            <p className="text-sm truncate" style={{ color: '#fca5a5' }}>
+              <strong style={{ color: '#fecaca' }}>Pemberitahuan penting:</strong>{' '}
+              Terjadi kehilangan data tier list komunitas pada 26 Feb 2026.{' '}
+              <Link
+                to="/incident"
+                className="underline underline-offset-2 font-medium"
+                style={{ color: '#fb923c' }}
+              >
+                Baca selengkapnya →
+              </Link>
+            </p>
+          </div>
+          <button
+            onClick={dismissBanner}
+            className="shrink-0 p-1 rounded transition-colors"
+            style={{ color: '#f87171' }}
+            aria-label="Tutup"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Hero Section - Full Height */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background Image */}

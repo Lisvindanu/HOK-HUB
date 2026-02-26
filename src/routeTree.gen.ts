@@ -14,6 +14,7 @@ import { Route as TierListRouteImport } from './routes/tier-list'
 import { Route as SkinsRouteImport } from './routes/skins'
 import { Route as PatchNotesRouteImport } from './routes/patch-notes'
 import { Route as ItemsRouteImport } from './routes/items'
+import { Route as IncidentRouteImport } from './routes/incident'
 import { Route as DraftRouteImport } from './routes/draft'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CountersRouteImport } from './routes/counters'
@@ -50,6 +51,11 @@ const PatchNotesRoute = PatchNotesRouteImport.update({
 const ItemsRoute = ItemsRouteImport.update({
   id: '/items',
   path: '/items',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IncidentRoute = IncidentRouteImport.update({
+  id: '/incident',
+  path: '/incident',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DraftRoute = DraftRouteImport.update({
@@ -124,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/counters': typeof CountersRoute
   '/dashboard': typeof DashboardRoute
   '/draft': typeof DraftRoute
+  '/incident': typeof IncidentRoute
   '/items': typeof ItemsRoute
   '/patch-notes': typeof PatchNotesRoute
   '/skins': typeof SkinsRoute
@@ -143,6 +150,7 @@ export interface FileRoutesByTo {
   '/counters': typeof CountersRoute
   '/dashboard': typeof DashboardRoute
   '/draft': typeof DraftRoute
+  '/incident': typeof IncidentRoute
   '/items': typeof ItemsRoute
   '/patch-notes': typeof PatchNotesRoute
   '/skins': typeof SkinsRoute
@@ -163,6 +171,7 @@ export interface FileRoutesById {
   '/counters': typeof CountersRoute
   '/dashboard': typeof DashboardRoute
   '/draft': typeof DraftRoute
+  '/incident': typeof IncidentRoute
   '/items': typeof ItemsRoute
   '/patch-notes': typeof PatchNotesRoute
   '/skins': typeof SkinsRoute
@@ -184,6 +193,7 @@ export interface FileRouteTypes {
     | '/counters'
     | '/dashboard'
     | '/draft'
+    | '/incident'
     | '/items'
     | '/patch-notes'
     | '/skins'
@@ -203,6 +213,7 @@ export interface FileRouteTypes {
     | '/counters'
     | '/dashboard'
     | '/draft'
+    | '/incident'
     | '/items'
     | '/patch-notes'
     | '/skins'
@@ -222,6 +233,7 @@ export interface FileRouteTypes {
     | '/counters'
     | '/dashboard'
     | '/draft'
+    | '/incident'
     | '/items'
     | '/patch-notes'
     | '/skins'
@@ -242,6 +254,7 @@ export interface RootRouteChildren {
   CountersRoute: typeof CountersRoute
   DashboardRoute: typeof DashboardRoute
   DraftRoute: typeof DraftRoute
+  IncidentRoute: typeof IncidentRoute
   ItemsRoute: typeof ItemsRoute
   PatchNotesRoute: typeof PatchNotesRoute
   SkinsRoute: typeof SkinsRoute
@@ -286,6 +299,13 @@ declare module '@tanstack/react-router' {
       path: '/items'
       fullPath: '/items'
       preLoaderRoute: typeof ItemsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/incident': {
+      id: '/incident'
+      path: '/incident'
+      fullPath: '/incident'
+      preLoaderRoute: typeof IncidentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/draft': {
@@ -386,6 +406,7 @@ const rootRouteChildren: RootRouteChildren = {
   CountersRoute: CountersRoute,
   DashboardRoute: DashboardRoute,
   DraftRoute: DraftRoute,
+  IncidentRoute: IncidentRoute,
   ItemsRoute: ItemsRoute,
   PatchNotesRoute: PatchNotesRoute,
   SkinsRoute: SkinsRoute,

@@ -21,13 +21,6 @@ type FilterType = 'all' | 'buffs' | 'nerfs' | 'changes';
 // Seasons available in the API (S6 is earliest we have data for)
 const FIRST_AVAILABLE_SEASON = 6;
 
-const SKILL_INDEX_LABELS: Record<string, string> = {
-  '0': 'Passive',
-  '1': 'Skill 1',
-  '2': 'Skill 2',
-  '3': 'Skill 3',
-  '4': 'Ultimate',
-};
 
 export function PatchNotesPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -580,9 +573,6 @@ function HeroDetailModal({ hero, onClose }: HeroDetailModalProps) {
                         />
                         <div>
                           <h4 className="font-bold text-white">{skill.skillName}</h4>
-                          <p className="text-xs text-gray-500">
-                            {SKILL_INDEX_LABELS[String(skill.skillIndex)] ?? `Skill ${skill.skillIndex}`}
-                          </p>
                         </div>
                       </div>
 

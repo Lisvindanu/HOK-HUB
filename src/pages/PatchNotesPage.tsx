@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAdjustments, type HeroAdjustment } from '../api/heroes';
 import { Loading } from '../components/ui/Loading';
@@ -26,16 +26,26 @@ export function PatchNotesPage() {
   const [filterType, setFilterType] = useState<FilterType>('all');
   const [selectedHero, setSelectedHero] = useState<HeroAdjustment | null>(null);
   const [selectedSeasonId, setSelectedSeasonId] = useState<string | null>(null); // null = current
+  // Track the latest (max) season number so tabs don't shrink when browsing old seasons
+  const [latestSeasonNum, setLatestSeasonNum] = useState<number | null>(null);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['adjustments', selectedSeasonId],
     queryFn: () => fetchAdjustments(selectedSeasonId ?? undefined),
   });
 
-  // Derive available season tabs from the current season id
-  const currentSeasonNum = data ? parseInt(data.season.id, 10) : null;
-  const availableSeasons: { id: string; name: string }[] = currentSeasonNum
-    ? Array.from({ length: currentSeasonNum - FIRST_AVAILABLE_SEASON + 1 }, (_, i) => {
+  // Lock in the latest season number from the initial/current-season load only
+  useEffect(() => {
+    if (data && selectedSeasonId === null) {
+      const num = parseInt(data.season.id, 10);
+      setLatestSeasonNum(prev => (prev === null || num > prev) ? num : prev);
+    }
+  }, [data, selectedSeasonId]);
+
+  // Build season tabs using the locked-in latest season, not the currently-viewed season
+  const maxSeasonNum = latestSeasonNum ?? (data ? parseInt(data.season.id, 10) : null);
+  const availableSeasons: { id: string; name: string }[] = maxSeasonNum
+    ? Array.from({ length: maxSeasonNum - FIRST_AVAILABLE_SEASON + 1 }, (_, i) => {
         const num = FIRST_AVAILABLE_SEASON + i;
         return { id: String(num), name: `S${num}` };
       }).reverse() // newest first
@@ -101,12 +111,12 @@ export function PatchNotesPage() {
               <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
                 {availableSeasons.map((season) => {
                   const isActive = selectedSeasonId === season.id ||
-                    (selectedSeasonId === null && season.id === String(currentSeasonNum));
+                    (selectedSeasonId === null && season.id === String(maxSeasonNum));
                   return (
                     <button
                       key={season.id}
                       onClick={() => {
-                        setSelectedSeasonId(season.id === String(currentSeasonNum) ? null : season.id);
+                        setSelectedSeasonId(season.id === String(maxSeasonNum) ? null : season.id);
                         setSearchQuery('');
                         setFilterType('all');
                       }}
@@ -117,7 +127,7 @@ export function PatchNotesPage() {
                       }`}
                     >
                       {season.name}
-                      {season.id === String(currentSeasonNum) && (
+                      {season.id === String(maxSeasonNum) && (
                         <span className={`ml-1.5 text-xs ${isActive ? 'text-white/70' : 'text-primary-400'}`}>
                           ●
                         </span>

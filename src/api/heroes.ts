@@ -82,6 +82,28 @@ export interface AdjustmentsResponse {
   adjustments: HeroAdjustment[];
 }
 
+export interface SeasonAdjustments {
+  season: { id: string; name: string };
+  adjustments: HeroAdjustment[];
+  heroCount: number;
+}
+
+export interface AdjustmentsFullResponse {
+  scrapedAt: string;
+  currentSeason: { id: string; name: string };
+  allSeasons: Record<string, SeasonAdjustments>;
+}
+
+export async function fetchAdjustmentsFull(): Promise<AdjustmentsFullResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/adjustments/full`);
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch full adjustments');
+  }
+
+  return response.json();
+}
+
 export async function fetchAdjustments(seasonId?: string): Promise<AdjustmentsResponse> {
   const url = seasonId
     ? `${API_BASE_URL}/api/adjustments?season=${seasonId}`

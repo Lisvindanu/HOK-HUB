@@ -1,16 +1,38 @@
 import { useParams, Link } from '@tanstack/react-router';
-import { ArrowLeft, Shield, Swords, Zap, Target, X, ChevronLeft, ChevronRight, Users, Crosshair } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowLeft, Shield, Swords, Zap, Target, X, ChevronLeft, ChevronRight, Users, Crosshair, TrendingUp, TrendingDown, Minus, ArrowRight } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useHeroById } from '../hooks/useHeroes';
 import { Loading } from '../components/ui/Loading';
 import { getTierColor } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { fetchAdjustmentsFull } from '../api/heroes';
 
 export function HeroDetailPage() {
   const { heroId } = useParams({ from: '/heroes/$heroId' });
   const { data: hero, isLoading } = useHeroById(parseInt(heroId));
   const [selectedSkinIndex, setSelectedSkinIndex] = useState<number | null>(null);
   const [activeSkillMode, setActiveSkillMode] = useState(0);
+
+  const { data: fullAdjustments } = useQuery({
+    queryKey: ['adjustments-full'],
+    queryFn: fetchAdjustmentsFull,
+    staleTime: Infinity,
+  });
+
+  // Collect all seasons where this hero has adjustments
+  const heroBalanceHistory = useMemo(() => {
+    if (!fullAdjustments || !hero) return [];
+    return Object.values(fullAdjustments.allSeasons)
+      .map((season) => ({
+        season: season.season,
+        adjustment: season.adjustments.find((a) => a.heroId === hero.heroId),
+      }))
+      .filter((entry): entry is { season: { id: string; name: string }; adjustment: NonNullable<typeof entry.adjustment> } =>
+        entry.adjustment !== undefined
+      )
+      .sort((a, b) => Number(b.season.id) - Number(a.season.id));
+  }, [fullAdjustments, hero]);
 
   if (isLoading) {
     return (
@@ -630,6 +652,22 @@ export function HeroDetailPage() {
         </div>
       </section>
 
+      {/* Recent Balance Changes */}
+      {heroBalanceHistory.length > 0 && (
+        <section className="py-6 md:py-8 border-t border-white/5">
+          <div className="container mx-auto px-4 md:px-6 lg:px-8">
+            <h2 className="text-xl md:text-2xl font-display font-bold mb-4 md:mb-6">
+              Balance History
+            </h2>
+            <div className="space-y-3">
+              {heroBalanceHistory.map(({ season, adjustment }) => (
+                <BalanceEntry key={season.id} season={season} adjustment={adjustment} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Skin Gallery Modal */}
       <AnimatePresence>
         {selectedSkinIndex !== null && hero.skins && (
@@ -803,6 +841,122 @@ function AttributeBar({
           style={{ width: value }}
         />
       </div>
+    </div>
+  );
+}
+
+import type { HeroAdjustment } from '../api/heroes';
+
+function BalanceEntry({
+  season,
+  adjustment,
+}: {
+  season: { id: string; name: string };
+  adjustment: HeroAdjustment;
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  const typeColor =
+    adjustment.type === 'Stat Buffs'
+      ? { text: 'text-green-400', bg: 'bg-green-500/15', border: 'border-l-green-500' }
+      : adjustment.type === 'Stat Nerfs'
+      ? { text: 'text-red-400', bg: 'bg-red-500/15', border: 'border-l-red-500' }
+      : { text: 'text-blue-400', bg: 'bg-blue-500/15', border: 'border-l-blue-500' };
+
+  const TypeIcon =
+    adjustment.type === 'Stat Buffs'
+      ? TrendingUp
+      : adjustment.type === 'Stat Nerfs'
+      ? TrendingDown
+      : Minus;
+
+  const hasDetails = adjustment.skillChanges.length > 0;
+
+  return (
+    <div className={`bg-dark-300/50 border border-white/5 border-l-4 ${typeColor.border} rounded-xl overflow-hidden`}>
+      <button
+        onClick={() => hasDetails && setExpanded(!expanded)}
+        className={`w-full text-left p-4 flex items-start gap-3 ${hasDetails ? 'hover:bg-white/3 transition-colors cursor-pointer' : 'cursor-default'}`}
+      >
+        {/* Season badge */}
+        <span className={`flex-shrink-0 px-2.5 py-1 rounded-lg text-xs font-bold ${typeColor.bg} ${typeColor.text}`}>
+          {season.name}
+        </span>
+
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <TypeIcon className={`w-3.5 h-3.5 ${typeColor.text}`} />
+            <span className={`text-xs font-semibold ${typeColor.text}`}>{adjustment.type}</span>
+            {adjustment.versionName && (
+              <span className="text-xs text-gray-500">· v{adjustment.versionName}</span>
+            )}
+          </div>
+          <p className="text-sm text-gray-300">{adjustment.shortDesc}</p>
+        </div>
+
+        {/* Expand indicator */}
+        {hasDetails && (
+          <span className="text-xs text-gray-500 flex-shrink-0 mt-0.5">
+            {expanded ? '▲' : `${adjustment.skillChanges.length} skill${adjustment.skillChanges.length > 1 ? 's' : ''} ▼`}
+          </span>
+        )}
+      </button>
+
+      {/* Skill changes */}
+      {expanded && hasDetails && (
+        <div className="px-4 pb-4 space-y-3 border-t border-white/5 pt-3">
+          {adjustment.skillChanges.map((skill, idx) => {
+            const normalized = skill.description.replace(/<br\s*\/?>/gi, '\n');
+            const lines = normalized.split('\n').filter(l => l.trim());
+            const changes: { label: string; before: string; after: string }[] = [];
+            let currentLabel = '';
+            let beforeValue = '';
+            for (const line of lines) {
+              if (line.includes('Before:')) {
+                const parts = line.split('Before:');
+                if (parts[0].trim()) currentLabel = parts[0].trim().replace(':', '');
+                beforeValue = parts[1]?.trim() || '';
+              } else if (line.includes('Now:')) {
+                const afterValue = line.split('Now:')[1]?.trim() || '';
+                if (currentLabel && beforeValue) {
+                  changes.push({ label: currentLabel, before: beforeValue, after: afterValue });
+                }
+                currentLabel = ''; beforeValue = '';
+              } else if (line.includes(':') && !line.includes('Before') && !line.includes('Now')) {
+                currentLabel = line.replace(':', '').trim();
+              }
+            }
+
+            return (
+              <div key={idx} className="bg-dark-200/60 rounded-xl p-3">
+                <div className="flex items-center gap-2 mb-2">
+                  {skill.skillIcon && (
+                    <img src={skill.skillIcon} alt={skill.skillName} className="w-8 h-8 rounded-lg bg-dark-100" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                  )}
+                  <span className="text-sm font-semibold text-white">{skill.skillName}</span>
+                </div>
+                {changes.length > 0 ? (
+                  <div className="space-y-2">
+                    {changes.map((change, cIdx) => (
+                      <div key={cIdx} className="bg-dark-100/60 rounded-lg p-2.5">
+                        <p className="text-xs text-gray-400 mb-1.5">{change.label}</p>
+                        <div className="flex items-center gap-2 text-sm flex-wrap">
+                          <span className="text-red-400 line-through opacity-70">{change.before}</span>
+                          <ArrowRight className="w-3.5 h-3.5 text-gray-600 flex-shrink-0" />
+                          <span className="text-green-400 font-medium">{change.after}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-400 whitespace-pre-line">{normalized}</p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

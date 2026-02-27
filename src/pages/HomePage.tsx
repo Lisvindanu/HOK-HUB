@@ -72,13 +72,6 @@ export function HomePage() {
       href: '/analytics',
       color: 'from-orange-400 to-rose-600',
     },
-    {
-      icon: Music2,
-      title: 'OST Player',
-      description: '34 official tracks — Global anthems, cinematic scores & character themes',
-      href: '/ost',
-      color: 'from-purple-500 to-pink-600',
-    },
   ];
 
   const heroCount = heroes?.length || 111;
@@ -315,6 +308,136 @@ export function HomePage() {
                 </Link>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* OST Spotlight Section */}
+      <section className="py-20 relative overflow-hidden border-t border-white/5">
+        {/* Glow background */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/[0.10] rounded-full blur-[130px]" />
+          <div className="absolute top-1/2 right-1/3 -translate-y-1/2 w-[400px] h-[400px] bg-pink-600/[0.07] rounded-full blur-[100px]" />
+        </div>
+
+        <div className="container mx-auto px-6 lg:px-8 relative z-10">
+          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+
+            {/* Vinyl + Album Art */}
+            <motion.div
+              className="flex-shrink-0"
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <div className="relative" style={{ width: 300, height: 240 }}>
+                {/* Spinning vinyl disc */}
+                <motion.div
+                  className="absolute rounded-full"
+                  style={{
+                    width: 240, height: 240,
+                    left: 0, top: 0,
+                    background: 'radial-gradient(circle at center, #2a2a2a 28%, #111 28.5%, #1a1a1a 35%, #111 35.5%, #1a1a1a 42%, #111 42.5%, #1a1a1a 49%, #111 49.5%, #222 50%)',
+                    boxShadow: '0 0 0 2px rgba(255,255,255,0.05), 0 20px 60px rgba(0,0,0,0.8), 0 0 80px rgba(147,51,234,0.15)',
+                    zIndex: 1,
+                  }}
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 5, repeat: Infinity, ease: 'linear' }}
+                >
+                  {[28, 42, 56, 70, 84].map(r => (
+                    <div key={r} className="absolute inset-0 rounded-full border"
+                      style={{ margin: r * 240 / 320, borderColor: 'rgba(255,255,255,0.03)' }} />
+                  ))}
+                  <div className="absolute inset-0 rounded-full"
+                    style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.07) 0%, transparent 50%, rgba(0,0,0,0.2) 100%)' }} />
+                  <div className="absolute rounded-full" style={{
+                    width: 14, height: 14, top: '50%', left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    background: '#080808',
+                    boxShadow: '0 0 0 2px rgba(255,255,255,0.06)',
+                  }} />
+                </motion.div>
+
+                {/* Static album art */}
+                <div className="absolute rounded-2xl overflow-hidden" style={{
+                  width: 200, height: 200,
+                  left: 100, top: 20,
+                  zIndex: 2,
+                  boxShadow: '-16px 0 40px rgba(0,0,0,0.7), 0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06)',
+                }}>
+                  <img
+                    src="https://img.youtube.com/vi/HaIKxmA5Jso/hqdefault.jpg"
+                    alt="Born to Rise"
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Now playing overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 px-3 py-2"
+                    style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85), transparent)' }}>
+                    <div className="flex items-center gap-1.5">
+                      <div className="flex items-end gap-0.5 h-3">
+                        {[0, 0.2, 0.1].map((d, i) => (
+                          <motion.div key={i} className="w-0.5 rounded-full bg-purple-400"
+                            animate={{ height: ['4px', '10px', '4px'] }}
+                            transition={{ duration: 0.8, delay: d, repeat: Infinity }} />
+                        ))}
+                      </div>
+                      <span className="text-[10px] text-white/70 font-medium">Born to Rise</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Content */}
+            <motion.div
+              className="flex-1 text-center lg:text-left"
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-5"
+                style={{ background: 'rgba(168,85,247,0.12)', border: '1px solid rgba(168,85,247,0.25)' }}>
+                <Music2 className="w-3.5 h-3.5" style={{ color: '#c084fc' }} />
+                <span className="text-xs font-semibold tracking-wide uppercase" style={{ color: '#c084fc' }}>Official Soundtrack</span>
+              </div>
+
+              <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-3">
+                Honor of Kings OST
+              </h2>
+              <p className="text-gray-400 leading-relaxed mb-8 max-w-md mx-auto lg:mx-0">
+                Stream 34 official tracks — from global anthems by Joe Hisaishi to character themes,
+                cinematic scores & collab soundtracks. All in one player.
+              </p>
+
+              {/* Album category pills */}
+              <div className="grid grid-cols-2 gap-2 mb-8 max-w-sm mx-auto lg:mx-0">
+                {[
+                  { label: 'Global & Anniversary', count: '8 tracks', c: 'rgba(251,191,36,0.1)', b: 'rgba(251,191,36,0.2)', t: '#fbbf24' },
+                  { label: 'Cinematic Scores',      count: '8 tracks', c: 'rgba(99,102,241,0.1)',  b: 'rgba(99,102,241,0.2)',  t: '#818cf8' },
+                  { label: 'Champion Themes',       count: '8 tracks', c: 'rgba(34,197,94,0.1)',   b: 'rgba(34,197,94,0.2)',   t: '#4ade80' },
+                  { label: 'Events & Collabs',      count: '10 tracks', c: 'rgba(236,72,153,0.1)', b: 'rgba(236,72,153,0.2)',  t: '#f472b6' },
+                ].map(({ label, count, c, b, t }) => (
+                  <div key={label} className="flex flex-col px-3 py-2.5 rounded-xl text-left"
+                    style={{ background: c, border: `1px solid ${b}` }}>
+                    <span className="text-[11px] font-semibold" style={{ color: t }}>{count}</span>
+                    <span className="text-xs font-medium text-white/80 mt-0.5 leading-tight">{label}</span>
+                  </div>
+                ))}
+              </div>
+
+              <Link
+                to="/ost"
+                className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl font-semibold text-sm text-white transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_12px_40px_rgba(147,51,234,0.5)]"
+                style={{ background: 'linear-gradient(135deg, #9333ea, #ec4899)', boxShadow: '0 8px 28px rgba(147,51,234,0.35)' }}
+              >
+                <Music2 className="w-4 h-4" />
+                Listen Now
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </motion.div>
           </div>
         </div>
       </section>

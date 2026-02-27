@@ -15,6 +15,7 @@ export function Footer() {
   ];
 
   const resources = [
+    { name: 'About', path: '/about' },
     { name: 'Contribute', path: '/contribute' },
     { name: 'Contributors', path: '/contributors' },
     { name: 'API Documentation', href: 'https://hokapi.project-n.site/', external: true },

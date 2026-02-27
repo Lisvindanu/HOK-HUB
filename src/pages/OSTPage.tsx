@@ -110,8 +110,12 @@ const ALBUMS: Album[] = [
 // ─── Vinyl Component ──────────────────────────────────────────────────────────
 
 function VinylRecord({ cover, isPlaying, size = 280 }: { cover: string; isPlaying: boolean; size?: number }) {
+  const centerSize = size * 0.44;
+  const centerOffset = (size - centerSize) / 2;
+
   return (
     <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
+      {/* The whole disc (grooves + center art) spins together as one unit */}
       <motion.div
         className="absolute inset-0 rounded-full"
         style={{
@@ -121,40 +125,46 @@ function VinylRecord({ cover, isPlaying, size = 280 }: { cover: string; isPlayin
         animate={{ rotate: isPlaying ? 360 : 0 }}
         transition={isPlaying ? { duration: 4, repeat: Infinity, ease: 'linear' } : { duration: 0.8, ease: 'easeOut' }}
       >
+        {/* Groove rings */}
         {[30, 38, 46, 54, 62, 70, 78, 86].map((r) => (
           <div key={r} className="absolute inset-0 rounded-full border"
             style={{ margin: r * size / 320, borderColor: 'rgba(255,255,255,0.03)' }} />
         ))}
+
+        {/* Shine overlay */}
         <div className="absolute inset-0 rounded-full"
           style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.07) 0%, transparent 50%, rgba(0,0,0,0.15) 100%)' }} />
-      </motion.div>
 
-      {/* Album art center circle */}
-      <motion.div
-        className="absolute rounded-full overflow-hidden"
-        style={{
-          width: size * 0.44, height: size * 0.44,
-          top: '50%', left: '50%',
-          transform: 'translate(-50%, -50%)',
-          boxShadow: '0 0 0 3px rgba(255,255,255,0.1), 0 4px 20px rgba(0,0,0,0.6)',
-        }}
-        animate={{ rotate: isPlaying ? 360 : 0 }}
-        transition={isPlaying ? { duration: 4, repeat: Infinity, ease: 'linear' } : { duration: 0.8, ease: 'easeOut' }}
-      >
-        <AnimatePresence mode="wait">
-          <motion.img key={cover} src={cover} alt="Track Art"
-            className="w-full h-full object-cover"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          />
-        </AnimatePresence>
-        <div className="absolute rounded-full bg-dark-400"
+        {/* Center label — square, centered, child of disc so it rotates with it */}
+        <div
+          className="absolute overflow-hidden rounded-xl"
           style={{
-            width: size * 0.04, height: size * 0.04,
-            top: '50%', left: '50%',
-            transform: 'translate(-50%, -50%)',
-            boxShadow: 'inset 0 0 4px rgba(0,0,0,0.9)',
-          }} />
+            width: centerSize,
+            height: centerSize,
+            top: centerOffset,
+            left: centerOffset,
+            boxShadow: '0 0 0 3px rgba(255,255,255,0.12), 0 4px 24px rgba(0,0,0,0.7)',
+          }}
+        >
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={cover}
+              src={cover}
+              alt="Track Art"
+              className="w-full h-full object-cover"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            />
+          </AnimatePresence>
+          {/* Spindle hole */}
+          <div className="absolute rounded-full bg-dark-400"
+            style={{
+              width: size * 0.04, height: size * 0.04,
+              top: '50%', left: '50%',
+              transform: 'translate(-50%, -50%)',
+              boxShadow: 'inset 0 0 4px rgba(0,0,0,0.9)',
+            }} />
+        </div>
       </motion.div>
     </div>
   );

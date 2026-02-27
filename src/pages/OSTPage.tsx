@@ -109,18 +109,22 @@ const ALBUMS: Album[] = [
 
 // ─── Vinyl Component ──────────────────────────────────────────────────────────
 
-function VinylRecord({ cover, isPlaying, size = 280 }: { cover: string; isPlaying: boolean; size?: number }) {
-  const centerSize = size * 0.44;
-  const centerOffset = (size - centerSize) / 2;
+function VinylRecord({ cover, isPlaying, size = 240 }: { cover: string; isPlaying: boolean; size?: number }) {
+  const albumSize = size;
+  const vinylPeek = Math.round(size * 0.40); // portion of vinyl visible to the left
+  const totalWidth = vinylPeek + albumSize;
 
   return (
-    <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
-      {/* The whole disc (grooves + center art) spins together as one unit */}
+    <div className="relative flex-shrink-0" style={{ width: totalWidth, height: size }}>
+      {/* Vinyl disc — only the disc rotates, no art inside */}
       <motion.div
-        className="absolute inset-0 rounded-full"
+        className="absolute rounded-full"
         style={{
+          width: size, height: size,
+          left: 0, top: 0,
           background: 'radial-gradient(circle at center, #2a2a2a 28%, #111 28.5%, #1a1a1a 35%, #111 35.5%, #1a1a1a 42%, #111 42.5%, #1a1a1a 49%, #111 49.5%, #222 50%)',
           boxShadow: '0 0 0 2px rgba(255,255,255,0.05), 0 20px 60px rgba(0,0,0,0.8)',
+          zIndex: 1,
         }}
         animate={{ rotate: isPlaying ? 360 : 0 }}
         transition={isPlaying ? { duration: 4, repeat: Infinity, ease: 'linear' } : { duration: 0.8, ease: 'easeOut' }}
@@ -130,42 +134,43 @@ function VinylRecord({ cover, isPlaying, size = 280 }: { cover: string; isPlayin
           <div key={r} className="absolute inset-0 rounded-full border"
             style={{ margin: r * size / 320, borderColor: 'rgba(255,255,255,0.03)' }} />
         ))}
-
         {/* Shine overlay */}
         <div className="absolute inset-0 rounded-full"
-          style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.07) 0%, transparent 50%, rgba(0,0,0,0.15) 100%)' }} />
-
-        {/* Center label — square, centered, child of disc so it rotates with it */}
-        <div
-          className="absolute overflow-hidden rounded-xl"
+          style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 50%, rgba(0,0,0,0.2) 100%)' }} />
+        {/* Center spindle hole */}
+        <div className="absolute rounded-full"
           style={{
-            width: centerSize,
-            height: centerSize,
-            top: centerOffset,
-            left: centerOffset,
-            boxShadow: '0 0 0 3px rgba(255,255,255,0.12), 0 4px 24px rgba(0,0,0,0.7)',
-          }}
-        >
-          <AnimatePresence mode="wait">
-            <motion.img
-              key={cover}
-              src={cover}
-              alt="Track Art"
-              className="w-full h-full object-cover"
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            />
-          </AnimatePresence>
-          {/* Spindle hole */}
-          <div className="absolute rounded-full bg-dark-400"
-            style={{
-              width: size * 0.04, height: size * 0.04,
-              top: '50%', left: '50%',
-              transform: 'translate(-50%, -50%)',
-              boxShadow: 'inset 0 0 4px rgba(0,0,0,0.9)',
-            }} />
-        </div>
+            width: size * 0.06, height: size * 0.06,
+            top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
+            background: '#080808',
+            boxShadow: 'inset 0 0 6px rgba(0,0,0,1), 0 0 0 2px rgba(255,255,255,0.06)',
+          }} />
       </motion.div>
+
+      {/* Album art — static square, overlapping vinyl from the right */}
+      <div
+        className="absolute rounded-2xl overflow-hidden"
+        style={{
+          width: albumSize, height: albumSize,
+          left: vinylPeek, top: 0,
+          zIndex: 2,
+          boxShadow: '-16px 0 40px rgba(0,0,0,0.7), 0 24px 64px rgba(0,0,0,0.5)',
+        }}
+      >
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={cover}
+            src={cover}
+            alt="Track Art"
+            className="w-full h-full object-cover"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          />
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

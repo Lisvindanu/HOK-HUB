@@ -228,20 +228,22 @@ export function OSTPage() {
   const audioSrc = selectedTrack.youtubeId ? `${AUDIO_PROXY}/${selectedTrack.youtubeId}` : null;
   const currentTrackIndex = selectedAlbum.tracks.findIndex(t => t.no === selectedTrack.no);
 
+  // Effect 1: track changes → always load new audio (reset timers)
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
     setCurrentTime(0);
     setDuration(0);
-    if (audioSrc && isPlaying) {
+    if (audioSrc) {
       audio.load();
       setIsLoading(true);
-      audio.play().catch(() => setIsPlaying(false));
-    } else if (!audioSrc) {
+    } else {
       audio.pause();
+      setIsPlaying(false);
     }
   }, [selectedTrack.no]);
 
+  // Effect 2: play/pause — also triggers when audioSrc changes (track switch while playing)
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio || !audioSrc) return;
@@ -251,7 +253,7 @@ export function OSTPage() {
     } else {
       audio.pause();
     }
-  }, [isPlaying]);
+  }, [isPlaying, audioSrc]);
 
   const onTimeUpdate = useCallback(() => { if (audioRef.current) setCurrentTime(audioRef.current.currentTime); }, []);
   const onLoadedMetadata = useCallback(() => { if (audioRef.current) setDuration(audioRef.current.duration); }, []);

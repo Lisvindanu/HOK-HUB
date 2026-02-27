@@ -293,7 +293,7 @@ export function OSTPage() {
   const selectAlbum = (album: Album) => {
     setSelectedAlbum(album);
     setSelectedTrack(album.tracks[0]);
-    setIsPlaying(false);
+    // intentionally not touching isPlaying — if already playing, auto-continues with first track
   };
 
   return (

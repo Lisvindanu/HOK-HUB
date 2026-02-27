@@ -13,6 +13,7 @@ import { Route as VoteRouteImport } from './routes/vote'
 import { Route as TierListRouteImport } from './routes/tier-list'
 import { Route as SkinsRouteImport } from './routes/skins'
 import { Route as PatchNotesRouteImport } from './routes/patch-notes'
+import { Route as OstRouteImport } from './routes/ost'
 import { Route as ItemsRouteImport } from './routes/items'
 import { Route as IncidentRouteImport } from './routes/incident'
 import { Route as DraftRouteImport } from './routes/draft'
@@ -46,6 +47,11 @@ const SkinsRoute = SkinsRouteImport.update({
 const PatchNotesRoute = PatchNotesRouteImport.update({
   id: '/patch-notes',
   path: '/patch-notes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OstRoute = OstRouteImport.update({
+  id: '/ost',
+  path: '/ost',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ItemsRoute = ItemsRouteImport.update({
@@ -132,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/draft': typeof DraftRoute
   '/incident': typeof IncidentRoute
   '/items': typeof ItemsRoute
+  '/ost': typeof OstRoute
   '/patch-notes': typeof PatchNotesRoute
   '/skins': typeof SkinsRoute
   '/tier-list': typeof TierListRoute
@@ -152,6 +159,7 @@ export interface FileRoutesByTo {
   '/draft': typeof DraftRoute
   '/incident': typeof IncidentRoute
   '/items': typeof ItemsRoute
+  '/ost': typeof OstRoute
   '/patch-notes': typeof PatchNotesRoute
   '/skins': typeof SkinsRoute
   '/tier-list': typeof TierListRoute
@@ -173,6 +181,7 @@ export interface FileRoutesById {
   '/draft': typeof DraftRoute
   '/incident': typeof IncidentRoute
   '/items': typeof ItemsRoute
+  '/ost': typeof OstRoute
   '/patch-notes': typeof PatchNotesRoute
   '/skins': typeof SkinsRoute
   '/tier-list': typeof TierListRoute
@@ -195,6 +204,7 @@ export interface FileRouteTypes {
     | '/draft'
     | '/incident'
     | '/items'
+    | '/ost'
     | '/patch-notes'
     | '/skins'
     | '/tier-list'
@@ -215,6 +225,7 @@ export interface FileRouteTypes {
     | '/draft'
     | '/incident'
     | '/items'
+    | '/ost'
     | '/patch-notes'
     | '/skins'
     | '/tier-list'
@@ -235,6 +246,7 @@ export interface FileRouteTypes {
     | '/draft'
     | '/incident'
     | '/items'
+    | '/ost'
     | '/patch-notes'
     | '/skins'
     | '/tier-list'
@@ -256,6 +268,7 @@ export interface RootRouteChildren {
   DraftRoute: typeof DraftRoute
   IncidentRoute: typeof IncidentRoute
   ItemsRoute: typeof ItemsRoute
+  OstRoute: typeof OstRoute
   PatchNotesRoute: typeof PatchNotesRoute
   SkinsRoute: typeof SkinsRoute
   TierListRoute: typeof TierListRoute
@@ -292,6 +305,13 @@ declare module '@tanstack/react-router' {
       path: '/patch-notes'
       fullPath: '/patch-notes'
       preLoaderRoute: typeof PatchNotesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ost': {
+      id: '/ost'
+      path: '/ost'
+      fullPath: '/ost'
+      preLoaderRoute: typeof OstRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/items': {
@@ -408,6 +428,7 @@ const rootRouteChildren: RootRouteChildren = {
   DraftRoute: DraftRoute,
   IncidentRoute: IncidentRoute,
   ItemsRoute: ItemsRoute,
+  OstRoute: OstRoute,
   PatchNotesRoute: PatchNotesRoute,
   SkinsRoute: SkinsRoute,
   TierListRoute: TierListRoute,

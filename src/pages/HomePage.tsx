@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { ArrowRight, ArrowDown, Users, Crown, Palette, Shield, Zap, Layers, Package, BarChart2, AlertTriangle, X } from 'lucide-react';
+import { ArrowRight, ArrowDown, Users, Crown, Palette, Shield, Zap, Layers, Package, BarChart2, AlertTriangle, X, Music2 } from 'lucide-react';
 import { useHeroes } from '../hooks/useHeroes';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
@@ -71,6 +71,13 @@ export function HomePage() {
       description: 'Win rates, pick rates & meta trends to sharpen your strategy',
       href: '/analytics',
       color: 'from-orange-400 to-rose-600',
+    },
+    {
+      icon: Music2,
+      title: 'OST Player',
+      description: '34 official tracks — Global anthems, cinematic scores & character themes',
+      href: '/ost',
+      color: 'from-purple-500 to-pink-600',
     },
   ];
 

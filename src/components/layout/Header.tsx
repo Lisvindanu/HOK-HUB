@@ -1,5 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router';
-import { Menu, X, ChevronDown, LogOut, LogIn, LayoutDashboard, BarChart3, Shield, Trophy, UserPlus, Home, Users, Layers, Sparkles, Zap, CreditCard, Swords, Gem, Target, ThumbsUp } from 'lucide-react';
+import { Menu, X, ChevronDown, LogOut, LogIn, LayoutDashboard, BarChart3, Shield, Trophy, UserPlus, Home, Users, Layers, Sparkles, Zap, CreditCard, Swords, Gem, Target, ThumbsUp, Music2 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useUser } from '../../hooks/useUser';
@@ -26,6 +26,7 @@ const moreNavGroups = [
       { name: 'Skins', href: '/skins', icon: Sparkles },
       { name: 'Items', href: '/items', icon: Swords },
       { name: 'Arcana', href: '/arcana', icon: Gem },
+      { name: 'OST', href: '/ost', icon: Music2 },
     ],
   },
   {
@@ -38,7 +39,7 @@ const moreNavGroups = [
   },
 ];
 
-// flat list reused for mobile menu
+// flat list reused for mobile menu (OST included via moreNavGroups spread)
 const moreNav = [
   ...moreNavGroups.flatMap(g => g.items),
   { name: 'Top Up', href: 'https://magertopup.com', icon: CreditCard, external: true },

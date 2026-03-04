@@ -1,5 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router';
-import { Menu, X, ChevronDown, LogOut, LogIn, LayoutDashboard, BarChart3, Shield, Trophy, UserPlus, Home, Users, Layers, Sparkles, Zap, CreditCard, Swords, Gem, Target, ThumbsUp, Music2, MessageSquare } from 'lucide-react';
+import { Menu, X, ChevronDown, LogOut, LogIn, LayoutDashboard, BarChart3, Shield, Trophy, UserPlus, Home, Users, Layers, Sparkles, Zap, CreditCard, Swords, Gem, Target, ThumbsUp, Music2 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useUser } from '../../hooks/useUser';
@@ -9,6 +9,7 @@ const mainNav = [
   { name: 'Tier List', href: '/tier-list' },
   { name: 'Patch Notes', href: '/patch-notes' },
   { name: 'Skins', href: '/skins' },
+  { name: 'Community', href: '/community' },
 ];
 
 const moreNavGroups = [
@@ -33,7 +34,6 @@ const moreNavGroups = [
   {
     label: 'Community',
     items: [
-      { name: 'Community Board', href: '/community', icon: MessageSquare },
       { name: 'Contributors', href: '/contributors', icon: Trophy },
       { name: 'Contribute', href: '/contribute', icon: UserPlus },
       { name: 'Vote Fitur', href: '/vote', icon: ThumbsUp },

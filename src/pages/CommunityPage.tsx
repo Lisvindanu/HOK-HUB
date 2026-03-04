@@ -1,10 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
-import { fetchPosts, createPost, deletePost, toggleLike, type Post, type PostType } from '../api/community';
 import { useNavigate } from '@tanstack/react-router';
+import {
+  fetchPosts, createPost, deletePost, toggleLike, uploadImage,
+  type Post, type PostType,
+} from '../api/community';
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
+
+const API_BASE = import.meta.env.DEV ? '' : 'https://hokapi.project-n.site';
 
 function timeAgo(iso: string) {
   const diff = (Date.now() - new Date(iso).getTime()) / 1000;
@@ -35,17 +40,95 @@ function initials(name: string | null) {
   return name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
 }
 
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/bmp'];
+const MAX_FILE_MB = 6;
+
+// ─── LoginPrompt ──────────────────────────────────────────────────────────────
+
+function LoginPrompt({ onClose }: { onClose: () => void }) {
+  const navigate = useNavigate();
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
+      style={{ background: 'rgba(0,0,0,0.65)' }}
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 40 }}
+        className="w-full max-w-sm rounded-2xl border border-white/10 p-6 text-center"
+        style={{ background: 'linear-gradient(135deg, #0d1f35, #101c2e)' }}
+      >
+        <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"
+          style={{ background: 'rgba(29,127,212,0.2)', border: '1px solid rgba(29,127,212,0.4)' }}>
+          ✍️
+        </div>
+        <h3 className="text-white font-semibold text-lg mb-1">Login dulu yuk!</h3>
+        <p className="text-white/50 text-sm mb-5">Kamu perlu login untuk bikin post di Community Board.</p>
+        <div className="flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 py-2 rounded-xl text-sm text-white/50 border border-white/10 hover:text-white transition-colors"
+          >
+            Nanti aja
+          </button>
+          <button
+            onClick={() => navigate({ to: '/auth' })}
+            className="flex-1 py-2 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 transition-colors"
+          >
+            Login / Daftar
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
 // ─── NewPostModal ─────────────────────────────────────────────────────────────
 
-function NewPostModal({ onClose, onCreated }: { onClose: () => void; onCreated: (p: Post) => void }) {
+function NewPostModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
   const { token } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [type, setType] = useState<PostType>('discussion');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tagInput, setTagInput] = useState('');
   const [tags, setTags] = useState<string[]>([]);
+
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageError, setImageError] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageError('');
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setImageError('Tipe file tidak didukung. Gunakan JPG, PNG, WebP, atau GIF.');
+      return;
+    }
+    if (file.size > MAX_FILE_MB * 1024 * 1024) {
+      setImageError(`Ukuran file maksimal ${MAX_FILE_MB}MB.`);
+      return;
+    }
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onload = () => setImagePreview(reader.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  function removeImage() {
+    setImageFile(null);
+    setImagePreview(null);
+    setImageError('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
 
   function addTag(e: React.KeyboardEvent) {
     if (e.key === 'Enter' || e.key === ',') {
@@ -61,15 +144,35 @@ function NewPostModal({ onClose, onCreated }: { onClose: () => void; onCreated: 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!token) return;
-    if (!title.trim() || !content.trim()) { setError('Title and content are required.'); return; }
+    if (!title.trim() || !content.trim()) { setError('Judul dan konten wajib diisi.'); return; }
     setSubmitting(true);
     setError('');
+
+    let imageUrl: string | null = null;
+
+    // Upload image first if selected
+    if (imageFile && imagePreview) {
+      setUploadingImage(true);
+      try {
+        const result = await uploadImage(imagePreview, imageFile.type, token);
+        imageUrl = result.url;
+      } catch (err: any) {
+        setError(err.message || 'Gagal upload gambar.');
+        setSubmitting(false);
+        setUploadingImage(false);
+        return;
+      }
+      setUploadingImage(false);
+    }
+
     try {
-      const post = await createPost({ type, title, content, tags }, token);
-      onCreated(post);
+      const validTypes: PostType[] = ['build', 'strategy', 'discussion', 'dev'];
+      const postType = validTypes.includes(type) ? type : 'discussion';
+      await createPost({ type: postType, title: title.trim(), content: content.trim(), tags, image_url: imageUrl }, token);
+      onCreated();
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Failed to create post');
+      setError(err.message || 'Gagal membuat post.');
     } finally {
       setSubmitting(false);
     }
@@ -81,10 +184,12 @@ function NewPostModal({ onClose, onCreated }: { onClose: () => void; onCreated: 
     { value: 'strategy',   label: 'Strategy' },
   ];
 
+  const isLoading = submitting || uploadingImage;
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'rgba(0,0,0,0.7)' }}
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
+      style={{ background: 'rgba(0,0,0,0.7)', overflowY: 'auto' }}
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}
     >
       <motion.div
@@ -93,15 +198,16 @@ function NewPostModal({ onClose, onCreated }: { onClose: () => void; onCreated: 
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         className="w-full max-w-2xl rounded-2xl border border-white/10 p-6"
         style={{ background: 'linear-gradient(135deg, #0d1f35, #101c2e)' }}
+        onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-xl font-bold text-white">New Post</h2>
-          <button onClick={onClose} className="text-white/40 hover:text-white transition-colors text-2xl leading-none">&times;</button>
+          <h2 className="text-xl font-bold text-white">Buat Post Baru</h2>
+          <button onClick={onClose} disabled={isLoading} className="text-white/40 hover:text-white transition-colors text-2xl leading-none">&times;</button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Type selector */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             {typeList.map(t => (
               <button
                 key={t.value}
@@ -124,7 +230,7 @@ function NewPostModal({ onClose, onCreated }: { onClose: () => void; onCreated: 
             type="text"
             value={title}
             onChange={e => setTitle(e.target.value)}
-            placeholder="Post title..."
+            placeholder="Judul post..."
             maxLength={120}
             className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-blue-500/50 text-sm"
           />
@@ -133,10 +239,55 @@ function NewPostModal({ onClose, onCreated }: { onClose: () => void; onCreated: 
           <textarea
             value={content}
             onChange={e => setContent(e.target.value)}
-            placeholder="Write your post content..."
-            rows={6}
+            placeholder="Tulis konten post kamu..."
+            rows={5}
             className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-blue-500/50 text-sm resize-none"
           />
+
+          {/* Image upload */}
+          <div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept={ALLOWED_TYPES.join(',')}
+              className="hidden"
+              onChange={handleFileChange}
+            />
+            {imagePreview ? (
+              <div className="relative rounded-xl overflow-hidden border border-white/10">
+                <img src={imagePreview} alt="preview" className="w-full max-h-64 object-cover" />
+                <button
+                  type="button"
+                  onClick={removeImage}
+                  className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold text-white"
+                  style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+                >
+                  ×
+                </button>
+                {uploadingImage && (
+                  <div className="absolute inset-0 flex items-center justify-center"
+                    style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(2px)' }}>
+                    <div className="flex items-center gap-2 text-white text-sm">
+                      <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                      <span>Mengupload gambar...</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full py-3 rounded-xl border border-dashed border-white/15 text-white/35 text-sm hover:border-blue-500/40 hover:text-blue-400/70 transition-colors flex items-center justify-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3 20.25h18M16.5 3.75h.008v.008H16.5V3.75z" />
+                </svg>
+                Tambah gambar (opsional, maks {MAX_FILE_MB}MB)
+              </button>
+            )}
+            {imageError && <p className="mt-1 text-red-400 text-xs">{imageError}</p>}
+          </div>
 
           {/* Tags */}
           <div>
@@ -153,7 +304,7 @@ function NewPostModal({ onClose, onCreated }: { onClose: () => void; onCreated: 
               value={tagInput}
               onChange={e => setTagInput(e.target.value)}
               onKeyDown={addTag}
-              placeholder="Add tags (press Enter)..."
+              placeholder="Tambah tag (tekan Enter)..."
               className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-blue-500/50 text-sm"
             />
           </div>
@@ -164,16 +315,18 @@ function NewPostModal({ onClose, onCreated }: { onClose: () => void; onCreated: 
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2 rounded-xl text-sm text-white/50 hover:text-white transition-colors border border-white/10"
+              disabled={isLoading}
+              className="px-5 py-2 rounded-xl text-sm text-white/50 hover:text-white transition-colors border border-white/10 disabled:opacity-40"
             >
-              Cancel
+              Batal
             </button>
             <button
               type="submit"
-              disabled={submitting}
-              className="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 transition-colors disabled:opacity-50"
+              disabled={isLoading}
+              className="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 transition-colors disabled:opacity-50 flex items-center gap-2"
             >
-              {submitting ? 'Posting...' : 'Post'}
+              {isLoading && <div className="animate-spin w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full" />}
+              {uploadingImage ? 'Mengupload...' : submitting ? 'Memposting...' : 'Post'}
             </button>
           </div>
         </form>
@@ -196,15 +349,17 @@ function PostCard({
   currentUserId: string | null;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const [imgExpanded, setImgExpanded] = useState(false);
   const meta = TYPE_META[post.type] ?? TYPE_META.discussion;
   const isOwn = currentUserId && post.author_id !== null && String(post.author_id) === currentUserId;
+  const imageUrl = post.image_url ? `${API_BASE}${post.image_url}` : null;
 
   return (
     <motion.div
       layout
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl border border-white/8 overflow-hidden"
+      className="rounded-2xl border overflow-hidden"
       style={{
         background: post.is_dev
           ? 'linear-gradient(135deg, rgba(18,14,5,0.95), rgba(25,18,4,0.95))'
@@ -246,7 +401,6 @@ function PostCard({
               <span className="text-white/70 text-sm font-medium">{post.author_name ?? 'Anonymous'}</span>
               <span className="text-white/25 text-xs">·</span>
               <span className="text-white/35 text-xs">{timeAgo(post.created_at)}</span>
-              {/* Type badge */}
               <span
                 className="px-2 py-0.5 rounded-full text-xs font-medium"
                 style={{ color: meta.color, background: meta.bg }}
@@ -258,7 +412,7 @@ function PostCard({
             {/* Title */}
             <h3 className="text-white font-semibold text-base leading-snug mb-2">{post.title}</h3>
 
-            {/* Content preview / full */}
+            {/* Content */}
             <div
               className="text-white/60 text-sm leading-relaxed whitespace-pre-wrap"
               style={{ maxHeight: expanded ? 'none' : '4.5rem', overflow: 'hidden' }}
@@ -270,8 +424,20 @@ function PostCard({
                 onClick={() => setExpanded(!expanded)}
                 className="mt-1 text-blue-400 text-xs hover:text-blue-300 transition-colors"
               >
-                {expanded ? 'Show less' : 'Read more'}
+                {expanded ? 'Sembunyikan' : 'Baca selengkapnya'}
               </button>
+            )}
+
+            {/* Image */}
+            {imageUrl && (
+              <div className="mt-3">
+                <img
+                  src={imageUrl}
+                  alt="post image"
+                  className="rounded-xl max-h-72 w-full object-cover cursor-pointer transition-opacity hover:opacity-90"
+                  onClick={() => setImgExpanded(true)}
+                />
+              </div>
             )}
 
             {/* Tags */}
@@ -287,9 +453,8 @@ function PostCard({
           </div>
         </div>
 
-        {/* Bottom row — actions */}
+        {/* Bottom row */}
         <div className="flex items-center gap-4 mt-4 pt-3 border-t border-white/5">
-          {/* Like */}
           <button
             onClick={() => onLike(post.id)}
             className="flex items-center gap-1.5 text-sm transition-colors"
@@ -300,20 +465,45 @@ function PostCard({
             </svg>
             <span>{post.likes}</span>
           </button>
-
           <div className="flex-1" />
-
-          {/* Delete (own posts) */}
           {isOwn && (
             <button
               onClick={() => onDelete(post.id)}
               className="text-xs text-white/20 hover:text-red-400 transition-colors"
             >
-              Delete
+              Hapus
             </button>
           )}
         </div>
       </div>
+
+      {/* Fullscreen image lightbox */}
+      <AnimatePresence>
+        {imgExpanded && imageUrl && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.92)' }}
+            onClick={() => setImgExpanded(false)}
+          >
+            <img
+              src={imageUrl}
+              alt="full"
+              className="max-w-full max-h-full rounded-xl object-contain"
+              onClick={e => e.stopPropagation()}
+            />
+            <button
+              className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center text-white text-xl"
+              style={{ background: 'rgba(0,0,0,0.5)' }}
+              onClick={() => setImgExpanded(false)}
+            >
+              ×
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
@@ -322,12 +512,12 @@ function PostCard({
 
 export function CommunityPage() {
   const { isAuthenticated, token, contributorId } = useAuth();
-  const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('all');
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNewPost, setShowNewPost] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -356,16 +546,19 @@ export function CommunityPage() {
 
   async function handleDelete(id: number) {
     if (!token) return;
-    if (!window.confirm('Delete this post?')) return;
+    if (!window.confirm('Hapus post ini?')) return;
     try {
       await deletePost(id, token);
       setPosts(prev => prev.filter(p => p.id !== id));
     } catch {/* ignore */}
   }
 
-  function handleCreated(_post: Post) {
-    // Re-fetch to include the joined author_name
-    load();
+  function handleNewPostClick() {
+    if (!isAuthenticated) {
+      setShowLoginPrompt(true);
+    } else {
+      setShowNewPost(true);
+    }
   }
 
   return (
@@ -375,10 +568,10 @@ export function CommunityPage() {
         className="relative border-b border-white/5 px-6 py-10 text-center overflow-hidden"
         style={{ background: 'linear-gradient(135deg, rgba(10,25,55,0.8), rgba(5,15,35,0.9))' }}
       >
-        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle at 50% 50%, #1d7fd4 0%, transparent 70%)' }} />
+        <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 50% 50%, #1d7fd4 0%, transparent 70%)' }} />
         <h1 className="relative text-3xl font-bold text-white tracking-tight">Community Board</h1>
         <p className="relative text-white/45 mt-1 text-sm max-w-lg mx-auto">
-          Share builds, strategies, and discussions with other players
+          Bagikan build, strategi, dan diskusi dengan pemain lain
         </p>
       </div>
 
@@ -402,22 +595,13 @@ export function CommunityPage() {
             ))}
           </div>
 
-          {isAuthenticated ? (
-            <button
-              onClick={() => setShowNewPost(true)}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 transition-colors"
-            >
-              <span className="text-lg leading-none">+</span>
-              <span>New Post</span>
-            </button>
-          ) : (
-            <button
-              onClick={() => navigate({ to: '/auth' })}
-              className="px-4 py-1.5 rounded-full text-sm font-medium text-blue-400 border border-blue-500/30 hover:border-blue-500/60 transition-colors"
-            >
-              Login to post
-            </button>
-          )}
+          <button
+            onClick={handleNewPostClick}
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 transition-colors"
+          >
+            <span className="text-lg leading-none">+</span>
+            <span>Buat Post</span>
+          </button>
         </div>
 
         {/* Post list */}
@@ -427,7 +611,7 @@ export function CommunityPage() {
           </div>
         ) : posts.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-white/30 text-sm">No posts yet. Be the first to share!</p>
+            <p className="text-white/30 text-sm">Belum ada post. Jadilah yang pertama berbagi!</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -446,12 +630,15 @@ export function CommunityPage() {
         )}
       </div>
 
-      {/* New Post Modal */}
+      {/* Modals */}
+      <AnimatePresence>
+        {showLoginPrompt && <LoginPrompt onClose={() => setShowLoginPrompt(false)} />}
+      </AnimatePresence>
       <AnimatePresence>
         {showNewPost && (
           <NewPostModal
             onClose={() => setShowNewPost(false)}
-            onCreated={handleCreated}
+            onCreated={load}
           />
         )}
       </AnimatePresence>

@@ -62,6 +62,7 @@ const PHASES: Phase[] = [
       { label: 'Arcana Explorer — detail set arcana', done: true },
       { label: 'Items Explorer — detail item + stats', done: true },
       { label: 'Analytics — winrate & pickrate tracking', done: true },
+      { label: 'Custom Tier List — buat, drag & drop, share, download', done: true },
     ],
   },
   {
@@ -106,7 +107,6 @@ const PHASES: Phase[] = [
     milestones: [
       { label: 'Hero Comparison Tool — head-to-head stats', done: false },
       { label: 'Team Composition Builder — meta comp suggestions', done: false },
-      { label: 'Custom Tier List — buat & share tier list sendiri', done: false },
       { label: 'Notifikasi patch notes baru', done: false },
       { label: 'Match history & rank tracker', done: false },
     ],

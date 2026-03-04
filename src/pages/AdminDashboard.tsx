@@ -1,5 +1,5 @@
-import { useEffect, useState, useMemo } from 'react';
-import { CheckCircle, XCircle, Eye, Clock, AlertCircle, LogIn, History, Filter, Users, User, Calendar, Square, CheckSquare, Loader2, MessageSquare } from 'lucide-react';
+import { useEffect, useState, useMemo, useRef } from 'react';
+import { CheckCircle, XCircle, Eye, Clock, AlertCircle, LogIn, History, Filter, Users, User, Calendar, Square, CheckSquare, Loader2, MessageSquare, Newspaper, Trash2, X, ImageIcon } from 'lucide-react';
 import { fetchFeedbacks, markFeedbackRead, type FeedbackItem, type FeedbackCategory } from '../api/tierLists';
 
 interface Contribution {
@@ -51,6 +51,13 @@ export function AdminDashboard() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkLoading, setBulkLoading] = useState(false);
   const [bulkStatus, setBulkStatus] = useState('');
+  const [showDevUpdates, setShowDevUpdates] = useState(false);
+  const [devPosts, setDevPosts] = useState<{ id: number; title: string; content: string; tags: string[]; image_url: string | null; created_at: string }[]>([]);
+  const [devForm, setDevForm] = useState({ title: '', content: '', tags: '' });
+  const [devImageUrl, setDevImageUrl] = useState<string | null>(null);
+  const [devImagePreview, setDevImagePreview] = useState<string | null>(null);
+  const [devPosting, setDevPosting] = useState(false);
+  const devImageRef = useRef<HTMLInputElement>(null);
 
   const API_BASE = 'https://hokapi.project-n.site';
 
@@ -280,6 +287,76 @@ export function AdminDashboard() {
     return contributions.filter(c => c.type === typeFilter);
   }, [contributions, typeFilter]);
 
+  const fetchDevPosts = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/posts`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) setDevPosts(await res.json());
+    } catch { /* silently fail */ }
+  };
+
+  const handleDevImagePick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => setDevImagePreview(ev.target?.result as string);
+    reader.readAsDataURL(file);
+    // Store file for upload
+    (devImageRef.current as any)._file = file;
+  };
+
+  const handleCreateDevPost = async () => {
+    if (!devForm.title.trim() || !devForm.content.trim()) return;
+    setDevPosting(true);
+    try {
+      let imageUrl: string | null = devImageUrl;
+      // Upload image if a new file was picked
+      const file: File | undefined = (devImageRef.current as any)?._file;
+      if (file && devImagePreview) {
+        const base64 = devImagePreview.split(',')[1];
+        const res = await fetch(`${API_BASE}/api/posts/upload-image`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ imageData: base64, mimeType: file.type }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          imageUrl = data.url;
+        }
+      }
+      const tagsArr = devForm.tags.split(',').map(t => t.trim()).filter(Boolean).slice(0, 5);
+      const res = await fetch(`${API_BASE}/api/admin/posts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ title: devForm.title, content: devForm.content, tags: tagsArr, image_url: imageUrl }),
+      });
+      if (res.ok) {
+        setDevForm({ title: '', content: '', tags: '' });
+        setDevImagePreview(null);
+        setDevImageUrl(null);
+        if (devImageRef.current) { devImageRef.current.value = ''; (devImageRef.current as any)._file = undefined; }
+        await fetchDevPosts();
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Gagal membuat post');
+      }
+    } catch { alert('Network error'); }
+    finally { setDevPosting(false); }
+  };
+
+  const handleDeleteDevPost = async (id: number) => {
+    if (!confirm('Hapus dev update ini?')) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/posts/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) setDevPosts(prev => prev.filter(p => p.id !== id));
+      else alert('Gagal menghapus post');
+    } catch { alert('Network error'); }
+  };
+
   // Login screen
   if (!isAuthenticated) {
     return (
@@ -353,7 +430,14 @@ export function AdminDashboard() {
             History
           </button>
           <button
-            onClick={() => { setShowFeedbacks(!showFeedbacks); setShowContributors(false); setShowHistory(false); if (!showFeedbacks) fetchFeedbacksData(); }}
+            onClick={() => { setShowDevUpdates(!showDevUpdates); setShowFeedbacks(false); setShowContributors(false); setShowHistory(false); if (!showDevUpdates) fetchDevPosts(); }}
+            className={`btn-secondary flex items-center gap-2 ${showDevUpdates ? 'bg-primary-500/20' : ''}`}
+          >
+            <Newspaper className="w-4 h-4" />
+            Dev Updates
+          </button>
+          <button
+            onClick={() => { setShowFeedbacks(!showFeedbacks); setShowContributors(false); setShowHistory(false); setShowDevUpdates(false); if (!showFeedbacks) fetchFeedbacksData(); }}
             className={`btn-secondary flex items-center gap-2 ${showFeedbacks ? 'bg-primary-500/20' : ''}`}
           >
             <MessageSquare className="w-4 h-4" />
@@ -571,8 +655,112 @@ export function AdminDashboard() {
         </div>
       )}
 
+      {/* Dev Updates Panel */}
+      {showDevUpdates && (
+        <div className="card-hover p-6 mb-8">
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+            <Newspaper className="w-6 h-6 text-primary-400" />
+            Dev Updates
+          </h2>
+
+          {/* Create Form */}
+          <div className="bg-dark-50 rounded-lg p-5 mb-6 space-y-4">
+            <h3 className="text-lg font-semibold text-gray-200">Post Baru</h3>
+            <input
+              type="text"
+              placeholder="Judul update..."
+              value={devForm.title}
+              onChange={e => setDevForm(f => ({ ...f, title: e.target.value }))}
+              className="w-full px-4 py-2.5 bg-dark-300 border border-white/10 rounded-lg focus:outline-none focus:border-primary-500 text-white text-sm"
+            />
+            <textarea
+              placeholder="Isi update (mendukung markdown sederhana)..."
+              value={devForm.content}
+              onChange={e => setDevForm(f => ({ ...f, content: e.target.value }))}
+              rows={5}
+              className="w-full px-4 py-2.5 bg-dark-300 border border-white/10 rounded-lg focus:outline-none focus:border-primary-500 text-white text-sm resize-y"
+            />
+            <input
+              type="text"
+              placeholder="Tags (pisahkan dengan koma, maks 5)..."
+              value={devForm.tags}
+              onChange={e => setDevForm(f => ({ ...f, tags: e.target.value }))}
+              className="w-full px-4 py-2.5 bg-dark-300 border border-white/10 rounded-lg focus:outline-none focus:border-primary-500 text-white text-sm"
+            />
+
+            {/* Image picker */}
+            <div>
+              {devImagePreview ? (
+                <div className="relative inline-block">
+                  <img src={devImagePreview} alt="preview" className="max-h-40 rounded-lg border border-white/10" />
+                  <button
+                    onClick={() => { setDevImagePreview(null); setDevImageUrl(null); if (devImageRef.current) { devImageRef.current.value = ''; (devImageRef.current as any)._file = undefined; } }}
+                    className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => devImageRef.current?.click()}
+                  className="flex items-center gap-2 px-3 py-2 border border-white/10 hover:border-white/30 rounded-lg text-sm text-gray-400 hover:text-white transition-colors"
+                >
+                  <ImageIcon className="w-4 h-4" />
+                  Tambah Gambar
+                </button>
+              )}
+              <input ref={devImageRef} type="file" accept="image/*" className="hidden" onChange={handleDevImagePick} />
+            </div>
+
+            <button
+              onClick={handleCreateDevPost}
+              disabled={devPosting || !devForm.title.trim() || !devForm.content.trim()}
+              className="btn-primary flex items-center gap-2 disabled:opacity-50"
+            >
+              {devPosting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Newspaper className="w-4 h-4" />}
+              {devPosting ? 'Memposting...' : 'Post Dev Update'}
+            </button>
+          </div>
+
+          {/* Existing Dev Posts */}
+          <h3 className="text-lg font-semibold text-gray-200 mb-3">Post Tersimpan ({devPosts.length})</h3>
+          {devPosts.length === 0 ? (
+            <div className="text-center py-8 text-gray-400">Belum ada dev update</div>
+          ) : (
+            <div className="space-y-3 max-h-[600px] overflow-y-auto">
+              {devPosts.map(post => (
+                <div key={post.id} className="p-4 bg-dark-50 rounded-lg flex items-start gap-4">
+                  {post.image_url && (
+                    <img src={`https://hokapi.project-n.site${post.image_url}`} alt="" className="w-20 h-16 object-cover rounded-lg shrink-0" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-white mb-1 truncate">{post.title}</div>
+                    <p className="text-sm text-gray-400 line-clamp-2">{post.content}</p>
+                    {post.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {post.tags.map(tag => (
+                          <span key={tag} className="px-2 py-0.5 bg-primary-500/20 text-primary-400 text-xs rounded-full">{tag}</span>
+                        ))}
+                      </div>
+                    )}
+                    <div className="text-xs text-gray-500 mt-1">{new Date(post.created_at).toLocaleString('id-ID')}</div>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteDevPost(post.id)}
+                    className="shrink-0 p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors"
+                    title="Hapus"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Contributions - Filter + List */}
-      {!showHistory && !showContributors && !showFeedbacks && (
+      {!showHistory && !showContributors && !showFeedbacks && !showDevUpdates && (
         <>
           {/* Filter + Bulk Actions */}
           <div className="flex flex-wrap items-center gap-3 mb-4">

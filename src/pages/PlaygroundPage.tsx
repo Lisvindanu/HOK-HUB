@@ -1,14 +1,53 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, X, RotateCcw, ChevronLeft, Flame, Droplets, Leaf,
   Plus, Minus, Check, Swords, Shield, Wind, TreePine, Compass,
+  AlertTriangle, Share2, Bookmark, Copy, CheckCheck, Trash2,
 } from 'lucide-react';
 import { useHeroes } from '../hooks/useHeroes';
 import { useItems, useArcana } from '../hooks/useItems';
 import { Loading } from '../components/ui/Loading';
 import type { Item, Arcana } from '../types/hero';
 import type { Hero } from '../types/hero';
+
+// ─── Saved build type ──────────────────────────────────────────────────────────
+interface SavedBuild {
+  id: string;
+  name: string;
+  heroName: string;
+  heroIcon: string;
+  itemIcons: string[];
+  encoded: string;
+  savedAt: string;
+}
+
+// ─── Helpers ───────────────────────────────────────────────────────────────────
+function extractPassiveName(desc: string): string | null {
+  const m = desc.match(/^Passive\s*-\s*([^\n\r]+)/);
+  return m ? m[1].trim() : null;
+}
+
+function encodeBuild(hero: Hero, items: (Item | null)[], arcana: BuildArcanaState): string {
+  return btoa(JSON.stringify({
+    heroId: hero.heroId,
+    items: items.map(i => i?.id ?? null),
+    arcana: {
+      1: arcana[1].map(e => ({ id: e.arcana.id, count: e.count })),
+      2: arcana[2].map(e => ({ id: e.arcana.id, count: e.count })),
+      3: arcana[3].map(e => ({ id: e.arcana.id, count: e.count })),
+    },
+  }));
+}
+
+interface EncodedBuild {
+  heroId: number;
+  items: (number | null)[];
+  arcana: { 1: { id: number; count: number }[]; 2: { id: number; count: number }[]; 3: { id: number; count: number }[] };
+}
+function decodeBuild(encoded: string): EncodedBuild | null {
+  try { return JSON.parse(atob(encoded)); } catch { return null; }
+}
 
 // ─── Stat definitions ─────────────────────────────────────────────────────────
 
@@ -163,6 +202,15 @@ export function PlaygroundPage() {
   const [itemSlot, setItemSlot] = useState<number | null>(null);
   const [arcanaColor, setArcanaColor] = useState<1 | 2 | 3 | null>(null);
 
+  // ── New state ──────────────────────────────────────────────────────────────
+  const [statsView, setStatsView] = useState<'total' | 'breakdown'>('total');
+  const [shareCopied, setShareCopied] = useState(false);
+  const [savedBuilds, setSavedBuilds] = useState<SavedBuild[]>(() => {
+    try { return JSON.parse(localStorage.getItem('hok-playground-builds') ?? '[]'); } catch { return []; }
+  });
+  const [saveToast, setSaveToast] = useState(false);
+  const [pendingBuild] = useState<string | null>(() => new URLSearchParams(window.location.search).get('build'));
+
   function pickHero(hero: Hero) {
     setSelectedHero(hero);
     if (itemsData && hero.recommendedEquipment?.length) {
@@ -202,6 +250,123 @@ export function PlaygroundPage() {
     setBuildItems(Array(6).fill(null));
     setBuildArcana({ 1: [], 2: [], 3: [] });
   }
+
+  // ── Load build from URL ────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!pendingBuild || !heroesData || !itemsData || !arcanaData) return;
+    const decoded = decodeBuild(pendingBuild);
+    if (!decoded) return;
+    const hero = Object.values(heroesData).find(h => h.heroId === decoded.heroId);
+    if (!hero) return;
+    const newItems = decoded.items.map((id: number | null) => id ? (itemsData.find(i => i.id === id) ?? null) : null);
+    const newArcana: BuildArcanaState = { 1: [], 2: [], 3: [] };
+    for (const c of [1, 2, 3] as const) {
+      newArcana[c] = (decoded.arcana[c] ?? [])
+        .map((e: { id: number; count: number }) => {
+          const arc = arcanaData.find(a => a.id === e.id);
+          return arc ? { arcana: arc, count: e.count } : null;
+        })
+        .filter(Boolean) as ArcanaEntry[];
+    }
+    setSelectedHero(hero);
+    setBuildItems(newItems);
+    setBuildArcana(newArcana);
+    window.history.replaceState({}, '', window.location.pathname);
+  }, [pendingBuild, heroesData, itemsData, arcanaData]);
+
+  // ── Passive conflict detection ─────────────────────────────────────────────
+  const passiveConflicts = useMemo(() => {
+    const selected = buildItems.filter(Boolean) as Item[];
+    const groups: Record<string, Item[]> = {};
+    for (const item of selected) {
+      for (const ps of item.passiveSkills ?? []) {
+        const name = extractPassiveName(ps.description);
+        if (!name) continue;
+        if (!groups[name]) groups[name] = [];
+        if (!groups[name].find(i => i.id === item.id)) groups[name].push(item);
+      }
+    }
+    return Object.entries(groups).filter(([, its]) => its.length > 1).map(([name, its]) => ({ name, items: its }));
+  }, [buildItems]);
+
+  // ── Per-source stats ───────────────────────────────────────────────────────
+  const itemStats = useMemo(() => {
+    const acc: Record<number, number> = {};
+    for (const item of buildItems) {
+      if (!item) continue;
+      for (const e of item.effects ?? []) {
+        acc[e.effectType] = (acc[e.effectType] ?? 0) + parseEffectValue(e.valueType, e.value);
+      }
+    }
+    return acc;
+  }, [buildItems]);
+
+  const arcanaStats = useMemo(() => {
+    const acc: Record<number, number> = {};
+    for (const c of [1, 2, 3] as const) {
+      for (const entry of buildArcana[c]) {
+        for (const e of entry.arcana.effects ?? []) {
+          acc[e.effectType] = (acc[e.effectType] ?? 0) + parseEffectValue(e.valueType, e.value) * entry.count;
+        }
+      }
+    }
+    return acc;
+  }, [buildArcana]);
+
+  // ── Save / Share ───────────────────────────────────────────────────────────
+  const handleSave = useCallback(() => {
+    if (!selectedHero) return;
+    const build: SavedBuild = {
+      id: crypto.randomUUID(),
+      name: `${selectedHero.name} Build`,
+      heroName: selectedHero.name,
+      heroIcon: selectedHero.icon,
+      itemIcons: buildItems.filter(Boolean).map(i => i!.icon),
+      encoded: encodeBuild(selectedHero, buildItems, buildArcana),
+      savedAt: new Date().toISOString(),
+    };
+    const updated = [...savedBuilds, build];
+    setSavedBuilds(updated);
+    localStorage.setItem('hok-playground-builds', JSON.stringify(updated));
+    setSaveToast(true);
+    setTimeout(() => setSaveToast(false), 2000);
+  }, [selectedHero, buildItems, buildArcana, savedBuilds]);
+
+  const handleShare = useCallback(async () => {
+    if (!selectedHero) return;
+    const encoded = encodeBuild(selectedHero, buildItems, buildArcana);
+    const url = `${window.location.origin}/playground?build=${encoded}`;
+    await navigator.clipboard.writeText(url);
+    setShareCopied(true);
+    setTimeout(() => setShareCopied(false), 2000);
+  }, [selectedHero, buildItems, buildArcana]);
+
+  const deleteSavedBuild = useCallback((id: string) => {
+    const updated = savedBuilds.filter(b => b.id !== id);
+    setSavedBuilds(updated);
+    localStorage.setItem('hok-playground-builds', JSON.stringify(updated));
+  }, [savedBuilds]);
+
+  const loadSavedBuild = useCallback((build: SavedBuild) => {
+    if (!heroesData || !itemsData || !arcanaData) return;
+    const decoded = decodeBuild(build.encoded);
+    if (!decoded) return;
+    const hero = Object.values(heroesData).find(h => h.heroId === decoded.heroId);
+    if (!hero) return;
+    const newItems = decoded.items.map((id: number | null) => id ? (itemsData.find(i => i.id === id) ?? null) : null);
+    const newArcana: BuildArcanaState = { 1: [], 2: [], 3: [] };
+    for (const c of [1, 2, 3] as const) {
+      newArcana[c] = (decoded.arcana[c] ?? [])
+        .map((e: { id: number; count: number }) => {
+          const arc = arcanaData.find(a => a.id === e.id);
+          return arc ? { arcana: arc, count: e.count } : null;
+        })
+        .filter(Boolean) as ArcanaEntry[];
+    }
+    setSelectedHero(hero);
+    setBuildItems(newItems);
+    setBuildArcana(newArcana);
+  }, [heroesData, itemsData, arcanaData]);
 
   function toggleArcana(color: 1 | 2 | 3, arc: Arcana) {
     setBuildArcana(prev => {
@@ -278,12 +443,27 @@ export function PlaygroundPage() {
               <p className="text-gray-400 text-sm mt-0.5">Pilih hero, atur item & arcana, lihat stats real-time</p>
             </div>
             {selectedHero && (
-              <div className="flex items-center gap-3">
-                <button onClick={resetBuild} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors">
+              <div className="flex items-center gap-2 flex-wrap">
+                <button onClick={resetBuild} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors px-2 py-1">
                   <RotateCcw className="w-3.5 h-3.5" /> Reset
                 </button>
-                <button onClick={() => { setSelectedHero(null); resetBuild(); }} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors">
+                <button onClick={() => { setSelectedHero(null); resetBuild(); }} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors px-2 py-1">
                   <ChevronLeft className="w-3.5 h-3.5" /> Ganti Hero
+                </button>
+                <div className="w-px h-4 bg-white/10" />
+                <button
+                  onClick={handleSave}
+                  className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-gray-300 hover:text-white transition-all"
+                >
+                  <Bookmark className="w-3.5 h-3.5" />
+                  {saveToast ? 'Tersimpan!' : 'Simpan'}
+                </button>
+                <button
+                  onClick={handleShare}
+                  className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg bg-primary-500/20 border border-primary-500/30 hover:bg-primary-500/30 text-primary-300 transition-all"
+                >
+                  {shareCopied ? <CheckCheck className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
+                  {shareCopied ? 'Link disalin!' : 'Share'}
                 </button>
               </div>
             )}
@@ -295,6 +475,35 @@ export function PlaygroundPage() {
         {!selectedHero ? (
           // ── HERO SELECTION ──────────────────────────────────────────────────
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+            {/* Saved builds */}
+            {savedBuilds.length > 0 && (
+              <div className="mb-6">
+                <p className="text-xs text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <Bookmark className="w-3 h-3" /> Build Tersimpan
+                </p>
+                <div className="flex gap-3 flex-wrap">
+                  {savedBuilds.map(build => (
+                    <div key={build.id} className="group flex items-center gap-2.5 p-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:border-white/[0.16] transition-all min-w-0">
+                      <img src={build.heroIcon} alt={build.heroName} className="w-9 h-9 rounded-lg object-cover flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-white truncate max-w-[120px]">{build.name}</p>
+                        <div className="flex gap-0.5 mt-1">
+                          {build.itemIcons.slice(0, 4).map((icon, i) => (
+                            <img key={i} src={icon} alt="" className="w-4 h-4 rounded object-cover" />
+                          ))}
+                          {build.itemIcons.length > 4 && <span className="text-[10px] text-gray-600 ml-0.5">+{build.itemIcons.length - 4}</span>}
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1 ml-1">
+                        <button onClick={() => loadSavedBuild(build)} className="text-[10px] text-primary-400 hover:text-primary-300 font-semibold transition-colors">Load</button>
+                        <button onClick={() => deleteSavedBuild(build.id)} className="text-[10px] text-gray-600 hover:text-red-400 transition-colors"><Trash2 className="w-3 h-3" /></button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="flex flex-wrap gap-3 mb-5">
               <div className="relative min-w-[180px] flex-1 max-w-xs">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
@@ -381,6 +590,21 @@ export function PlaygroundPage() {
                   ))}
                 </div>
               </div>
+
+              {/* Passive conflict warning */}
+              {passiveConflicts.length > 0 && (
+                <div className="space-y-1.5">
+                  {passiveConflicts.map(({ name, items }) => (
+                    <div key={name} className="flex items-start gap-2 px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/20">
+                      <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
+                      <div>
+                        <span className="text-xs font-semibold text-red-300">Passive «{name}» tidak stack</span>
+                        <span className="text-xs text-red-400/60 ml-1.5">{items.map(i => i.name).join(' + ')}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* Arcana — game-style hex display */}
               <div>
@@ -487,12 +711,26 @@ export function PlaygroundPage() {
             </div>
 
             {/* Right: Stats */}
-            <div className="lg:sticky lg:top-20 h-fit">
+            <div className="lg:sticky lg:top-20 h-fit space-y-3">
               <div className="rounded-2xl bg-dark-300 border border-white/10 p-5">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">Build Stats</h3>
+                {/* Tab toggle */}
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Build Stats</h3>
+                  <div className="flex rounded-lg overflow-hidden border border-white/10 text-[11px]">
+                    <button
+                      onClick={() => setStatsView('total')}
+                      className={`px-2.5 py-1 font-medium transition-colors ${statsView === 'total' ? 'bg-primary-500 text-white' : 'text-gray-500 hover:text-white'}`}
+                    >Total</button>
+                    <button
+                      onClick={() => setStatsView('breakdown')}
+                      className={`px-2.5 py-1 font-medium transition-colors ${statsView === 'breakdown' ? 'bg-primary-500 text-white' : 'text-gray-500 hover:text-white'}`}
+                    >Rincian</button>
+                  </div>
+                </div>
+
                 {Object.keys(stats).length === 0 ? (
                   <p className="text-sm text-gray-600 text-center py-10">Tambah item atau arcana untuk melihat stats</p>
-                ) : (
+                ) : statsView === 'total' ? (
                   <div>
                     {STAT_ORDER.filter(et => stats[et] != null).map(et => {
                       const info = STAT_INFO[et];
@@ -507,11 +745,39 @@ export function PlaygroundPage() {
                     {Object.entries(stats).filter(([et]) => !STAT_INFO[Number(et)]).map(([et, val]) => (
                       <div key={et} className="flex items-center justify-between py-2 border-b border-white/[0.05] last:border-0">
                         <span className="text-xs text-gray-600">Stat #{et}</span>
-                        <span className="text-sm font-bold text-gray-500">+{val % 1 === 0 ? val : val.toFixed(1)}</span>
+                        <span className="text-sm font-bold text-gray-500">+{val % 1 === 0 ? val : (val as number).toFixed(1)}</span>
                       </div>
                     ))}
                   </div>
+                ) : (
+                  /* Breakdown: Items vs Arcana */
+                  <div>
+                    {/* Column headers */}
+                    <div className="grid grid-cols-3 gap-1 mb-2 text-[10px] font-semibold uppercase tracking-wider text-gray-600">
+                      <span>Stat</span>
+                      <span className="text-center text-orange-400/70">Item</span>
+                      <span className="text-center text-sky-400/70">Arcana</span>
+                    </div>
+                    {STAT_ORDER.filter(et => stats[et] != null).map(et => {
+                      const info = STAT_INFO[et];
+                      if (!info) return null;
+                      const iVal = itemStats[et];
+                      const aVal = arcanaStats[et];
+                      return (
+                        <div key={et} className="grid grid-cols-3 gap-1 py-1.5 border-b border-white/[0.05] last:border-0 items-center">
+                          <span className="text-[11px] text-gray-500 leading-tight">{info.name}</span>
+                          <span className={`text-xs font-bold tabular-nums text-center ${iVal ? 'text-orange-300' : 'text-gray-700'}`}>
+                            {iVal ? fmtVal(info.isPercent, iVal) : '—'}
+                          </span>
+                          <span className={`text-xs font-bold tabular-nums text-center ${aVal ? 'text-sky-300' : 'text-gray-700'}`}>
+                            {aVal ? fmtVal(info.isPercent, aVal) : '—'}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
+
                 {totalGold > 0 && (
                   <div className="mt-4 pt-4 border-t border-white/[0.08] flex items-center justify-between">
                     <span className="text-xs text-gray-500">Total Gold</span>
@@ -519,6 +785,15 @@ export function PlaygroundPage() {
                   </div>
                 )}
               </div>
+
+              {/* Copy build URL shortcut */}
+              <button
+                onClick={handleShare}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-gray-400 hover:text-white text-xs font-medium transition-all"
+              >
+                {shareCopied ? <CheckCheck className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
+                {shareCopied ? 'Link disalin!' : 'Salin link build'}
+              </button>
             </div>
           </motion.div>
         )}

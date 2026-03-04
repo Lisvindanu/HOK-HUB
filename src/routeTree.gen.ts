@@ -16,6 +16,7 @@ import { Route as PlaygroundRouteImport } from './routes/playground'
 import { Route as PatchNotesRouteImport } from './routes/patch-notes'
 import { Route as OstRouteImport } from './routes/ost'
 import { Route as ItemsRouteImport } from './routes/items'
+import { Route as ItemSynergyRouteImport } from './routes/item-synergy'
 import { Route as IncidentRouteImport } from './routes/incident'
 import { Route as DraftRouteImport } from './routes/draft'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -65,6 +66,11 @@ const OstRoute = OstRouteImport.update({
 const ItemsRoute = ItemsRouteImport.update({
   id: '/items',
   path: '/items',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ItemSynergyRoute = ItemSynergyRouteImport.update({
+  id: '/item-synergy',
+  path: '/item-synergy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IncidentRoute = IncidentRouteImport.update({
@@ -157,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/draft': typeof DraftRoute
   '/incident': typeof IncidentRoute
+  '/item-synergy': typeof ItemSynergyRoute
   '/items': typeof ItemsRoute
   '/ost': typeof OstRoute
   '/patch-notes': typeof PatchNotesRoute
@@ -181,6 +188,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/draft': typeof DraftRoute
   '/incident': typeof IncidentRoute
+  '/item-synergy': typeof ItemSynergyRoute
   '/items': typeof ItemsRoute
   '/ost': typeof OstRoute
   '/patch-notes': typeof PatchNotesRoute
@@ -206,6 +214,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/draft': typeof DraftRoute
   '/incident': typeof IncidentRoute
+  '/item-synergy': typeof ItemSynergyRoute
   '/items': typeof ItemsRoute
   '/ost': typeof OstRoute
   '/patch-notes': typeof PatchNotesRoute
@@ -232,6 +241,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/draft'
     | '/incident'
+    | '/item-synergy'
     | '/items'
     | '/ost'
     | '/patch-notes'
@@ -256,6 +266,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/draft'
     | '/incident'
+    | '/item-synergy'
     | '/items'
     | '/ost'
     | '/patch-notes'
@@ -280,6 +291,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/draft'
     | '/incident'
+    | '/item-synergy'
     | '/items'
     | '/ost'
     | '/patch-notes'
@@ -305,6 +317,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   DraftRoute: typeof DraftRoute
   IncidentRoute: typeof IncidentRoute
+  ItemSynergyRoute: typeof ItemSynergyRoute
   ItemsRoute: typeof ItemsRoute
   OstRoute: typeof OstRoute
   PatchNotesRoute: typeof PatchNotesRoute
@@ -365,6 +378,13 @@ declare module '@tanstack/react-router' {
       path: '/items'
       fullPath: '/items'
       preLoaderRoute: typeof ItemsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/item-synergy': {
+      id: '/item-synergy'
+      path: '/item-synergy'
+      fullPath: '/item-synergy'
+      preLoaderRoute: typeof ItemSynergyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/incident': {
@@ -489,6 +509,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   DraftRoute: DraftRoute,
   IncidentRoute: IncidentRoute,
+  ItemSynergyRoute: ItemSynergyRoute,
   ItemsRoute: ItemsRoute,
   OstRoute: OstRoute,
   PatchNotesRoute: PatchNotesRoute,

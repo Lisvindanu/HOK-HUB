@@ -1,5 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router';
-import { Menu, X, ChevronDown, LogOut, LogIn, LayoutDashboard, BarChart3, Shield, Trophy, UserPlus, Home, Users, Layers, Sparkles, Zap, CreditCard, Swords, Gem, Target, ThumbsUp, Music2 } from 'lucide-react';
+import { Menu, X, ChevronDown, LogOut, LogIn, LayoutDashboard, BarChart3, Shield, Trophy, UserPlus, Home, Users, Layers, Sparkles, Zap, CreditCard, Swords, Gem, Target, ThumbsUp, Music2, Combine } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useUser } from '../../hooks/useUser';
@@ -19,6 +19,7 @@ const moreNavGroups = [
       { name: 'Counter Picks', href: '/counters', icon: Shield },
       { name: 'Draft Pick', href: '/draft', icon: Target },
       { name: 'Build Playground', href: '/playground', icon: Layers },
+      { name: 'Item Synergy', href: '/item-synergy', icon: Combine },
       { name: 'Analytics', href: '/analytics', icon: BarChart3 },
     ],
   },

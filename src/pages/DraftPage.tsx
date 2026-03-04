@@ -164,6 +164,12 @@ export function DraftPage() {
 
   const seriesComplete = seriesScore.blue >= neededToWin || seriesScore.red >= neededToWin;
 
+  // Score dots must follow the team, not the side
+  // seriesScore.blue = team1 wins, seriesScore.red = team2 wins (always)
+  // When swapped: blue side is team2, so blue dots should show team2 score
+  const blueDisplayScore = currentIsSwapped ? seriesScore.red : seriesScore.blue;
+  const redDisplayScore = currentIsSwapped ? seriesScore.blue : seriesScore.red;
+
   // Compute active slot index for current step
   const activeSlotIndex = useMemo(() => {
     if (!currentDraftStep || isDraftComplete) return -1;
@@ -676,7 +682,7 @@ export function DraftPage() {
             <span className="text-xs font-bold text-blue-300 truncate max-w-[70px]">{blueTeamName}</span>
             <div className="flex gap-0.5">
               {Array.from({ length: neededToWin }).map((_, i) => (
-                <div key={i} className={`w-2.5 h-2.5 rounded-full border-2 transition-all ${i < seriesScore.blue ? 'bg-blue-400 border-blue-400' : 'border-white/20'}`} />
+                <div key={i} className={`w-2.5 h-2.5 rounded-full border-2 transition-all ${i < blueDisplayScore ? 'bg-blue-400 border-blue-400' : 'border-white/20'}`} />
               ))}
             </div>
           </div>
@@ -700,7 +706,7 @@ export function DraftPage() {
           <div className="flex items-center gap-1.5 min-w-0">
             <div className="flex gap-0.5">
               {Array.from({ length: neededToWin }).map((_, i) => (
-                <div key={i} className={`w-2.5 h-2.5 rounded-full border-2 transition-all ${i < seriesScore.red ? 'bg-red-400 border-red-400' : 'border-white/20'}`} />
+                <div key={i} className={`w-2.5 h-2.5 rounded-full border-2 transition-all ${i < redDisplayScore ? 'bg-red-400 border-red-400' : 'border-white/20'}`} />
               ))}
             </div>
             <span className="text-xs font-bold text-red-300 truncate max-w-[70px]">{redTeamName}</span>
@@ -918,7 +924,7 @@ export function DraftPage() {
             <div className="flex gap-1">
               {Array.from({ length: neededToWin }).map((_, i) => (
                 <div key={i} className={`w-3.5 h-3.5 rounded-full border-2 transition-all ${
-                  i < seriesScore.blue ? 'bg-blue-400 border-blue-400 shadow-[0_0_6px_rgba(96,165,250,0.8)]' : 'border-white/20'
+                  i < blueDisplayScore ? 'bg-blue-400 border-blue-400 shadow-[0_0_6px_rgba(96,165,250,0.8)]' : 'border-white/20'
                 }`} />
               ))}
             </div>
@@ -954,7 +960,7 @@ export function DraftPage() {
             <div className="flex gap-1">
               {Array.from({ length: neededToWin }).map((_, i) => (
                 <div key={i} className={`w-3.5 h-3.5 rounded-full border-2 transition-all ${
-                  i < seriesScore.red ? 'bg-red-400 border-red-400 shadow-[0_0_6px_rgba(248,113,113,0.8)]' : 'border-white/20'
+                  i < redDisplayScore ? 'bg-red-400 border-red-400 shadow-[0_0_6px_rgba(248,113,113,0.8)]' : 'border-white/20'
                 }`} />
               ))}
             </div>

@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from '@tanstack/react-router';
 import {
   fetchPosts, createPost, deletePost, toggleLike, uploadImage,
-  fetchReplies, createReply, deleteReply, updateReply,
+  fetchReplies, createReply, deleteReply, updateReply, updatePost,
   type Post, type PostType, type Reply,
 } from '../api/community';
 
@@ -336,12 +336,208 @@ function NewPostModal({ onClose, onCreated }: { onClose: () => void; onCreated: 
   );
 }
 
+// ─── EditPostModal ────────────────────────────────────────────────────────────
+
+function EditPostModal({ post, onClose, onUpdated }: { post: Post; onClose: () => void; onUpdated: (p: Post) => void }) {
+  const { token } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [title, setTitle] = useState(post.title);
+  const [content, setContent] = useState(post.content);
+  const [tagInput, setTagInput] = useState('');
+  const [tags, setTags] = useState<string[]>(post.tags);
+
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    post.image_url ? `${API_BASE}${post.image_url}` : null
+  );
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [removeImage, setRemoveImage] = useState(false);
+  const [imageError, setImageError] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageError('');
+    if (!ALLOWED_TYPES.includes(file.type)) { setImageError('Tipe file tidak didukung.'); return; }
+    if (file.size > MAX_FILE_MB * 1024 * 1024) { setImageError(`Maksimal ${MAX_FILE_MB}MB.`); return; }
+    setImageFile(file);
+    setRemoveImage(false);
+    const reader = new FileReader();
+    reader.onload = () => setImagePreview(reader.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  function clearImage() {
+    setImageFile(null);
+    setImagePreview(null);
+    setRemoveImage(true);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
+
+  function addTag(e: React.KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      const t = tagInput.trim().replace(/^#/, '');
+      if (t && !tags.includes(t) && tags.length < 5) { setTags([...tags, t]); setTagInput(''); }
+    }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!token) return;
+    if (!title.trim() || !content.trim()) { setError('Judul dan konten wajib diisi.'); return; }
+    setSubmitting(true);
+    setError('');
+
+    let imageUrl: string | null | undefined = undefined; // undefined = no change
+
+    if (imageFile && imagePreview?.startsWith('data:')) {
+      setUploadingImage(true);
+      try {
+        const result = await uploadImage(imagePreview, imageFile.type, token);
+        imageUrl = result.url;
+      } catch (err: any) {
+        setError(err.message || 'Gagal upload gambar.');
+        setSubmitting(false);
+        setUploadingImage(false);
+        return;
+      }
+      setUploadingImage(false);
+    } else if (removeImage) {
+      imageUrl = null; // explicitly remove
+    }
+
+    try {
+      const payload: Record<string, unknown> = { title: title.trim(), content: content.trim(), tags };
+      if (imageUrl !== undefined) payload.image_url = imageUrl;
+      const updated = await updatePost(post.id, payload, token);
+      onUpdated(updated);
+      onClose();
+    } catch (err: any) {
+      setError(err.message || 'Gagal menyimpan post.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  const isLoading = submitting || uploadingImage;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
+      style={{ background: 'rgba(0,0,0,0.7)', overflowY: 'auto' }}
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        className="w-full max-w-2xl rounded-2xl border border-white/10 p-6"
+        style={{ background: 'linear-gradient(135deg, #0d1f35, #101c2e)' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-xl font-bold text-white">Edit Post</h2>
+          <button onClick={onClose} disabled={isLoading} className="text-white/40 hover:text-white transition-colors text-2xl leading-none">&times;</button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="text"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            placeholder="Judul post..."
+            maxLength={120}
+            className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-blue-500/50 text-sm"
+          />
+          <textarea
+            value={content}
+            onChange={e => setContent(e.target.value)}
+            placeholder="Konten post..."
+            rows={5}
+            className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-blue-500/50 text-sm resize-none"
+          />
+
+          {/* Image */}
+          <div>
+            <input ref={fileInputRef} type="file" accept={ALLOWED_TYPES.join(',')} className="hidden" onChange={handleFileChange} />
+            {imagePreview ? (
+              <div className="relative rounded-xl overflow-hidden border border-white/10">
+                <img src={imagePreview} alt="preview" className="w-full max-h-48 object-cover" />
+                <button
+                  type="button"
+                  onClick={clearImage}
+                  className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold text-white"
+                  style={{ background: 'rgba(0,0,0,0.6)' }}
+                >×</button>
+                {uploadingImage && (
+                  <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                    <div className="flex items-center gap-2 text-white text-sm">
+                      <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                      <span>Mengupload...</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full py-3 rounded-xl border border-dashed border-white/15 text-white/35 text-sm hover:border-blue-500/40 hover:text-blue-400/70 transition-colors"
+              >
+                + Tambah gambar (opsional)
+              </button>
+            )}
+            {imageError && <p className="mt-1 text-red-400 text-xs">{imageError}</p>}
+          </div>
+
+          {/* Tags */}
+          <div>
+            <div className="flex flex-wrap gap-1.5 mb-1.5">
+              {tags.map(t => (
+                <span key={t} className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-blue-900/40 text-blue-300 border border-blue-500/30">
+                  #{t}
+                  <button type="button" onClick={() => setTags(tags.filter(x => x !== t))} className="text-blue-400/60 hover:text-blue-300">×</button>
+                </span>
+              ))}
+            </div>
+            <input
+              type="text"
+              value={tagInput}
+              onChange={e => setTagInput(e.target.value)}
+              onKeyDown={addTag}
+              placeholder="Tambah tag (tekan Enter)..."
+              className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-blue-500/50 text-sm"
+            />
+          </div>
+
+          {error && <p className="text-red-400 text-sm">{error}</p>}
+
+          <div className="flex justify-end gap-3 pt-1">
+            <button type="button" onClick={onClose} disabled={isLoading} className="px-5 py-2 rounded-xl text-sm text-white/50 hover:text-white border border-white/10 disabled:opacity-40 transition-colors">
+              Batal
+            </button>
+            <button type="submit" disabled={isLoading} className="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-50 flex items-center gap-2 transition-colors">
+              {isLoading && <div className="animate-spin w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full" />}
+              {uploadingImage ? 'Mengupload...' : submitting ? 'Menyimpan...' : 'Simpan'}
+            </button>
+          </div>
+        </form>
+      </motion.div>
+    </div>
+  );
+}
+
 // ─── PostCard ─────────────────────────────────────────────────────────────────
 
 function PostCard({
   post,
   onLike,
   onDelete,
+  onEdit,
   currentUserId,
   token,
   isAuthenticated,
@@ -350,6 +546,7 @@ function PostCard({
   post: Post;
   onLike: (id: number) => void;
   onDelete: (id: number) => void;
+  onEdit: (post: Post) => void;
   currentUserId: string | null;
   token: string | null;
   isAuthenticated: boolean;
@@ -543,12 +740,20 @@ function PostCard({
 
           <div className="flex-1" />
           {isOwn && (
-            <button
-              onClick={() => onDelete(post.id)}
-              className="text-xs text-white/20 hover:text-red-400 transition-colors"
-            >
-              Hapus
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => onEdit(post)}
+                className="text-xs text-white/30 hover:text-blue-400 transition-colors"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => onDelete(post.id)}
+                className="text-xs text-white/30 hover:text-red-400 transition-colors"
+              >
+                Hapus
+              </button>
+            </div>
           )}
         </div>
 
@@ -708,6 +913,7 @@ export function CommunityPage() {
   const [loading, setLoading] = useState(true);
   const [showNewPost, setShowNewPost] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [editingPost, setEditingPost] = useState<Post | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -741,6 +947,10 @@ export function CommunityPage() {
       await deletePost(id, token);
       setPosts(prev => prev.filter(p => p.id !== id));
     } catch {/* ignore */}
+  }
+
+  function handleUpdated(updated: Post) {
+    setPosts(prev => prev.map(p => p.id === updated.id ? { ...p, ...updated } : p));
   }
 
   function handleNewPostClick() {
@@ -812,6 +1022,7 @@ export function CommunityPage() {
                   post={post}
                   onLike={handleLike}
                   onDelete={handleDelete}
+                  onEdit={setEditingPost}
                   currentUserId={contributorId}
                   token={token}
                   isAuthenticated={isAuthenticated}
@@ -832,6 +1043,15 @@ export function CommunityPage() {
           <NewPostModal
             onClose={() => setShowNewPost(false)}
             onCreated={load}
+          />
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {editingPost && (
+          <EditPostModal
+            post={editingPost}
+            onClose={() => setEditingPost(null)}
+            onUpdated={handleUpdated}
           />
         )}
       </AnimatePresence>

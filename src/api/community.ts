@@ -48,6 +48,23 @@ export async function createPost(
   return res.json();
 }
 
+export async function updatePost(
+  id: number,
+  params: { title?: string; content?: string; tags?: string[]; image_url?: string | null },
+  token: string
+): Promise<Post> {
+  const res = await fetch(`${API_BASE_URL}/api/posts/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(params),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Failed to update post');
+  }
+  return res.json();
+}
+
 export async function deletePost(id: number, token: string): Promise<void> {
   const res = await fetch(`${API_BASE_URL}/api/posts/${id}`, {
     method: 'DELETE',

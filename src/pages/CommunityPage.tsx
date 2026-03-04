@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from '@tanstack/react-router';
 import {
   fetchPosts, createPost, deletePost, toggleLike, uploadImage,
-  fetchReplies, createReply, deleteReply,
+  fetchReplies, createReply, deleteReply, updateReply,
   type Post, type PostType, type Reply,
 } from '../api/community';
 
@@ -363,6 +363,8 @@ function PostCard({
   const [replyInput, setReplyInput] = useState('');
   const [submittingReply, setSubmittingReply] = useState(false);
   const [replyCount, setReplyCount] = useState(post.reply_count ?? 0);
+  const [editingReplyId, setEditingReplyId] = useState<number | null>(null);
+  const [editInput, setEditInput] = useState('');
 
   const meta = TYPE_META[post.type] ?? TYPE_META.discussion;
   const isOwn = currentUserId && post.author_id !== null && String(post.author_id) === currentUserId;
@@ -394,11 +396,25 @@ function PostCard({
   }
 
   async function handleDeleteReply(replyId: number) {
-    if (!token) return;
+    if (!token || !window.confirm('Hapus reply ini?')) return;
     try {
       await deleteReply(post.id, replyId, token);
       setReplies(prev => prev.filter(r => r.id !== replyId));
       setReplyCount(prev => Math.max(prev - 1, 0));
+    } catch { /* ignore */ }
+  }
+
+  function startEditReply(reply: Reply) {
+    setEditingReplyId(reply.id);
+    setEditInput(reply.content);
+  }
+
+  async function handleSaveEdit(replyId: number) {
+    if (!token || !editInput.trim()) return;
+    try {
+      const updated = await updateReply(post.id, replyId, editInput.trim(), token);
+      setReplies(prev => prev.map(r => r.id === replyId ? { ...r, content: updated.content } : r));
+      setEditingReplyId(null);
     } catch { /* ignore */ }
   }
 
@@ -549,32 +565,73 @@ function PostCard({
                 {replies.length === 0 && repliesLoaded && (
                   <p className="text-white/25 text-xs text-center py-2">Belum ada reply. Jadilah yang pertama!</p>
                 )}
-                {replies.map(reply => (
-                  <div key={reply.id} className="flex items-start gap-2.5">
-                    <div
-                      className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border border-white/10"
-                      style={{ background: 'rgba(30,50,80,0.6)', color: '#93c5fd' }}
-                    >
-                      {initials(reply.author_name)}
-                    </div>
-                    <div className="flex-1 min-w-0 rounded-xl px-3 py-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-white/65 text-xs font-medium">{reply.author_name ?? 'Anonymous'}</span>
-                        <span className="text-white/25 text-xs">·</span>
-                        <span className="text-white/30 text-xs">{timeAgo(reply.created_at)}</span>
-                        {currentUserId && reply.author_id !== null && String(reply.author_id) === currentUserId && (
-                          <button
-                            onClick={() => handleDeleteReply(reply.id)}
-                            className="ml-auto text-xs text-white/15 hover:text-red-400 transition-colors"
-                          >
-                            ×
-                          </button>
+                {replies.map(reply => {
+                  const isOwner = currentUserId && reply.author_id !== null && String(reply.author_id) === currentUserId;
+                  const isEditing = editingReplyId === reply.id;
+                  return (
+                    <div key={reply.id} className="flex items-start gap-2.5">
+                      <div
+                        className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border border-white/10"
+                        style={{ background: 'rgba(30,50,80,0.6)', color: '#93c5fd' }}
+                      >
+                        {initials(reply.author_name)}
+                      </div>
+                      <div className="flex-1 min-w-0 rounded-xl px-3 py-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-white/65 text-xs font-medium">{reply.author_name ?? 'Anonymous'}</span>
+                          <span className="text-white/25 text-xs">·</span>
+                          <span className="text-white/30 text-xs">{timeAgo(reply.created_at)}</span>
+                          {isOwner && !isEditing && (
+                            <div className="ml-auto flex items-center gap-1.5">
+                              <button
+                                onClick={() => startEditReply(reply)}
+                                className="text-xs text-white/35 hover:text-blue-400 transition-colors px-1.5 py-0.5 rounded hover:bg-blue-500/10"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDeleteReply(reply.id)}
+                                className="text-xs text-white/35 hover:text-red-400 transition-colors px-1.5 py-0.5 rounded hover:bg-red-500/10"
+                              >
+                                Hapus
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                        {isEditing ? (
+                          <div className="flex flex-col gap-1.5">
+                            <textarea
+                              value={editInput}
+                              onChange={e => setEditInput(e.target.value)}
+                              maxLength={500}
+                              rows={2}
+                              autoFocus
+                              className="w-full px-2 py-1.5 rounded-lg text-sm text-white border border-blue-500/40 focus:outline-none resize-none"
+                              style={{ background: 'rgba(255,255,255,0.07)' }}
+                            />
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleSaveEdit(reply.id)}
+                                disabled={!editInput.trim()}
+                                className="px-3 py-1 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-40 transition-colors"
+                              >
+                                Simpan
+                              </button>
+                              <button
+                                onClick={() => setEditingReplyId(null)}
+                                className="px-3 py-1 rounded-lg text-xs text-white/40 hover:text-white border border-white/10 transition-colors"
+                              >
+                                Batal
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-white/55 text-sm leading-relaxed">{reply.content}</p>
                         )}
                       </div>
-                      <p className="text-white/55 text-sm leading-relaxed">{reply.content}</p>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
 
                 {/* Reply input */}
                 {isAuthenticated ? (

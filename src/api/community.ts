@@ -100,6 +100,19 @@ export async function deleteReply(postId: number, replyId: number, token: string
   if (!res.ok) throw new Error('Failed to delete reply');
 }
 
+export async function updateReply(postId: number, replyId: number, content: string, token: string): Promise<Reply> {
+  const res = await fetch(`${API_BASE_URL}/api/posts/${postId}/replies/${replyId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ content }),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Failed to update reply');
+  }
+  return res.json();
+}
+
 export async function uploadImage(
   imageData: string,
   mimeType: string,

@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Layers, BarChart2, MessageSquare, CheckCircle2, Loader2, Users } from 'lucide-react';
+import { Layers, BarChart2, MessageSquare, CheckCircle2, Loader2, Users, Wrench } from 'lucide-react';
 
 const API_BASE = import.meta.env.DEV ? '' : 'https://hokapi.project-n.site';
 
@@ -19,6 +19,7 @@ const FEATURES = [
     color: 'from-violet-500 to-indigo-700',
     glow: 'rgba(139,92,246,0.3)',
     tag: 'Simulator',
+    status: 'in-progress' as const,
   },
   {
     key: 'item-synergy',
@@ -29,6 +30,7 @@ const FEATURES = [
     color: 'from-cyan-500 to-teal-600',
     glow: 'rgba(6,182,212,0.3)',
     tag: 'Guide',
+    status: null,
   },
   {
     key: 'dev-talk',
@@ -39,6 +41,7 @@ const FEATURES = [
     color: 'from-amber-400 to-orange-600',
     glow: 'rgba(251,146,60,0.3)',
     tag: 'Community',
+    status: null,
   },
 ];
 
@@ -208,13 +211,22 @@ export function VotePage() {
                     <button
                       onClick={() => castVote(f.key)}
                       disabled={voting}
-                      className={`group relative w-full text-left flex flex-col p-6 rounded-3xl border transition-all duration-300 disabled:cursor-wait
+                      className={`group relative w-full text-left flex flex-col rounded-3xl border transition-all duration-300 disabled:cursor-wait
+                        ${f.status === 'in-progress' ? 'pt-12 px-6 pb-6' : 'p-6'}
                         ${isVoted
                           ? 'bg-white/[0.09] border-white/25 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)]'
                           : 'bg-white/[0.04] border-white/[0.08] hover:bg-white/[0.08] hover:border-white/[0.18] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]'
                         }`}
                       style={isVoted ? { boxShadow: `inset 0 1px 0 0 rgba(255,255,255,0.15), 0 0 40px -8px ${f.glow}` } : undefined}
                     >
+                      {/* In Progress badge */}
+                      {f.status === 'in-progress' && (
+                        <div className="absolute top-4 left-4 flex items-center gap-1.5 px-2.5 py-1 bg-amber-500/20 border border-amber-500/30 rounded-full">
+                          <Wrench className="w-3 h-3 text-amber-400" />
+                          <span className="text-xs text-amber-400 font-medium">In Progress</span>
+                        </div>
+                      )}
+
                       {/* Voted badge */}
                       {isVoted && (
                         <div className="absolute top-4 right-4 flex items-center gap-1.5 px-2.5 py-1 bg-green-500/20 border border-green-500/30 rounded-full">

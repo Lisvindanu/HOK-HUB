@@ -4,7 +4,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from '@tanstack/react-router';
 import {
   fetchPosts, createPost, deletePost, toggleLike, uploadImage,
-  type Post, type PostType,
+  fetchReplies, createReply, deleteReply,
+  type Post, type PostType, type Reply,
 } from '../api/community';
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -342,17 +343,64 @@ function PostCard({
   onLike,
   onDelete,
   currentUserId,
+  token,
+  isAuthenticated,
+  onLoginPrompt,
 }: {
   post: Post;
   onLike: (id: number) => void;
   onDelete: (id: number) => void;
   currentUserId: string | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  onLoginPrompt: () => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [imgExpanded, setImgExpanded] = useState(false);
+  const [showReplies, setShowReplies] = useState(false);
+  const [replies, setReplies] = useState<Reply[]>([]);
+  const [repliesLoaded, setRepliesLoaded] = useState(false);
+  const [replyInput, setReplyInput] = useState('');
+  const [submittingReply, setSubmittingReply] = useState(false);
+  const [replyCount, setReplyCount] = useState(post.reply_count ?? 0);
+
   const meta = TYPE_META[post.type] ?? TYPE_META.discussion;
   const isOwn = currentUserId && post.author_id !== null && String(post.author_id) === currentUserId;
   const imageUrl = post.image_url ? `${API_BASE}${post.image_url}` : null;
+
+  async function handleToggleReplies() {
+    if (!showReplies && !repliesLoaded) {
+      try {
+        const data = await fetchReplies(post.id);
+        setReplies(data);
+        setReplyCount(data.length);
+        setRepliesLoaded(true);
+      } catch { /* ignore */ }
+    }
+    setShowReplies(prev => !prev);
+  }
+
+  async function handleSubmitReply(e: React.FormEvent) {
+    e.preventDefault();
+    if (!token || !replyInput.trim()) return;
+    setSubmittingReply(true);
+    try {
+      const reply = await createReply(post.id, replyInput.trim(), token);
+      setReplies(prev => [...prev, reply]);
+      setReplyCount(prev => prev + 1);
+      setReplyInput('');
+    } catch { /* ignore */ }
+    finally { setSubmittingReply(false); }
+  }
+
+  async function handleDeleteReply(replyId: number) {
+    if (!token) return;
+    try {
+      await deleteReply(post.id, replyId, token);
+      setReplies(prev => prev.filter(r => r.id !== replyId));
+      setReplyCount(prev => Math.max(prev - 1, 0));
+    } catch { /* ignore */ }
+  }
 
   return (
     <motion.div
@@ -398,7 +446,7 @@ function PostCard({
           <div className="flex-1 min-w-0">
             {/* Author + meta row */}
             <div className="flex items-center flex-wrap gap-2 mb-1">
-              <span className="text-white/70 text-sm font-medium">{post.author_name ?? 'Anonymous'}</span>
+              <span className="text-white/70 text-sm font-medium">{post.author_name ?? 'HOK Hub'}</span>
               <span className="text-white/25 text-xs">·</span>
               <span className="text-white/35 text-xs">{timeAgo(post.created_at)}</span>
               <span
@@ -465,6 +513,18 @@ function PostCard({
             </svg>
             <span>{post.likes}</span>
           </button>
+
+          <button
+            onClick={handleToggleReplies}
+            className="flex items-center gap-1.5 text-sm transition-colors"
+            style={{ color: showReplies ? 'rgba(147,197,253,0.8)' : 'rgba(255,255,255,0.35)' }}
+          >
+            <svg className="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v7a2 2 0 01-2 2H6l-4 4V5z" />
+            </svg>
+            <span>{replyCount > 0 ? replyCount : ''} {replyCount === 1 ? 'Reply' : replyCount > 1 ? 'Replies' : 'Reply'}</span>
+          </button>
+
           <div className="flex-1" />
           {isOwn && (
             <button
@@ -475,6 +535,79 @@ function PostCard({
             </button>
           )}
         </div>
+
+        {/* Replies section */}
+        <AnimatePresence>
+          {showReplies && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="mt-4 pt-4 border-t border-white/5 space-y-3">
+                {replies.length === 0 && repliesLoaded && (
+                  <p className="text-white/25 text-xs text-center py-2">Belum ada reply. Jadilah yang pertama!</p>
+                )}
+                {replies.map(reply => (
+                  <div key={reply.id} className="flex items-start gap-2.5">
+                    <div
+                      className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border border-white/10"
+                      style={{ background: 'rgba(30,50,80,0.6)', color: '#93c5fd' }}
+                    >
+                      {initials(reply.author_name)}
+                    </div>
+                    <div className="flex-1 min-w-0 rounded-xl px-3 py-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="text-white/65 text-xs font-medium">{reply.author_name ?? 'Anonymous'}</span>
+                        <span className="text-white/25 text-xs">·</span>
+                        <span className="text-white/30 text-xs">{timeAgo(reply.created_at)}</span>
+                        {currentUserId && reply.author_id !== null && String(reply.author_id) === currentUserId && (
+                          <button
+                            onClick={() => handleDeleteReply(reply.id)}
+                            className="ml-auto text-xs text-white/15 hover:text-red-400 transition-colors"
+                          >
+                            ×
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-white/55 text-sm leading-relaxed">{reply.content}</p>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Reply input */}
+                {isAuthenticated ? (
+                  <form onSubmit={handleSubmitReply} className="flex items-center gap-2 mt-1">
+                    <input
+                      type="text"
+                      value={replyInput}
+                      onChange={e => setReplyInput(e.target.value)}
+                      placeholder="Tulis reply..."
+                      maxLength={500}
+                      className="flex-1 px-3 py-1.5 rounded-xl text-sm text-white placeholder-white/25 border border-white/10 focus:outline-none focus:border-blue-500/40"
+                      style={{ background: 'rgba(255,255,255,0.05)' }}
+                    />
+                    <button
+                      type="submit"
+                      disabled={submittingReply || !replyInput.trim()}
+                      className="px-3 py-1.5 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-40 transition-colors"
+                    >
+                      {submittingReply ? '...' : 'Kirim'}
+                    </button>
+                  </form>
+                ) : (
+                  <button
+                    onClick={onLoginPrompt}
+                    className="text-xs text-blue-400/70 hover:text-blue-400 transition-colors"
+                  >
+                    Login untuk reply →
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Fullscreen image lightbox */}
@@ -522,19 +655,19 @@ export function CommunityPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await fetchPosts({ type: activeTab });
+      const data = await fetchPosts({ type: activeTab }, token ?? undefined);
       setPosts(data);
     } catch {
       // silently fail
     } finally {
       setLoading(false);
     }
-  }, [activeTab]);
+  }, [activeTab, token]);
 
   useEffect(() => { load(); }, [load]);
 
   async function handleLike(id: number) {
-    const result = await toggleLike(id);
+    const result = await toggleLike(id, token ?? undefined);
     setPosts(prev =>
       prev.map(p =>
         p.id === id
@@ -623,6 +756,9 @@ export function CommunityPage() {
                   onLike={handleLike}
                   onDelete={handleDelete}
                   currentUserId={contributorId}
+                  token={token}
+                  isAuthenticated={isAuthenticated}
+                  onLoginPrompt={() => setShowLoginPrompt(true)}
                 />
               ))}
             </AnimatePresence>

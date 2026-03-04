@@ -4,6 +4,75 @@ import { useHeroes } from '../hooks/useHeroes';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 
+function TrakteerMobileSection() {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <section className="md:hidden py-10 border-t border-white/5">
+        <div className="container mx-auto px-6">
+          <motion.div
+            className="flex flex-col items-center text-center gap-4 p-6 rounded-2xl"
+            style={{ background: 'rgba(190,30,45,0.08)', border: '1px solid rgba(190,30,45,0.2)' }}
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4 }}
+          >
+            <img
+              src="https://edge-cdn.trakteer.id/images/embed/trbtn-icon.png?v=14-05-2025"
+              alt="Trakteer"
+              className="w-10 h-10"
+            />
+            <div>
+              <h3 className="text-white font-bold text-lg mb-1">Dukung HOK Hub</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                HOK Hub gratis untuk semua. Kalau kamu suka, traktir sebentar ya!
+              </p>
+            </div>
+            <button
+              onClick={() => setOpen(true)}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-transform active:scale-95"
+              style={{ backgroundColor: '#be1e2d' }}
+            >
+              <img
+                src="https://edge-cdn.trakteer.id/images/embed/trbtn-icon.png?v=14-05-2025"
+                alt=""
+                className="w-4 h-4"
+              />
+              Traktir Sekarang
+            </button>
+          </motion.div>
+        </div>
+      </section>
+
+      {open && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={(e) => { if (e.target === e.currentTarget) setOpen(false); }}
+        >
+          <div
+            className="relative flex flex-col rounded-2xl overflow-hidden shadow-2xl"
+            style={{ width: 'min(480px, calc(100vw - 2rem))', height: 'min(600px, calc(100vh - 4rem))' }}
+          >
+            <button
+              onClick={() => setOpen(false)}
+              className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors"
+            >
+              <X size={16} />
+            </button>
+            <iframe
+              src="https://trakteer.id/v1/lisvindanu-sftvm/tip/embed/modal"
+              className="h-full w-full border-0"
+              allow="payment"
+              title="Dukung HOK Hub di Trakteer"
+            />
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 export function HomePage() {
   const { data: heroes } = useHeroes();
   const [bannerDismissed, setBannerDismissed] = useState(
@@ -441,6 +510,8 @@ export function HomePage() {
           </div>
         </div>
       </section>
+
+      <TrakteerMobileSection />
 
       {/* CTA Section */}
       <section className="py-24 border-t border-white/5">

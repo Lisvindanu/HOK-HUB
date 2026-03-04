@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as VoteRouteImport } from './routes/vote'
 import { Route as TierListRouteImport } from './routes/tier-list'
 import { Route as SkinsRouteImport } from './routes/skins'
+import { Route as PlaygroundRouteImport } from './routes/playground'
 import { Route as PatchNotesRouteImport } from './routes/patch-notes'
 import { Route as OstRouteImport } from './routes/ost'
 import { Route as ItemsRouteImport } from './routes/items'
@@ -43,6 +44,11 @@ const TierListRoute = TierListRouteImport.update({
 const SkinsRoute = SkinsRouteImport.update({
   id: '/skins',
   path: '/skins',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlaygroundRoute = PlaygroundRouteImport.update({
+  id: '/playground',
+  path: '/playground',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PatchNotesRoute = PatchNotesRouteImport.update({
@@ -147,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/items': typeof ItemsRoute
   '/ost': typeof OstRoute
   '/patch-notes': typeof PatchNotesRoute
+  '/playground': typeof PlaygroundRoute
   '/skins': typeof SkinsRoute
   '/tier-list': typeof TierListRoute
   '/vote': typeof VoteRoute
@@ -169,6 +176,7 @@ export interface FileRoutesByTo {
   '/items': typeof ItemsRoute
   '/ost': typeof OstRoute
   '/patch-notes': typeof PatchNotesRoute
+  '/playground': typeof PlaygroundRoute
   '/skins': typeof SkinsRoute
   '/tier-list': typeof TierListRoute
   '/vote': typeof VoteRoute
@@ -192,6 +200,7 @@ export interface FileRoutesById {
   '/items': typeof ItemsRoute
   '/ost': typeof OstRoute
   '/patch-notes': typeof PatchNotesRoute
+  '/playground': typeof PlaygroundRoute
   '/skins': typeof SkinsRoute
   '/tier-list': typeof TierListRoute
   '/vote': typeof VoteRoute
@@ -216,6 +225,7 @@ export interface FileRouteTypes {
     | '/items'
     | '/ost'
     | '/patch-notes'
+    | '/playground'
     | '/skins'
     | '/tier-list'
     | '/vote'
@@ -238,6 +248,7 @@ export interface FileRouteTypes {
     | '/items'
     | '/ost'
     | '/patch-notes'
+    | '/playground'
     | '/skins'
     | '/tier-list'
     | '/vote'
@@ -260,6 +271,7 @@ export interface FileRouteTypes {
     | '/items'
     | '/ost'
     | '/patch-notes'
+    | '/playground'
     | '/skins'
     | '/tier-list'
     | '/vote'
@@ -283,6 +295,7 @@ export interface RootRouteChildren {
   ItemsRoute: typeof ItemsRoute
   OstRoute: typeof OstRoute
   PatchNotesRoute: typeof PatchNotesRoute
+  PlaygroundRoute: typeof PlaygroundRoute
   SkinsRoute: typeof SkinsRoute
   TierListRoute: typeof TierListRoute
   VoteRoute: typeof VoteRoute
@@ -311,6 +324,13 @@ declare module '@tanstack/react-router' {
       path: '/skins'
       fullPath: '/skins'
       preLoaderRoute: typeof SkinsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/playground': {
+      id: '/playground'
+      path: '/playground'
+      fullPath: '/playground'
+      preLoaderRoute: typeof PlaygroundRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/patch-notes': {
@@ -451,6 +471,7 @@ const rootRouteChildren: RootRouteChildren = {
   ItemsRoute: ItemsRoute,
   OstRoute: OstRoute,
   PatchNotesRoute: PatchNotesRoute,
+  PlaygroundRoute: PlaygroundRoute,
   SkinsRoute: SkinsRoute,
   TierListRoute: TierListRoute,
   VoteRoute: VoteRoute,

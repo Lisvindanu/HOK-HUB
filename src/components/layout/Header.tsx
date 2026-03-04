@@ -17,6 +17,7 @@ const moreNavGroups = [
     items: [
       { name: 'Counter Picks', href: '/counters', icon: Shield },
       { name: 'Draft Pick', href: '/draft', icon: Target },
+      { name: 'Build Playground', href: '/playground', icon: Layers },
       { name: 'Analytics', href: '/analytics', icon: BarChart3 },
     ],
   },

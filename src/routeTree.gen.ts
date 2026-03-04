@@ -22,6 +22,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CountersRouteImport } from './routes/counters'
 import { Route as ContributorsRouteImport } from './routes/contributors'
 import { Route as ContributeRouteImport } from './routes/contribute'
+import { Route as CommunityRouteImport } from './routes/community'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ArcanaRouteImport } from './routes/arcana'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
@@ -96,6 +97,11 @@ const ContributeRoute = ContributeRouteImport.update({
   path: '/contribute',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CommunityRoute = CommunityRouteImport.update({
+  id: '/community',
+  path: '/community',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -144,6 +150,7 @@ export interface FileRoutesByFullPath {
   '/analytics': typeof AnalyticsRoute
   '/arcana': typeof ArcanaRoute
   '/auth': typeof AuthRoute
+  '/community': typeof CommunityRoute
   '/contribute': typeof ContributeRoute
   '/contributors': typeof ContributorsRoute
   '/counters': typeof CountersRoute
@@ -167,6 +174,7 @@ export interface FileRoutesByTo {
   '/analytics': typeof AnalyticsRoute
   '/arcana': typeof ArcanaRoute
   '/auth': typeof AuthRoute
+  '/community': typeof CommunityRoute
   '/contribute': typeof ContributeRoute
   '/contributors': typeof ContributorsRoute
   '/counters': typeof CountersRoute
@@ -191,6 +199,7 @@ export interface FileRoutesById {
   '/analytics': typeof AnalyticsRoute
   '/arcana': typeof ArcanaRoute
   '/auth': typeof AuthRoute
+  '/community': typeof CommunityRoute
   '/contribute': typeof ContributeRoute
   '/contributors': typeof ContributorsRoute
   '/counters': typeof CountersRoute
@@ -216,6 +225,7 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/arcana'
     | '/auth'
+    | '/community'
     | '/contribute'
     | '/contributors'
     | '/counters'
@@ -239,6 +249,7 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/arcana'
     | '/auth'
+    | '/community'
     | '/contribute'
     | '/contributors'
     | '/counters'
@@ -262,6 +273,7 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/arcana'
     | '/auth'
+    | '/community'
     | '/contribute'
     | '/contributors'
     | '/counters'
@@ -286,6 +298,7 @@ export interface RootRouteChildren {
   AnalyticsRoute: typeof AnalyticsRoute
   ArcanaRoute: typeof ArcanaRoute
   AuthRoute: typeof AuthRoute
+  CommunityRoute: typeof CommunityRoute
   ContributeRoute: typeof ContributeRoute
   ContributorsRoute: typeof ContributorsRoute
   CountersRoute: typeof CountersRoute
@@ -396,6 +409,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContributeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/community': {
+      id: '/community'
+      path: '/community'
+      fullPath: '/community'
+      preLoaderRoute: typeof CommunityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -462,6 +482,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnalyticsRoute: AnalyticsRoute,
   ArcanaRoute: ArcanaRoute,
   AuthRoute: AuthRoute,
+  CommunityRoute: CommunityRoute,
   ContributeRoute: ContributeRoute,
   ContributorsRoute: ContributorsRoute,
   CountersRoute: CountersRoute,

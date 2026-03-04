@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useHeroes } from '../hooks/useHeroes';
 import { Loading } from '../components/ui/Loading';
 import type { Hero } from '../types/hero';
-import { Search, X, RotateCcw, ChevronRight, Trophy } from 'lucide-react';
+import { Search, X, RotateCcw, ChevronRight, Trophy, ArrowLeftRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type TeamSide = 'blue' | 'red';
@@ -99,6 +99,7 @@ export function DraftPage() {
   });
   const [matchIndex, setMatchIndex] = useState(0);
   const [matchStates, setMatchStates] = useState<MatchState[]>([]);
+  const [sideSwaps, setSideSwaps] = useState<boolean[]>([false]);
   const [sequence, setSequence] = useState<DraftStep[]>([]);
   const [selectedHero, setSelectedHero] = useState<Hero | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -113,6 +114,10 @@ export function DraftPage() {
   const currentStep = currentMatch?.currentStep ?? 0;
   const currentDraftStep = sequence[currentStep];
   const isDraftComplete = currentMatch != null && currentStep >= sequence.length;
+
+  const currentIsSwapped = sideSwaps[matchIndex] ?? false;
+  const blueTeamName = currentIsSwapped ? config.team2 : config.team1;
+  const redTeamName = currentIsSwapped ? config.team1 : config.team2;
 
   // Heroes used in current match
   const takenHeroIds = useMemo(() => {
@@ -147,13 +152,15 @@ export function DraftPage() {
   const maxMatches = parseInt(config.seriesType.replace('BO', ''));
   const neededToWin = Math.ceil(maxMatches / 2);
 
+  // blue = team1 wins, red = team2 wins (swap-aware)
   const seriesScore = useMemo(() => {
-    return matchStates.reduce((acc, m) => {
-      if (m.winner === 'blue') acc.blue++;
-      else if (m.winner === 'red') acc.red++;
+    return matchStates.reduce((acc, m, i) => {
+      const swapped = sideSwaps[i] ?? false;
+      if (m.winner === 'blue') { if (swapped) acc.red++; else acc.blue++; }
+      else if (m.winner === 'red') { if (swapped) acc.blue++; else acc.red++; }
       return acc;
     }, { blue: 0, red: 0 });
-  }, [matchStates]);
+  }, [matchStates, sideSwaps]);
 
   const seriesComplete = seriesScore.blue >= neededToWin || seriesScore.red >= neededToWin;
 
@@ -170,6 +177,7 @@ export function DraftPage() {
     setSequence(seq);
     setMatchStates([createMatchState(config.banCount)]);
     setMatchIndex(0);
+    setSideSwaps([false]);
     setPhase('drafting');
     setSelectedHero(null);
     setSearchQuery('');
@@ -235,12 +243,13 @@ export function DraftPage() {
     setMatchStates(prev => prev.map((m, i) => i === matchIndex ? { ...m, winner } : m));
   }
 
-  function nextMatch() {
+  function nextMatch(swapNext: boolean = false) {
     const newIndex = matchIndex + 1;
     if (newIndex >= maxMatches || seriesComplete) {
       setPhase('complete');
       return;
     }
+    setSideSwaps(prev => { const n = [...prev]; n[newIndex] = swapNext; return n; });
     setMatchStates(prev => [...prev, createMatchState(config.banCount)]);
     setMatchIndex(newIndex);
     setSelectedHero(null);
@@ -252,6 +261,7 @@ export function DraftPage() {
     setPhase('config');
     setMatchStates([]);
     setMatchIndex(0);
+    setSideSwaps([false]);
     setSelectedHero(null);
     setSearchQuery('');
     setRoleFilter('All');
@@ -415,6 +425,10 @@ export function DraftPage() {
   if (phase === 'complete') {
     const winner = seriesScore.blue > seriesScore.red ? 'blue' : seriesScore.red > seriesScore.blue ? 'red' : null;
     const winnerName = winner === 'blue' ? config.team1 : winner === 'red' ? config.team2 : null;
+    const getMatchNames = (i: number) => {
+      const swapped = sideSwaps[i] ?? false;
+      return { blue: swapped ? config.team2 : config.team1, red: swapped ? config.team1 : config.team2 };
+    };
     return (
       <div className="min-h-screen bg-dark-400 py-10 px-4">
         <div className="max-w-4xl mx-auto">
@@ -456,7 +470,11 @@ export function DraftPage() {
 
           {/* Game-by-game recap */}
           <div className="space-y-4 mb-8">
-            {matchStates.map((match, i) => (
+            {matchStates.map((match, i) => {
+            const { blue: blueName, red: redName } = getMatchNames(i);
+            const swapped = sideSwaps[i] ?? false;
+            const team1Won = (match.winner === 'blue' && !swapped) || (match.winner === 'red' && swapped);
+            return (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, x: -10 }}
@@ -466,16 +484,21 @@ export function DraftPage() {
               >
                 {/* Game header */}
                 <div className={`flex items-center justify-between px-5 py-3 border-b border-white/5 ${
-                  match.winner === 'blue' ? 'bg-primary-500/10' : match.winner === 'red' ? 'bg-red-500/10' : 'bg-dark-400/50'
+                  team1Won ? 'bg-primary-500/10' : match.winner ? 'bg-red-500/10' : 'bg-dark-400/50'
                 }`}>
-                  <span className="text-sm font-bold text-gray-300">Game {i + 1}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-gray-300">Game {i + 1}</span>
+                    {swapped && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold">Sides Swapped</span>
+                    )}
+                  </div>
                   {match.winner && (
                     <span className={`text-xs font-bold px-3 py-1 rounded-full ${
-                      match.winner === 'blue'
+                      team1Won
                         ? 'bg-primary-500/30 text-primary-300'
                         : 'bg-red-500/30 text-red-300'
                     }`}>
-                      {match.winner === 'blue' ? config.team1 : config.team2} Won
+                      {match.winner === 'blue' ? blueName : redName} Won
                     </span>
                   )}
                 </div>
@@ -484,7 +507,7 @@ export function DraftPage() {
                   {/* Blue team row */}
                   <div className="flex items-center gap-3">
                     <span className={`text-xs font-bold w-20 flex-shrink-0 ${match.winner === 'blue' ? 'text-primary-300' : 'text-gray-500'}`}>
-                      {config.team1}
+                      {blueName}
                     </span>
                     {/* Picks */}
                     <div className="flex gap-1.5 flex-1">
@@ -528,7 +551,7 @@ export function DraftPage() {
                   {/* Red team row */}
                   <div className="flex items-center gap-3">
                     <span className={`text-xs font-bold w-20 flex-shrink-0 ${match.winner === 'red' ? 'text-red-300' : 'text-gray-500'}`}>
-                      {config.team2}
+                      {redName}
                     </span>
                     {/* Picks */}
                     <div className="flex gap-1.5 flex-1">
@@ -567,7 +590,8 @@ export function DraftPage() {
                   </div>
                 </div>
               </motion.div>
-            ))}
+            );
+          })}
           </div>
 
           <button
@@ -649,7 +673,7 @@ export function DraftPage() {
           style={{ background: 'rgba(15,19,35,0.95)' }}
         >
           <div className="flex items-center gap-1.5 min-w-0">
-            <span className="text-xs font-bold text-blue-300 truncate max-w-[70px]">{config.team1}</span>
+            <span className="text-xs font-bold text-blue-300 truncate max-w-[70px]">{blueTeamName}</span>
             <div className="flex gap-0.5">
               {Array.from({ length: neededToWin }).map((_, i) => (
                 <div key={i} className={`w-2.5 h-2.5 rounded-full border-2 transition-all ${i < seriesScore.blue ? 'bg-blue-400 border-blue-400' : 'border-white/20'}`} />
@@ -679,7 +703,7 @@ export function DraftPage() {
                 <div key={i} className={`w-2.5 h-2.5 rounded-full border-2 transition-all ${i < seriesScore.red ? 'bg-red-400 border-red-400' : 'border-white/20'}`} />
               ))}
             </div>
-            <span className="text-xs font-bold text-red-300 truncate max-w-[70px]">{config.team2}</span>
+            <span className="text-xs font-bold text-red-300 truncate max-w-[70px]">{redTeamName}</span>
           </div>
 
           <div className="flex items-center gap-1 flex-shrink-0">
@@ -703,7 +727,7 @@ export function DraftPage() {
               borderBottom: isCurrentBlue ? '1px solid rgba(59,130,246,0.2)' : '1px solid rgba(239,68,68,0.2)',
             }}
           >
-            {isCurrentBlue ? config.team1 : config.team2}
+            {isCurrentBlue ? blueTeamName : redTeamName}
             <span className="mx-1.5 text-white/20">·</span>
             <span className={isCurrentBan ? 'text-red-400' : ''}>{isCurrentBan ? '⊗ BANNING' : '◎ PICKING'}</span>
             {selectedHero && <span className="ml-1.5 text-white/50 normal-case tracking-normal font-normal">— {selectedHero.name}</span>}
@@ -768,8 +792,8 @@ export function DraftPage() {
           <div className="flex-1 overflow-y-auto flex items-center justify-center p-4">
             <DraftComplete
               match={currentMatch}
-              team1={config.team1}
-              team2={config.team2}
+              team1={blueTeamName}
+              team2={redTeamName}
               matchIndex={matchIndex}
               seriesComplete={seriesComplete}
               onSetWinner={setMatchWinner}
@@ -890,7 +914,7 @@ export function DraftPage() {
 
           {/* Blue side score */}
           <div className="flex items-center gap-2 min-w-0">
-            <span className="font-bold text-blue-300 text-sm truncate max-w-[100px]">{config.team1}</span>
+            <span className="font-bold text-blue-300 text-sm truncate max-w-[100px]">{blueTeamName}</span>
             <div className="flex gap-1">
               {Array.from({ length: neededToWin }).map((_, i) => (
                 <div key={i} className={`w-3.5 h-3.5 rounded-full border-2 transition-all ${
@@ -934,7 +958,7 @@ export function DraftPage() {
                 }`} />
               ))}
             </div>
-            <span className="font-bold text-red-300 text-sm truncate max-w-[100px]">{config.team2}</span>
+            <span className="font-bold text-red-300 text-sm truncate max-w-[100px]">{redTeamName}</span>
           </div>
 
           {/* Controls */}
@@ -965,7 +989,7 @@ export function DraftPage() {
             : 'linear-gradient(270deg, rgba(239,68,68,0.15) 0%, rgba(239,68,68,0.05) 50%, transparent 100%)',
           borderBottom: isCurrentBlue ? '1px solid rgba(59,130,246,0.2)' : '1px solid rgba(239,68,68,0.2)',
         }}>
-          {isCurrentBlue ? config.team1 : config.team2}
+          {isCurrentBlue ? blueTeamName : redTeamName}
           <span className="mx-2 text-white/20">·</span>
           <span className={isCurrentBan ? 'text-red-400' : ''}>
             {isCurrentBan ? '⊗ BANNING' : '◎ PICKING'}
@@ -996,8 +1020,8 @@ export function DraftPage() {
             <div className="flex-1 flex items-center justify-center">
               <DraftComplete
                 match={currentMatch}
-                team1={config.team1}
-                team2={config.team2}
+                team1={blueTeamName}
+                team2={redTeamName}
                 matchIndex={matchIndex}
                 seriesComplete={seriesComplete}
                 onSetWinner={setMatchWinner}
@@ -1317,11 +1341,13 @@ interface DraftCompleteProps {
   matchIndex: number;
   seriesComplete: boolean;
   onSetWinner: (w: TeamSide) => void;
-  onNextMatch: () => void;
+  onNextMatch: (swapNext: boolean) => void;
   onReset: () => void;
 }
 
 function DraftComplete({ match, team1, team2, matchIndex, seriesComplete, onSetWinner, onNextMatch, onReset }: DraftCompleteProps) {
+  const [swapNext, setSwapNext] = useState(false);
+
   return (
     <AnimatePresence>
       <motion.div
@@ -1348,7 +1374,7 @@ function DraftComplete({ match, team1, team2, matchIndex, seriesComplete, onSetW
             </button>
           </div>
         ) : (
-          <div className={`py-3 rounded-xl mb-6 font-bold ${
+          <div className={`py-3 rounded-xl mb-4 font-bold ${
             match.winner === 'blue'
               ? 'bg-primary-500/20 text-primary-300 border border-primary-500/30'
               : 'bg-red-500/20 text-red-300 border border-red-500/30'
@@ -1357,10 +1383,25 @@ function DraftComplete({ match, team1, team2, matchIndex, seriesComplete, onSetW
           </div>
         )}
 
+        {/* Switch Side Toggle — only shown before Next Game */}
+        {match.winner && !seriesComplete && (
+          <button
+            onClick={() => setSwapNext(s => !s)}
+            className={`w-full flex items-center justify-center gap-2 mb-3 px-4 py-2.5 rounded-xl text-sm font-semibold border transition-all ${
+              swapNext
+                ? 'bg-amber-500/20 border-amber-500/40 text-amber-300'
+                : 'bg-white/5 border-white/10 text-gray-400 hover:text-white hover:border-white/20'
+            }`}
+          >
+            <ArrowLeftRight className="w-4 h-4" />
+            {swapNext ? 'Sides Swapped for Next Game' : 'Switch Sides for Next Game'}
+          </button>
+        )}
+
         <div className="flex gap-3">
           {match.winner && !seriesComplete && (
             <button
-              onClick={onNextMatch}
+              onClick={() => onNextMatch(swapNext)}
               className="flex-1 py-3 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
             >
               Next Game <ChevronRight className="w-4 h-4" />
@@ -1368,7 +1409,7 @@ function DraftComplete({ match, team1, team2, matchIndex, seriesComplete, onSetW
           )}
           {match.winner && seriesComplete && (
             <button
-              onClick={onNextMatch}
+              onClick={() => onNextMatch(false)}
               className="flex-1 py-3 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
             >
               <Trophy className="w-4 h-4" /> See Results

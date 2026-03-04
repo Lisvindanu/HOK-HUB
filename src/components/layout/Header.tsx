@@ -154,7 +154,7 @@ export function Header() {
                               onClick={() => setMoreMenuOpen(false)}
                             >
                               <item.icon className="w-4 h-4 text-gray-500 shrink-0" />
-                              <span>{item.name}</span>
+                              <span className="whitespace-nowrap">{item.name}</span>
                             </Link>
                           ))}
                         </div>

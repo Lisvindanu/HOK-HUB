@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as VoteRouteImport } from './routes/vote'
 import { Route as TierListRouteImport } from './routes/tier-list'
 import { Route as SkinsRouteImport } from './routes/skins'
+import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as PlaygroundRouteImport } from './routes/playground'
 import { Route as PatchNotesRouteImport } from './routes/patch-notes'
 import { Route as OstRouteImport } from './routes/ost'
@@ -46,6 +47,11 @@ const TierListRoute = TierListRouteImport.update({
 const SkinsRoute = SkinsRouteImport.update({
   id: '/skins',
   path: '/skins',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoadmapRoute = RoadmapRouteImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlaygroundRoute = PlaygroundRouteImport.update({
@@ -168,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/ost': typeof OstRoute
   '/patch-notes': typeof PatchNotesRoute
   '/playground': typeof PlaygroundRoute
+  '/roadmap': typeof RoadmapRoute
   '/skins': typeof SkinsRoute
   '/tier-list': typeof TierListRoute
   '/vote': typeof VoteRoute
@@ -193,6 +200,7 @@ export interface FileRoutesByTo {
   '/ost': typeof OstRoute
   '/patch-notes': typeof PatchNotesRoute
   '/playground': typeof PlaygroundRoute
+  '/roadmap': typeof RoadmapRoute
   '/skins': typeof SkinsRoute
   '/tier-list': typeof TierListRoute
   '/vote': typeof VoteRoute
@@ -219,6 +227,7 @@ export interface FileRoutesById {
   '/ost': typeof OstRoute
   '/patch-notes': typeof PatchNotesRoute
   '/playground': typeof PlaygroundRoute
+  '/roadmap': typeof RoadmapRoute
   '/skins': typeof SkinsRoute
   '/tier-list': typeof TierListRoute
   '/vote': typeof VoteRoute
@@ -246,6 +255,7 @@ export interface FileRouteTypes {
     | '/ost'
     | '/patch-notes'
     | '/playground'
+    | '/roadmap'
     | '/skins'
     | '/tier-list'
     | '/vote'
@@ -271,6 +281,7 @@ export interface FileRouteTypes {
     | '/ost'
     | '/patch-notes'
     | '/playground'
+    | '/roadmap'
     | '/skins'
     | '/tier-list'
     | '/vote'
@@ -296,6 +307,7 @@ export interface FileRouteTypes {
     | '/ost'
     | '/patch-notes'
     | '/playground'
+    | '/roadmap'
     | '/skins'
     | '/tier-list'
     | '/vote'
@@ -322,6 +334,7 @@ export interface RootRouteChildren {
   OstRoute: typeof OstRoute
   PatchNotesRoute: typeof PatchNotesRoute
   PlaygroundRoute: typeof PlaygroundRoute
+  RoadmapRoute: typeof RoadmapRoute
   SkinsRoute: typeof SkinsRoute
   TierListRoute: typeof TierListRoute
   VoteRoute: typeof VoteRoute
@@ -350,6 +363,13 @@ declare module '@tanstack/react-router' {
       path: '/skins'
       fullPath: '/skins'
       preLoaderRoute: typeof SkinsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/roadmap': {
+      id: '/roadmap'
+      path: '/roadmap'
+      fullPath: '/roadmap'
+      preLoaderRoute: typeof RoadmapRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/playground': {
@@ -514,6 +534,7 @@ const rootRouteChildren: RootRouteChildren = {
   OstRoute: OstRoute,
   PatchNotesRoute: PatchNotesRoute,
   PlaygroundRoute: PlaygroundRoute,
+  RoadmapRoute: RoadmapRoute,
   SkinsRoute: SkinsRoute,
   TierListRoute: TierListRoute,
   VoteRoute: VoteRoute,

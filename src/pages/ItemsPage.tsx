@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Search, Filter, Coins, Swords, Sparkles, Shield, Footprints, Trees, Users, List, GitBranch, ArrowRight } from 'lucide-react';
 import { useItems } from '../hooks/useItems';
 import { Loading } from '../components/ui/Loading';
@@ -25,6 +25,13 @@ const ITEM_LEVELS = [
 ];
 
 export function ItemsPage() {
+  useEffect(() => {
+    document.title = 'Items Guide - Honor of Kings | HoK Hub';
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute('content', 'Complete Honor of Kings items list. Browse all 114 items with stats, passives, and build recommendations.');
+    return () => { document.title = 'HoK Hub - Honor of Kings Community Hub'; };
+  }, []);
+
   const { data: items, isLoading, error } = useItems();
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [searchQuery, setSearchQuery] = useState('');

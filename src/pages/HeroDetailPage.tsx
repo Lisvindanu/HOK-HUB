@@ -1,6 +1,6 @@
 import { useParams, Link } from '@tanstack/react-router';
 import { ArrowLeft, Shield, Swords, Zap, Target, X, ChevronLeft, ChevronRight, Users, Crosshair, TrendingUp, TrendingDown, Minus, ArrowRight } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useHeroById } from '../hooks/useHeroes';
 import { Loading } from '../components/ui/Loading';
@@ -33,6 +33,19 @@ export function HeroDetailPage() {
       )
       .sort((a, b) => Number(b.season.id) - Number(a.season.id));
   }, [fullAdjustments, hero]);
+
+  useEffect(() => {
+    if (hero) {
+      document.title = `${hero.name} - ${hero.title || hero.role} Guide | HoK Hub`;
+      const desc = document.querySelector('meta[name="description"]');
+      if (desc) desc.setAttribute('content', `${hero.name} (${hero.title || hero.role}) - Honor of Kings hero guide. Skills, skins, counter picks, and balance history.`);
+    }
+    return () => {
+      document.title = 'HoK Hub - Honor of Kings Community Hub';
+      const desc = document.querySelector('meta[name="description"]');
+      if (desc) desc.setAttribute('content', 'Your ultimate Honor of Kings companion. Explore hero guides, tier lists, patch notes, counter picks, and community tools. Master the game with HoK Hub!');
+    };
+  }, [hero]);
 
   if (isLoading) {
     return (

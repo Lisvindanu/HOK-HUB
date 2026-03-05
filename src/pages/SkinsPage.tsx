@@ -26,6 +26,13 @@ const TIER_ORDER = ['Flawless', 'Mythic', 'Precious', 'Legend', 'Epic', 'Rare', 
 const ITEMS_PER_PAGE = 48;
 
 export function SkinsPage() {
+  useEffect(() => {
+    document.title = 'Skin Gallery - Honor of Kings | HoK Hub';
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute('content', 'Browse all 466 Honor of Kings skins. Filter by hero, series, and rarity.');
+    return () => { document.title = 'HoK Hub - Honor of Kings Community Hub'; };
+  }, []);
+
   const { data: heroes, isLoading } = useHeroes();
   const [viewMode, setViewMode] = useState<ViewMode>('series');
   const [selectedSeries, setSelectedSeries] = useState<SeriesData | null>(null);

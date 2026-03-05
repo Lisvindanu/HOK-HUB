@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Search, Filter, Flame, Droplets, Leaf } from 'lucide-react';
 import { useArcana } from '../hooks/useItems';
 import { Loading } from '../components/ui/Loading';
@@ -31,6 +31,13 @@ const getColorClasses = (color: number) => {
 };
 
 export function ArcanaPage() {
+  useEffect(() => {
+    document.title = 'Arcana Guide - Honor of Kings | HoK Hub';
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute('content', 'Browse all Honor of Kings arcana. Filter by color, stats, and find the best arcana builds for your heroes.');
+    return () => { document.title = 'HoK Hub - Honor of Kings Community Hub'; };
+  }, []);
+
   const { data: arcana, isLoading, error } = useArcana();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedColor, setSelectedColor] = useState(0);

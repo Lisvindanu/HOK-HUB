@@ -215,6 +215,13 @@ function ProgressBar({ currentTime, duration, onSeek }: {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export function OSTPage() {
+  useEffect(() => {
+    document.title = 'OST Music Player - Honor of Kings | HoK Hub';
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute('content', 'Listen to the full Honor of Kings official soundtrack. 34 tracks from the game\'s OST.');
+    return () => { document.title = 'HoK Hub - Honor of Kings Community Hub'; };
+  }, []);
+
   const [selectedAlbum, setSelectedAlbum] = useState<Album>(ALBUMS[0]);
   const [selectedTrack, setSelectedTrack] = useState<Track>(ALBUMS[0].tracks[0]);
   const [isPlaying, setIsPlaying] = useState(false);

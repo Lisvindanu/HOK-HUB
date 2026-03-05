@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useHeroes } from '../hooks/useHeroes';
 import { Loading } from '../components/ui/Loading';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
@@ -25,6 +25,13 @@ const TIER_COLORS: Record<string, string> = {
 };
 
 export function AnalyticsPage() {
+  useEffect(() => {
+    document.title = 'Hero Analytics - Win Rate & Pick Rate | HoK Hub';
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute('content', 'Honor of Kings hero analytics. Compare win rates, pick rates, and ban rates across all heroes.');
+    return () => { document.title = 'HoK Hub - Honor of Kings Community Hub'; };
+  }, []);
+
   const { data: heroes, isLoading } = useHeroes();
 
   // Top 10 Win Rate Heroes

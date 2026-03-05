@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useHeroes } from '../hooks/useHeroes';
 import { useAuth } from '../contexts/AuthContext';
 import { Loading } from '../components/ui/Loading';
@@ -10,6 +10,13 @@ import type { Hero } from '../types/hero';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://hokapi.project-n.site';
 
 export function CounterPage() {
+  useEffect(() => {
+    document.title = 'Counter Picks - Honor of Kings | HoK Hub';
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute('content', 'Find the best counter picks for every Honor of Kings hero. Dominate your matchups with hero counter data.');
+    return () => { document.title = 'HoK Hub - Honor of Kings Community Hub'; };
+  }, []);
+
   const { data: heroes, isLoading } = useHeroes();
   const { isAuthenticated, user, token } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');

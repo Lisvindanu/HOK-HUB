@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Search, X, ChevronDown, Download } from 'lucide-react';
 import { useHeroes } from '../hooks/useHeroes';
 import { HeroCard } from '../components/hero/HeroCard';
@@ -105,6 +105,13 @@ const formatLaneLabel = (lane: string): string => {
 };
 
 export function HeroesPage() {
+  useEffect(() => {
+    document.title = 'Hero List - Honor of Kings | HoK Hub';
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute('content', 'Browse all 111 Honor of Kings heroes. Filter by role, lane, and tier. View win rates, pick rates, and ban rates.');
+    return () => { document.title = 'HoK Hub - Honor of Kings Community Hub'; };
+  }, []);
+
   const { data: heroes, isLoading } = useHeroes();
   const [filter, setFilter] = useState<HeroFilter>({
     role: 'All',

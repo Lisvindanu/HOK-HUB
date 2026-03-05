@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { motion, useScroll, useTransform, useSpring, type Variants } from 'framer-motion';
 import {
   CheckCircle2,
@@ -282,6 +282,13 @@ function PhaseSection({ phase, index }: { phase: Phase; index: number }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export function RoadmapPage() {
+  useEffect(() => {
+    document.title = 'Project Roadmap | HoK Hub';
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute('content', 'HoK Hub development roadmap. See what features have been built and what is coming next.');
+    return () => { document.title = 'HoK Hub - Honor of Kings Community Hub'; };
+  }, []);
+
   const heroRef = useRef<HTMLDivElement>(null);
 
   // Global page scroll progress → animated top bar

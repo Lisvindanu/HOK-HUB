@@ -431,6 +431,13 @@ function CommentSection({ tierListId }: { tierListId: string }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function TierListPage() {
+  useEffect(() => {
+    document.title = 'Tier List - Honor of Kings | HoK Hub';
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute('content', 'Up-to-date Honor of Kings tier list. See the best heroes ranked by role and current meta.');
+    return () => { document.title = 'HoK Hub - Honor of Kings Community Hub'; };
+  }, []);
+
   const { data: heroes, isLoading } = useHeroes();
   const { token, user: authUser } = useAuth();
   const { data: user } = useUser();

@@ -23,6 +23,13 @@ const FIRST_AVAILABLE_SEASON = 6;
 
 
 export function PatchNotesPage() {
+  useEffect(() => {
+    document.title = 'Patch Notes - Honor of Kings | HoK Hub';
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute('content', 'Full Honor of Kings patch notes history from Season 6 to Season 13. Track every hero balance change.');
+    return () => { document.title = 'HoK Hub - Honor of Kings Community Hub'; };
+  }, []);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<FilterType>('all');
   const [selectedHero, setSelectedHero] = useState<HeroAdjustment | null>(null);

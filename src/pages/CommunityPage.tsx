@@ -906,6 +906,13 @@ function PostCard({
 // ─── CommunityPage ────────────────────────────────────────────────────────────
 
 export function CommunityPage() {
+  useEffect(() => {
+    document.title = 'Community - Honor of Kings | HoK Hub';
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute('content', 'HoK Hub community hub. Read dev updates, share builds, and discuss Honor of Kings strategies.');
+    return () => { document.title = 'HoK Hub - Honor of Kings Community Hub'; };
+  }, []);
+
   const { isAuthenticated, token, contributorId } = useAuth();
 
   const [activeTab, setActiveTab] = useState('all');

@@ -184,6 +184,13 @@ function HexIcon({
 // ─── Main Component ────────────────────────────────────────────────────────────
 
 export function PlaygroundPage() {
+  useEffect(() => {
+    document.title = 'Build Playground - Honor of Kings | HoK Hub';
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute('content', 'Create and share Honor of Kings hero builds. Pick items and arcana, check passive synergies, and save your builds.');
+    return () => { document.title = 'HoK Hub - Honor of Kings Community Hub'; };
+  }, []);
+
   const { data: heroesData, isLoading: loadingHeroes } = useHeroes();
   const { data: itemsData, isLoading: loadingItems } = useItems();
   const { data: arcanaData, isLoading: loadingArcana } = useArcana();

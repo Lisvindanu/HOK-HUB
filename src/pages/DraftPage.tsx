@@ -87,6 +87,13 @@ const SERIES_OPTIONS: DraftConfig['seriesType'][] = ['BO1', 'BO3', 'BO5', 'BO7']
 const BAN_OPTIONS = [3, 4, 5, 6];
 
 export function DraftPage() {
+  useEffect(() => {
+    document.title = 'Draft Pick Simulator - Honor of Kings | HoK Hub';
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute('content', 'Practice Honor of Kings draft picks. Simulate ban and pick phases for competitive play.');
+    return () => { document.title = 'HoK Hub - Honor of Kings Community Hub'; };
+  }, []);
+
   const { data: heroesData, isLoading } = useHeroes();
   const isMobile = useMobile();
   const [phase, setPhase] = useState<'config' | 'drafting' | 'complete'>('config');

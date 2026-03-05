@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { AlertTriangle, CheckCircle, X, Search, Info } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAllItems } from '../api/items';
@@ -78,6 +78,13 @@ function EmptySlot() {
 }
 
 export function ItemSynergyPage() {
+  useEffect(() => {
+    document.title = 'Item Synergy Guide - Honor of Kings | HoK Hub';
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute('content', 'Check item synergy and passive conflicts in Honor of Kings. Build optimized item sets without unique passive clashes.');
+    return () => { document.title = 'HoK Hub - Honor of Kings Community Hub'; };
+  }, []);
+
   const { data: allItems = [], isLoading } = useQuery({
     queryKey: ['items'],
     queryFn: fetchAllItems,

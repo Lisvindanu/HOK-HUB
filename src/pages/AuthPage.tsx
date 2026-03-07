@@ -1,8 +1,12 @@
 import { useState } from 'react';
 import { User, Mail, LogIn, UserPlus, Loader2, Lock } from 'lucide-react';
+import { GoogleLogin } from '@react-oauth/google';
+import type { CredentialResponse } from '@react-oauth/google';
 import { registerContributor, loginContributor } from '../api/tierLists';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from '@tanstack/react-router';
+
+const API_BASE = 'https://hokapi.project-n.site';
 
 export function AuthPage() {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
@@ -40,6 +44,32 @@ export function AuthPage() {
       login(token, { id: contributor.id, name: contributor.name, email: contributor.email || '' });
 
       // Redirect to home or previous page
+      navigate({ to: '/' });
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    if (!credentialResponse.credential) return;
+    setError('');
+    setIsLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential: credentialResponse.credential }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Google login failed');
+      login(data.token, {
+        id: data.contributor.id,
+        name: data.contributor.name,
+        email: data.contributor.email || '',
+        avatar: data.contributor.avatar,
+      });
       navigate({ to: '/' });
     } catch (err) {
       setError((err as Error).message);
@@ -283,6 +313,25 @@ export function AuthPage() {
               </button>
             </form>
           )}
+
+          {/* Google Login */}
+          <div className="mt-5">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-1 h-px bg-white/10" />
+              <span className="text-xs text-gray-500">or continue with</span>
+              <div className="flex-1 h-px bg-white/10" />
+            </div>
+            <div className="flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError('Google login failed')}
+                theme="filled_black"
+                shape="pill"
+                size="large"
+                text="continue_with"
+              />
+            </div>
+          </div>
 
           {/* Footer Info */}
           <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t border-white/10">

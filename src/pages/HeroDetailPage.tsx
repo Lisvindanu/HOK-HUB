@@ -1,5 +1,5 @@
 import { useParams, Link } from '@tanstack/react-router';
-import { ArrowLeft, Shield, Swords, Zap, Target, X, ChevronLeft, ChevronRight, Users, Crosshair, TrendingUp, TrendingDown, Minus, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Shield, X, ChevronLeft, ChevronRight, Users, Crosshair, TrendingUp, TrendingDown, Minus, ArrowRight } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useHeroById } from '../hooks/useHeroes';
@@ -68,8 +68,6 @@ export function HeroDetailPage() {
       </div>
     );
   }
-
-  const hasAttributes = hero.survivalPercentage && hero.survivalPercentage !== '0%';
 
   // Helper: Group skills for multi-mode heroes
   const getSkillGroups = () => {
@@ -217,44 +215,6 @@ export function HeroDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6 md:space-y-8">
-              {/* Attributes */}
-              {hasAttributes && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.2 }}
-                  className="p-4 md:p-6 bg-dark-300/50 border border-white/5 rounded-2xl"
-                >
-                  <h2 className="text-lg md:text-xl font-semibold text-white mb-4 md:mb-6">Attributes</h2>
-                  <div className="grid grid-cols-2 gap-4 md:gap-6">
-                    <AttributeBar
-                      icon={Shield}
-                      label="Survival"
-                      value={hero.survivalPercentage || '0%'}
-                      color="blue"
-                    />
-                    <AttributeBar
-                      icon={Swords}
-                      label="Attack"
-                      value={hero.attackPercentage || '0%'}
-                      color="red"
-                    />
-                    <AttributeBar
-                      icon={Zap}
-                      label="Ability"
-                      value={hero.abilityPercentage || '0%'}
-                      color="purple"
-                    />
-                    <AttributeBar
-                      icon={Target}
-                      label="Difficulty"
-                      value={hero.difficultyPercentage || '0%'}
-                      color="yellow"
-                    />
-                  </div>
-                </motion.div>
-              )}
-
               {/* Skins Gallery */}
               {hero.skins && hero.skins.length > 0 && (
                 <motion.div
@@ -820,43 +780,6 @@ export function HeroDetailPage() {
   );
 }
 
-// Attribute Bar Component
-function AttributeBar({
-  icon: Icon,
-  label,
-  value,
-  color,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  value: string;
-  color: 'blue' | 'red' | 'purple' | 'yellow';
-}) {
-  const colorClasses = {
-    blue: 'text-blue-400 bg-blue-500',
-    red: 'text-red-400 bg-red-500',
-    purple: 'text-purple-400 bg-purple-500',
-    yellow: 'text-yellow-400 bg-yellow-500',
-  };
-
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <Icon className={`w-4 h-4 ${colorClasses[color].split(' ')[0]}`} />
-          <span className="text-sm text-gray-400">{label}</span>
-        </div>
-        <span className="text-sm font-medium text-white">{value}</span>
-      </div>
-      <div className="h-1.5 bg-dark-200 rounded-full overflow-hidden">
-        <div
-          className={`h-full rounded-full ${colorClasses[color].split(' ')[1]}`}
-          style={{ width: value }}
-        />
-      </div>
-    </div>
-  );
-}
 
 import type { HeroAdjustment } from '../api/heroes';
 

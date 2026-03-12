@@ -1,6 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { HeroDetailPage } from '../../pages/HeroDetailPage';
+import { lazy, Suspense } from 'react';
+
+const HeroDetailPage = lazy(() => import('../../pages/HeroDetailPage').then(m => ({ default: m.HeroDetailPage })));
 
 export const Route = createFileRoute('/heroes/$heroId')({
-  component: HeroDetailPage,
+  component: () => (
+    <Suspense fallback={<div className="min-h-screen bg-dark-400" />}>
+      <HeroDetailPage />
+    </Suspense>
+  ),
 });

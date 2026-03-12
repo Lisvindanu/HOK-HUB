@@ -1,5 +1,7 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import { DashboardPage } from '../pages/DashboardPage';
+import { lazy, Suspense } from 'react';
+
+const DashboardPage = lazy(() => import('../pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
 
 export const Route = createFileRoute('/dashboard')({
   beforeLoad: () => {
@@ -10,5 +12,9 @@ export const Route = createFileRoute('/dashboard')({
       });
     }
   },
-  component: DashboardPage,
+  component: () => (
+    <Suspense fallback={<div className="min-h-screen bg-dark-400" />}>
+      <DashboardPage />
+    </Suspense>
+  ),
 });

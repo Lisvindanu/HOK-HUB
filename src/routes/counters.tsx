@@ -1,6 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { CounterPage } from '../pages/CounterPage';
+import { lazy, Suspense } from 'react';
+
+const CounterPage = lazy(() => import('../pages/CounterPage').then(m => ({ default: m.CounterPage })));
 
 export const Route = createFileRoute('/counters')({
-  component: CounterPage,
+  component: () => (
+    <Suspense fallback={<div className="min-h-screen bg-dark-400" />}>
+      <CounterPage />
+    </Suspense>
+  ),
 });

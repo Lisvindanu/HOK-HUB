@@ -21,7 +21,8 @@ function TrakteerMobileSection() {
             <img
               src="https://edge-cdn.trakteer.id/images/embed/trbtn-icon.png?v=14-05-2025"
               alt="Trakteer"
-              className="w-10 h-10"
+              className="w-10 h-10 object-contain"
+              style={{ aspectRatio: '1/1' }}
             />
             <div>
               <h3 className="text-white font-bold text-lg mb-1">Dukung HOK Hub</h3>
@@ -37,7 +38,8 @@ function TrakteerMobileSection() {
               <img
                 src="https://edge-cdn.trakteer.id/images/embed/trbtn-icon.png?v=14-05-2025"
                 alt=""
-                className="w-4 h-4"
+                className="w-4 h-4 object-contain"
+                style={{ aspectRatio: '1/1' }}
               />
               Traktir Sekarang
             </button>

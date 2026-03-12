@@ -16,7 +16,8 @@ export function TrakteerWidget() {
         <img
           src="https://edge-cdn.trakteer.id/images/embed/trbtn-icon.png?v=14-05-2025"
           alt="Trakteer"
-          className="h-5 w-5"
+          className="h-5 w-5 object-contain"
+          style={{ aspectRatio: '1/1' }}
         />
         <span>Dukung Saya</span>
       </button>

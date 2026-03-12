@@ -50,7 +50,7 @@ function MascotGreeting() {
         >
           <button
             onClick={() => setShowFeedback(true)}
-            className="mb-1 ml-16 bg-white text-dark-400 text-xs font-bold px-3 py-1.5 rounded-xl rounded-bl-none shadow-lg whitespace-nowrap hover:bg-yellow-50 transition-colors"
+            className="mb-1 ml-16 bg-white text-dark-400 text-xs font-bold px-3 py-2 rounded-xl rounded-bl-none shadow-lg whitespace-nowrap hover:bg-yellow-50 transition-colors"
           >
             Punya saran? Klik aku! 💬
           </button>
@@ -58,7 +58,7 @@ function MascotGreeting() {
           <div className="relative">
             <button
               onClick={(e) => { e.stopPropagation(); setMinimized(true); }}
-              className="absolute -top-1 -right-1 w-5 h-5 bg-dark-300 border border-white/20 rounded-full text-gray-400 hover:text-white flex items-center justify-center z-10 shadow"
+              className="absolute -top-2 -right-2 w-7 h-7 bg-dark-300 border border-white/20 rounded-full text-gray-400 hover:text-white flex items-center justify-center z-10 shadow"
               title="Sembunyikan"
             >
               <X className="w-3 h-3" />

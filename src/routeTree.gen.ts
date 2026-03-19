@@ -33,6 +33,8 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HeroesIndexRouteImport } from './routes/heroes/index'
 import { Route as HeroesHeroIdRouteImport } from './routes/heroes/$heroId'
+import { Route as TournamentRouteImport } from './routes/tournament'
+import { Route as TournamentIdRouteImport } from './routes/tournament/$id'
 
 const VoteRoute = VoteRouteImport.update({
   id: '/vote',
@@ -154,6 +156,16 @@ const HeroesHeroIdRoute = HeroesHeroIdRouteImport.update({
   path: '/heroes/$heroId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TournamentRoute = TournamentRouteImport.update({
+  id: '/tournament',
+  path: '/tournament',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TournamentIdRoute = TournamentIdRouteImport.update({
+  id: '/tournament/$id',
+  path: '/tournament/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -180,6 +192,8 @@ export interface FileRoutesByFullPath {
   '/vote': typeof VoteRoute
   '/heroes/$heroId': typeof HeroesHeroIdRoute
   '/heroes/': typeof HeroesIndexRoute
+  '/tournament': typeof TournamentRoute
+  '/tournament/$id': typeof TournamentIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -206,6 +220,8 @@ export interface FileRoutesByTo {
   '/vote': typeof VoteRoute
   '/heroes/$heroId': typeof HeroesHeroIdRoute
   '/heroes': typeof HeroesIndexRoute
+  '/tournament': typeof TournamentRoute
+  '/tournament/$id': typeof TournamentIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -233,6 +249,8 @@ export interface FileRoutesById {
   '/vote': typeof VoteRoute
   '/heroes/$heroId': typeof HeroesHeroIdRoute
   '/heroes/': typeof HeroesIndexRoute
+  '/tournament': typeof TournamentRoute
+  '/tournament/$id': typeof TournamentIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -261,6 +279,8 @@ export interface FileRouteTypes {
     | '/vote'
     | '/heroes/$heroId'
     | '/heroes/'
+    | '/tournament'
+    | '/tournament/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -287,6 +307,8 @@ export interface FileRouteTypes {
     | '/vote'
     | '/heroes/$heroId'
     | '/heroes'
+    | '/tournament'
+    | '/tournament/$id'
   id:
     | '__root__'
     | '/'
@@ -313,6 +335,8 @@ export interface FileRouteTypes {
     | '/vote'
     | '/heroes/$heroId'
     | '/heroes/'
+    | '/tournament'
+    | '/tournament/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -340,6 +364,8 @@ export interface RootRouteChildren {
   VoteRoute: typeof VoteRoute
   HeroesHeroIdRoute: typeof HeroesHeroIdRoute
   HeroesIndexRoute: typeof HeroesIndexRoute
+  TournamentRoute: typeof TournamentRoute
+  TournamentIdRoute: typeof TournamentIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -512,6 +538,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HeroesHeroIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tournament': {
+      id: '/tournament'
+      path: '/tournament'
+      fullPath: '/tournament'
+      preLoaderRoute: typeof TournamentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tournament/$id': {
+      id: '/tournament/$id'
+      path: '/tournament/$id'
+      fullPath: '/tournament/$id'
+      preLoaderRoute: typeof TournamentIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -540,6 +580,8 @@ const rootRouteChildren: RootRouteChildren = {
   VoteRoute: VoteRoute,
   HeroesHeroIdRoute: HeroesHeroIdRoute,
   HeroesIndexRoute: HeroesIndexRoute,
+  TournamentRoute: TournamentRoute,
+  TournamentIdRoute: TournamentIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

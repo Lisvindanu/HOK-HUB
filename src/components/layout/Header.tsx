@@ -9,6 +9,7 @@ const mainNav = [
   { name: 'Tier List', href: '/tier-list' },
   { name: 'Patch Notes', href: '/patch-notes' },
   { name: 'Skins', href: '/skins' },
+  { name: 'Tournament', href: '/tournament' },
   { name: 'Community', href: '/community' },
 ];
 
@@ -35,7 +36,8 @@ const moreNavGroups = [
   {
     label: 'Community',
     items: [
-      { name: 'Contributors', href: '/contributors', icon: Trophy },
+      { name: 'Tournament', href: '/tournament', icon: Trophy },
+      { name: 'Contributors', href: '/contributors', icon: UserPlus },
       { name: 'Contribute', href: '/contribute', icon: UserPlus },
       { name: 'Roadmap', href: '/roadmap', icon: Map },
     ],

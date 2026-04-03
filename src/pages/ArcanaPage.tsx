@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { Search, Filter, Flame, Droplets, Leaf } from 'lucide-react';
 import { useArcana } from '../hooks/useItems';
 import { Loading } from '../components/ui/Loading';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import type { Arcana } from '../types/hero';
 
@@ -31,6 +32,7 @@ const getColorClasses = (color: number) => {
 };
 
 export function ArcanaPage() {
+  const { t } = useTranslation();
   useEffect(() => {
     document.title = 'Arcana Guide - Honor of Kings | HoK Hub';
     const desc = document.querySelector('meta[name="description"]');
@@ -82,8 +84,8 @@ export function ArcanaPage() {
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-display font-bold text-white mb-2">Arcana</h1>
-          <p className="text-gray-400">Browse all {arcana?.length || 0} arcana in Honor of Kings</p>
+          <h1 className="text-3xl font-display font-bold text-white mb-2">{t('arcana.title')}</h1>
+          <p className="text-gray-400">{t('arcana.subtitle')} ({arcana?.length || 0})</p>
         </div>
 
         {/* Color Legend */}

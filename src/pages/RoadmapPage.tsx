@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, useScroll, useTransform, useSpring, type Variants } from 'framer-motion';
 import {
   CheckCircle2,
@@ -282,6 +283,7 @@ function PhaseSection({ phase, index }: { phase: Phase; index: number }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export function RoadmapPage() {
+  const { t } = useTranslation();
   useEffect(() => {
     document.title = 'Project Roadmap | HoK Hub';
     const desc = document.querySelector('meta[name="description"]');
@@ -388,7 +390,7 @@ export function RoadmapPage() {
             transition={{ duration: 0.6, delay: 0.55 }}
             className="mt-4 text-sm md:text-base text-gray-600 tracking-[0.45em] uppercase font-light"
           >
-            Project Roadmap
+            {t('roadmap.title')}
           </motion.p>
 
           {/* Stats row */}

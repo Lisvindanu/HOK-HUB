@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useHeroes } from '../hooks/useHeroes';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { Loading } from '../components/ui/Loading';
 import { Search, ChevronRight, Shield, Sword, AlertCircle, PenLine, X, Plus, Trash2, ArrowLeft, Users, Zap } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
@@ -10,6 +11,7 @@ import type { Hero } from '../types/hero';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://hokapi.project-n.site';
 
 export function CounterPage() {
+  const { t } = useTranslation();
   useEffect(() => {
     document.title = 'Counter Picks - Honor of Kings | HoK Hub';
     const desc = document.querySelector('meta[name="description"]');
@@ -148,7 +150,7 @@ export function CounterPage() {
     return (
       <div className="min-h-screen bg-dark-400 pt-20 md:pt-28 pb-12">
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
-          <Loading message="Loading counter data..." />
+          <Loading message={t('loading.data')} />
         </div>
       </div>
     );
@@ -170,10 +172,10 @@ export function CounterPage() {
               </div>
               <div>
                 <h1 className="text-2xl md:text-4xl font-display font-bold text-white">
-                  Counter Picks
+                  {t('counters.title')}
                 </h1>
                 <p className="text-gray-400 text-xs md:text-sm">
-                  Find counters and synergies for any hero
+                  {t('counters.subtitle')}
                 </p>
               </div>
             </div>
@@ -188,7 +190,7 @@ export function CounterPage() {
             <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 md:w-5 h-4 md:h-5 text-gray-500" />
             <input
               type="text"
-              placeholder="Search for a hero..."
+              placeholder={t('counters.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 md:pl-12 pr-4 py-2.5 md:py-3 bg-dark-300/50 border border-white/10 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary-500/50 transition-colors"
@@ -234,7 +236,7 @@ export function CounterPage() {
               ) : (
                 <div className="text-center py-20">
                   <AlertCircle className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                  <p className="text-gray-400 text-lg">No heroes found matching "{searchQuery}"</p>
+                  <p className="text-gray-400 text-lg">{t('heroes.noHeroesFound')}: "{searchQuery}"</p>
                 </div>
               )}
             </div>
@@ -256,7 +258,7 @@ export function CounterPage() {
                   className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-4"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  <span className="text-sm">Back to all heroes</span>
+                  <span className="text-sm">{t('common.back')} to all {t('common.heroes')}</span>
                 </button>
 
                 <div className="flex items-center gap-4 p-5 bg-dark-300/50 border border-white/5 rounded-2xl">
@@ -291,7 +293,7 @@ export function CounterPage() {
                         <Sword className="w-5 h-5 text-green-400" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-white">Strong Against</h3>
+                        <h3 className="font-semibold text-white">{t('counters.strongAgainst')}</h3>
                         <p className="text-xs text-gray-400">{selectedHero.name} counters these heroes</p>
                       </div>
                     </div>
@@ -328,7 +330,7 @@ export function CounterPage() {
                     ) : (
                       <div className="text-center py-8">
                         <AlertCircle className="w-10 h-10 text-gray-600 mx-auto mb-2" />
-                        <p className="text-sm text-gray-500">No counter data available</p>
+                        <p className="text-sm text-gray-500">{t('counters.noCounters')}</p>
                       </div>
                     )}
                   </div>
@@ -347,7 +349,7 @@ export function CounterPage() {
                         <Shield className="w-5 h-5 text-red-400" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-white">Weak Against</h3>
+                        <h3 className="font-semibold text-white">{t('counters.counteredBy')}</h3>
                         <p className="text-xs text-gray-400">These heroes counter {selectedHero.name}</p>
                       </div>
                     </div>
@@ -384,7 +386,7 @@ export function CounterPage() {
                     ) : (
                       <div className="text-center py-8">
                         <AlertCircle className="w-10 h-10 text-gray-600 mx-auto mb-2" />
-                        <p className="text-sm text-gray-500">No counter data available</p>
+                        <p className="text-sm text-gray-500">{t('counters.noCounters')}</p>
                       </div>
                     )}
                   </div>
@@ -406,6 +408,7 @@ export function CounterPage() {
                       </div>
                       <div>
                         <h3 className="font-semibold text-white">Best Partners</h3>
+
                         <p className="text-xs text-gray-400">Heroes that synergize well with {selectedHero.name}</p>
                       </div>
                     </div>

@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { AlertTriangle, CheckCircle, X, Search, Info } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAllItems } from '../api/items';
+import { useTranslation } from 'react-i18next';
 import type { Item } from '../types/hero';
 
 const TYPE_FILTERS = ['All', 'Physical', 'Magical', 'Defense', 'Boots', 'Jungling', 'Roaming'] as const;
@@ -78,6 +79,7 @@ function EmptySlot() {
 }
 
 export function ItemSynergyPage() {
+  const { t } = useTranslation();
   useEffect(() => {
     document.title = 'Item Synergy Guide - Honor of Kings | HoK Hub';
     const desc = document.querySelector('meta[name="description"]');
@@ -122,7 +124,7 @@ export function ItemSynergyPage() {
         <div className="container mx-auto px-4 md:px-6 py-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h1 className="text-xl font-bold text-white">Item Synergy Checker</h1>
+              <h1 className="text-xl font-bold text-white">{t('itemSynergy.title')}</h1>
               <p className="text-xs text-gray-500 mt-0.5">Pilih item build kamu dan lihat apakah ada passive yang konflik</p>
             </div>
             {selected.length > 0 && (

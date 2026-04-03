@@ -6,41 +6,25 @@ import { Loading } from '../components/ui/Loading';
 import { filterHeroes, sortHeroes } from '../lib/utils';
 import { motion } from 'framer-motion';
 import type { HeroFilter, HeroSortOption, HeroRole, Hero } from '../types/hero';
+import { useTranslation } from 'react-i18next';
 
 // Export heroes data to CSV
 function exportHeroesToCSV(heroes: Hero[]) {
-  // CSV Header
   const headers = [
-    'Hero Name',
-    'Title',
-    'Role',
-    'Lane(s)',
-    'Tier',
-    'Win Rate',
-    'Pick Rate',
-    'Ban Rate',
-    'Passive - Name',
-    'Passive - Description',
-    'Skill 1 - Name',
-    'Skill 1 - Description',
-    'Skill 1 - Cooldown',
-    'Skill 2 - Name',
-    'Skill 2 - Description',
-    'Skill 2 - Cooldown',
-    'Skill 3 (Ultimate) - Name',
-    'Skill 3 (Ultimate) - Description',
-    'Skill 3 (Ultimate) - Cooldown',
+    'Hero Name', 'Title', 'Role', 'Lane(s)', 'Tier',
+    'Win Rate', 'Pick Rate', 'Ban Rate',
+    'Passive - Name', 'Passive - Description',
+    'Skill 1 - Name', 'Skill 1 - Description', 'Skill 1 - Cooldown',
+    'Skill 2 - Name', 'Skill 2 - Description', 'Skill 2 - Cooldown',
+    'Skill 3 (Ultimate) - Name', 'Skill 3 (Ultimate) - Description', 'Skill 3 (Ultimate) - Cooldown',
   ];
 
-  // Helper to escape CSV values
   const escapeCSV = (value: string | undefined) => {
     if (!value) return '';
-    // Replace newlines with space, escape quotes
     const cleaned = value.replace(/\n/g, ' ').replace(/"/g, '""');
     return `"${cleaned}"`;
   };
 
-  // Generate rows
   const rows = heroes.map(hero => {
     const skills = hero.skill || [];
     const passive = skills[0];
@@ -50,32 +34,17 @@ function exportHeroesToCSV(heroes: Hero[]) {
     const lanes = hero.lanes?.join(', ') || hero.lane || '';
 
     return [
-      escapeCSV(hero.name),
-      escapeCSV(hero.title),
-      escapeCSV(hero.role),
-      escapeCSV(lanes),
-      escapeCSV(hero.stats.tier),
-      escapeCSV(hero.stats.winRate),
-      escapeCSV(hero.stats.pickRate),
-      escapeCSV(hero.stats.banRate),
-      escapeCSV(passive?.skillName),
-      escapeCSV(passive?.skillDesc),
-      escapeCSV(skill1?.skillName),
-      escapeCSV(skill1?.skillDesc),
-      escapeCSV(skill1?.cooldown?.join('/')),
-      escapeCSV(skill2?.skillName),
-      escapeCSV(skill2?.skillDesc),
-      escapeCSV(skill2?.cooldown?.join('/')),
-      escapeCSV(skill3?.skillName),
-      escapeCSV(skill3?.skillDesc),
-      escapeCSV(skill3?.cooldown?.join('/')),
+      escapeCSV(hero.name), escapeCSV(hero.title), escapeCSV(hero.role),
+      escapeCSV(lanes), escapeCSV(hero.stats.tier),
+      escapeCSV(hero.stats.winRate), escapeCSV(hero.stats.pickRate), escapeCSV(hero.stats.banRate),
+      escapeCSV(passive?.skillName), escapeCSV(passive?.skillDesc),
+      escapeCSV(skill1?.skillName), escapeCSV(skill1?.skillDesc), escapeCSV(skill1?.cooldown?.join('/')),
+      escapeCSV(skill2?.skillName), escapeCSV(skill2?.skillDesc), escapeCSV(skill2?.cooldown?.join('/')),
+      escapeCSV(skill3?.skillName), escapeCSV(skill3?.skillDesc), escapeCSV(skill3?.cooldown?.join('/')),
     ].join(',');
   });
 
-  // Combine headers and rows
   const csv = [headers.join(','), ...rows].join('\n');
-
-  // Download
   const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -105,6 +74,8 @@ const formatLaneLabel = (lane: string): string => {
 };
 
 export function HeroesPage() {
+  const { t } = useTranslation();
+
   useEffect(() => {
     document.title = 'Hero List - Honor of Kings | HoK Hub';
     const desc = document.querySelector('meta[name="description"]');
@@ -132,12 +103,7 @@ export function HeroesPage() {
   }, [heroes, filter, sort]);
 
   const resetFilters = () => {
-    setFilter({
-      role: 'All',
-      lane: 'All',
-      tier: 'All',
-      search: '',
-    });
+    setFilter({ role: 'All', lane: 'All', tier: 'All', search: '' });
   };
 
   const hasActiveFilters = filter.role !== 'All' || filter.lane !== 'All' || filter.tier !== 'All' || filter.search !== '';
@@ -146,7 +112,7 @@ export function HeroesPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loading message="Loading heroes..." />
+        <Loading message={t('loading.heroes')} />
       </div>
     );
   }
@@ -162,10 +128,10 @@ export function HeroesPage() {
             transition={{ duration: 0.5 }}
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-4">
-              Heroes
+              {t('heroes.title')}
             </h1>
             <p className="text-gray-400 text-lg max-w-xl">
-              Explore all {heroes?.length || 0} heroes with stats, abilities, and tier rankings
+              {t('heroes.subtitle', { count: heroes?.length || 0 })}
             </p>
           </motion.div>
         </div>
@@ -180,7 +146,7 @@ export function HeroesPage() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               <input
                 type="text"
-                placeholder="Search heroes..."
+                placeholder={t('heroes.searchPlaceholder')}
                 value={filter.search}
                 onChange={(e) => setFilter({ ...filter, search: e.target.value })}
                 className="w-full pl-12 pr-4 py-3 bg-dark-300/50 border border-white/10 rounded-xl focus:outline-none focus:border-primary-500/50 focus:bg-dark-300 text-white placeholder-gray-500 transition-all"
@@ -217,7 +183,7 @@ export function HeroesPage() {
               onClick={() => setShowFilters(!showFilters)}
               className="lg:hidden flex items-center justify-center gap-2 px-4 py-3 bg-dark-300/50 border border-white/10 rounded-xl text-gray-300 hover:border-white/20 transition-colors"
             >
-              <span>Filters</span>
+              <span>{t('common.filters')}</span>
               {activeFilterCount > 0 && (
                 <span className="px-2 py-0.5 bg-primary-500 text-white text-xs rounded-full">
                   {activeFilterCount}
@@ -236,13 +202,13 @@ export function HeroesPage() {
                 }}
                 className="appearance-none px-4 py-3 pr-10 bg-dark-300/50 border border-white/10 rounded-xl focus:outline-none focus:border-primary-500/50 text-white text-sm cursor-pointer transition-all"
               >
-                <option value="name-asc">Name (A-Z)</option>
-                <option value="name-desc">Name (Z-A)</option>
-                <option value="winRate-desc">Win Rate ↓</option>
-                <option value="winRate-asc">Win Rate ↑</option>
-                <option value="pickRate-desc">Pick Rate ↓</option>
-                <option value="banRate-desc">Ban Rate ↓</option>
-                <option value="tier-desc">Tier (Best)</option>
+                <option value="name-asc">{t('heroes.sortOptions.nameAsc')}</option>
+                <option value="name-desc">{t('heroes.sortOptions.nameDesc')}</option>
+                <option value="winRate-desc">{t('heroes.sortOptions.winRateDesc')}</option>
+                <option value="winRate-asc">{t('heroes.sortOptions.winRateAsc')}</option>
+                <option value="pickRate-desc">{t('heroes.sortOptions.pickRateDesc')}</option>
+                <option value="banRate-desc">{t('heroes.sortOptions.banRateDesc')}</option>
+                <option value="tier-desc">{t('heroes.sortOptions.tierDesc')}</option>
               </select>
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
             </div>
@@ -259,7 +225,7 @@ export function HeroesPage() {
               <div className="space-y-4">
                 {/* Role Filter */}
                 <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Role</p>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">{t('common.role')}</p>
                   <div className="flex flex-wrap gap-2">
                     {roles.map((role) => (
                       <button
@@ -279,7 +245,7 @@ export function HeroesPage() {
 
                 {/* Lane Filter */}
                 <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Lane</p>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">{t('common.lane')}</p>
                   <div className="flex flex-wrap gap-2">
                     {lanes.map((lane) => (
                       <button
@@ -290,7 +256,7 @@ export function HeroesPage() {
                             ? 'bg-white text-dark-400'
                             : 'bg-dark-300/50 text-gray-400 hover:text-white'
                         }`}
-                        title={lane === 'All' ? 'All Lanes' : lane}
+                        title={lane === 'All' ? t('heroes.lanes.all') : lane}
                       >
                         {LANE_ICONS[lane] ? (
                           <img src={LANE_ICONS[lane]} alt={lane} className="w-5 h-5 object-contain" />
@@ -304,7 +270,7 @@ export function HeroesPage() {
 
                 {/* Tier Filter */}
                 <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Tier</p>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">{t('common.tier')}</p>
                   <div className="flex flex-wrap gap-2">
                     {tiers.map((tier) => (
                       <button
@@ -329,7 +295,7 @@ export function HeroesPage() {
           <div className="hidden lg:flex items-center gap-6 mt-4">
             {/* Lane Pills */}
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500 uppercase tracking-wide">Lane:</span>
+              <span className="text-xs text-gray-500 uppercase tracking-wide">{t('common.lane')}:</span>
               <div className="flex items-center gap-1">
                 {lanes.map((lane) => (
                   <button
@@ -340,7 +306,7 @@ export function HeroesPage() {
                         ? 'bg-primary-500/20 text-primary-400 border border-primary-500/30'
                         : 'text-gray-400 hover:text-white hover:bg-white/5'
                     }`}
-                    title={lane === 'All' ? 'All Lanes' : lane}
+                    title={lane === 'All' ? t('heroes.lanes.all') : lane}
                   >
                     {LANE_ICONS[lane] ? (
                       <img src={LANE_ICONS[lane]} alt={lane} className="w-5 h-5 object-contain" />
@@ -354,7 +320,7 @@ export function HeroesPage() {
 
             {/* Tier Pills */}
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500 uppercase tracking-wide">Tier:</span>
+              <span className="text-xs text-gray-500 uppercase tracking-wide">{t('common.tier')}:</span>
               <div className="flex items-center gap-1">
                 {tiers.map((tier) => (
                   <button
@@ -379,7 +345,7 @@ export function HeroesPage() {
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
               >
                 <X className="w-3 h-3" />
-                <span>Clear filters</span>
+                <span>{t('common.clearFilters')}</span>
               </button>
             )}
           </div>
@@ -392,7 +358,7 @@ export function HeroesPage() {
           {/* Results Count & Export */}
           <div className="mb-6 flex items-center justify-between">
             <p className="text-sm text-gray-500">
-              Showing <span className="text-white font-medium">{filteredAndSortedHeroes.length}</span> heroes
+              {t('common.showing')} <span className="text-white font-medium">{filteredAndSortedHeroes.length}</span> {t('common.heroes')}
             </p>
             <button
               onClick={() => heroes && exportHeroesToCSV(heroes)}
@@ -400,7 +366,7 @@ export function HeroesPage() {
               title="Export all heroes data to CSV"
             >
               <Download className="w-4 h-4" />
-              <span className="hidden sm:inline">Export CSV</span>
+              <span className="hidden sm:inline">{t('common.exportCsv')}</span>
             </button>
           </div>
 
@@ -411,12 +377,12 @@ export function HeroesPage() {
               animate={{ opacity: 1 }}
               className="text-center py-20"
             >
-              <p className="text-gray-400 text-lg mb-4">No heroes found</p>
+              <p className="text-gray-400 text-lg mb-4">{t('heroes.noHeroesFound')}</p>
               <button
                 onClick={resetFilters}
                 className="px-6 py-3 bg-white text-dark-400 rounded-xl font-medium hover:bg-gray-100 transition-colors"
               >
-                Clear Filters
+                {t('heroes.clearFilters')}
               </button>
             </motion.div>
           ) : (

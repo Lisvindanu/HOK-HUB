@@ -2,21 +2,24 @@ import { useState } from 'react';
 import { X, MessageSquarePlus, Send, CheckCircle, Loader2 } from 'lucide-react';
 import { submitFeedback, type FeedbackCategory } from '../../api/tierLists';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 
-const CATEGORIES: { value: FeedbackCategory; label: string; emoji: string }[] = [
-  { value: 'bug', label: 'Bug Report', emoji: '🐛' },
-  { value: 'feature', label: 'Fitur Baru', emoji: '✨' },
-  { value: 'suggestion', label: 'Saran', emoji: '💡' },
-  { value: 'criticism', label: 'Kritik', emoji: '📝' },
-  { value: 'compliment', label: 'Pujian', emoji: '❤️' },
-  { value: 'other', label: 'Lainnya', emoji: '💬' },
-];
+const CATEGORY_EMOJIS: Record<string, string> = {
+  bug: '🐛',
+  feature: '✨',
+  suggestion: '💡',
+  criticism: '📝',
+  compliment: '❤️',
+  other: '💬',
+};
+const CATEGORY_VALUES: FeedbackCategory[] = ['bug', 'feature', 'suggestion', 'criticism', 'compliment', 'other'];
 
 interface FeedbackModalProps {
   onClose: () => void;
 }
 
 export function FeedbackModal({ onClose }: FeedbackModalProps) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [name, setName] = useState(user?.name || '');
   const [category, setCategory] = useState<FeedbackCategory>('suggestion');
@@ -51,8 +54,8 @@ export function FeedbackModal({ onClose }: FeedbackModalProps) {
               <MessageSquarePlus className="w-5 h-5 text-primary-400" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white">Kritik & Saran</h2>
-              <p className="text-xs text-gray-400">Bantu kami berkembang lebih baik</p>
+              <h2 className="text-lg font-bold text-white">{t('feedback.title')}</h2>
+              <p className="text-xs text-gray-400">{t('feedback.subtitle')}</p>
             </div>
           </div>
           <button
@@ -68,12 +71,12 @@ export function FeedbackModal({ onClose }: FeedbackModalProps) {
           {submitted ? (
             <div className="text-center py-8">
               <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">Terima Kasih!</h3>
+              <h3 className="text-xl font-bold text-white mb-2">{t('feedback.thankYou')}</h3>
               <p className="text-gray-400 text-sm mb-6">
-                Feedback kamu udah kami terima. Kami akan terus berusaha untuk meningkatkan HoK Hub.
+                {t('feedback.thankYouMsg')}
               </p>
               <button onClick={onClose} className="btn-primary">
-                Tutup
+                {t('common.close')}
               </button>
             </div>
           ) : (
@@ -81,7 +84,7 @@ export function FeedbackModal({ onClose }: FeedbackModalProps) {
               {/* Name */}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1.5">
-                  Nama <span className="text-gray-500">(opsional)</span>
+                  {t('feedback.name')} <span className="text-gray-500">({t('feedback.optional')})</span>
                 </label>
                 <input
                   type="text"
@@ -96,22 +99,22 @@ export function FeedbackModal({ onClose }: FeedbackModalProps) {
               {/* Category */}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1.5">
-                  Kategori
+                  {t('feedback.category')}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
-                  {CATEGORIES.map((cat) => (
+                  {CATEGORY_VALUES.map((val) => (
                     <button
-                      key={cat.value}
+                      key={val}
                       type="button"
-                      onClick={() => setCategory(cat.value)}
+                      onClick={() => setCategory(val)}
                       className={`flex flex-col items-center gap-1 p-2.5 rounded-lg border text-xs font-medium transition-all ${
-                        category === cat.value
+                        category === val
                           ? 'border-primary-500 bg-primary-500/20 text-primary-300'
                           : 'border-white/10 bg-dark-50 text-gray-400 hover:border-white/20 hover:text-white'
                       }`}
                     >
-                      <span className="text-base">{cat.emoji}</span>
-                      {cat.label}
+                      <span className="text-base">{CATEGORY_EMOJIS[val]}</span>
+                      {t(`feedback.categories.${val}`)}
                     </button>
                   ))}
                 </div>
@@ -120,12 +123,12 @@ export function FeedbackModal({ onClose }: FeedbackModalProps) {
               {/* Message */}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1.5">
-                  Pesan <span className="text-red-400">*</span>
+                  {t('feedback.message')} <span className="text-red-400">*</span>
                 </label>
                 <textarea
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Tulis kritik atau saran kamu di sini..."
+                  placeholder={t('feedback.message')}
                   required
                   rows={4}
                   maxLength={2000}
@@ -150,7 +153,7 @@ export function FeedbackModal({ onClose }: FeedbackModalProps) {
                 ) : (
                   <Send className="w-4 h-4" />
                 )}
-                {loading ? 'Mengirim...' : 'Kirim Feedback'}
+                {loading ? t('feedback.sending') : t('feedback.send')}
               </button>
             </form>
           )}

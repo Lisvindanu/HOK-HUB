@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router';
 import { Sword, Wand2 } from 'lucide-react';
 import type { Hero } from '../../types/hero';
 import { getTierColor } from '../../lib/utils';
+import { useTranslation } from 'react-i18next';
 
 interface HeroCardProps {
   hero: Hero;
@@ -36,6 +37,7 @@ const ROLE_GLOW: Record<string, { border: string; shadow: string; text: string }
 const PHYSICAL_ROLES = ['Tank', 'Fighter', 'Assassin', 'Marksman'];
 
 export function HeroCard({ hero }: HeroCardProps) {
+  const { t } = useTranslation();
   const [isFlipped, setIsFlipped] = useState(false);
   const isTouchDevice = typeof window !== 'undefined' && 'ontouchstart' in window;
 
@@ -168,7 +170,7 @@ export function HeroCard({ hero }: HeroCardProps) {
 
                 {/* Lanes Section */}
                 <div className="mb-3">
-                  <p className="text-[9px] text-amber-400/80 uppercase tracking-widest font-semibold mb-1.5">Lanes</p>
+                  <p className="text-[9px] text-amber-400/80 uppercase tracking-widest font-semibold mb-1.5">{t('common.lane')}</p>
                   <div className="flex flex-wrap gap-1.5">
                     {lanes.map((lane) => (
                       <div
@@ -193,7 +195,7 @@ export function HeroCard({ hero }: HeroCardProps) {
                 {/* Skills Section */}
                 {skills.length > 0 && (
                   <div className="mb-3">
-                    <p className="text-[9px] text-amber-400/80 uppercase tracking-widest font-semibold mb-1.5">Skills</p>
+                    <p className="text-[9px] text-amber-400/80 uppercase tracking-widest font-semibold mb-1.5">{t('heroDetail.skills')}</p>
                     <div className="flex gap-1.5">
                       {skills.map((skill, index) => (
                         <div

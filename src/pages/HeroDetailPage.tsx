@@ -4,11 +4,13 @@ import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useHeroById } from '../hooks/useHeroes';
 import { Loading } from '../components/ui/Loading';
+import { useTranslation } from 'react-i18next';
 import { getTierColor } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fetchAdjustmentsFull } from '../api/heroes';
 
 export function HeroDetailPage() {
+  const { t } = useTranslation();
   const { heroId } = useParams({ from: '/heroes/$heroId' });
   const { data: hero, isLoading } = useHeroById(parseInt(heroId));
   const [selectedSkinIndex, setSelectedSkinIndex] = useState<number | null>(null);
@@ -50,7 +52,7 @@ export function HeroDetailPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loading message="Loading hero details..." />
+        <Loading message={t('loading.heroes')} />
       </div>
     );
   }
@@ -190,17 +192,17 @@ export function HeroDetailPage() {
                 <div className="flex items-center gap-5">
                   <div>
                     <p className="text-xl font-bold text-green-400">{hero.stats.winRate}</p>
-                    <p className="text-xs text-gray-500">Win Rate</p>
+                    <p className="text-xs text-gray-500">{t('heroDetail.winRate')}</p>
                   </div>
                   <div className="w-px h-8 bg-white/10" />
                   <div>
                     <p className="text-xl font-bold text-blue-400">{hero.stats.pickRate}</p>
-                    <p className="text-xs text-gray-500">Pick Rate</p>
+                    <p className="text-xs text-gray-500">{t('heroDetail.pickRate')}</p>
                   </div>
                   <div className="w-px h-8 bg-white/10" />
                   <div>
                     <p className="text-xl font-bold text-red-400">{hero.stats.banRate}</p>
-                    <p className="text-xs text-gray-500">Ban Rate</p>
+                    <p className="text-xs text-gray-500">{t('heroDetail.banRate')}</p>
                   </div>
                 </div>
               </motion.div>
@@ -300,7 +302,7 @@ export function HeroDetailPage() {
                   className="p-4 md:p-6 bg-dark-300/50 border border-white/5 rounded-2xl"
                 >
                   <div className="flex items-center justify-between mb-4 md:mb-6">
-                    <h2 className="text-lg md:text-xl font-semibold text-white">Skills</h2>
+                    <h2 className="text-lg md:text-xl font-semibold text-white">{t('heroDetail.skills')}</h2>
                     {isMultiMode && (
                       <span className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-1 rounded-lg">
                         Multi-Mode Hero • {hero.skill.length} Skills
@@ -401,7 +403,7 @@ export function HeroDetailPage() {
                   className="p-4 md:p-6 bg-dark-300/50 border border-white/5 rounded-2xl"
                 >
                   <div className="flex items-center justify-between mb-4 md:mb-6">
-                    <h2 className="text-lg md:text-xl font-semibold text-white">Recommended Arcana</h2>
+                    <h2 className="text-lg md:text-xl font-semibold text-white">{t('heroDetail.arcana')}</h2>
                     <span className="text-xs md:text-sm text-gray-500">{hero.arcana.length} slots</span>
                   </div>
                   <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 gap-2 md:gap-3">
@@ -443,7 +445,7 @@ export function HeroDetailPage() {
                 >
                   <div className="flex items-center justify-between mb-4 md:mb-6">
                     <div>
-                      <h2 className="text-lg md:text-xl font-semibold text-white">Recommended Build</h2>
+                      <h2 className="text-lg md:text-xl font-semibold text-white">{t('heroDetail.topBuilds')}</h2>
                       {hero.buildTitle && (
                         <p className="text-xs md:text-sm text-gray-500 mt-1">{hero.buildTitle}</p>
                       )}
@@ -577,7 +579,7 @@ export function HeroDetailPage() {
                 >
                   <div className="flex items-center gap-2 mb-3 md:mb-4">
                     <Crosshair className="w-4 h-4 text-green-400" />
-                    <h2 className="text-base md:text-lg font-semibold text-white">Strong Against</h2>
+                    <h2 className="text-base md:text-lg font-semibold text-white">{t('heroDetail.strongAgainst')}</h2>
                   </div>
                   <div className="space-y-2">
                     {Object.values(hero.suppressingHeroes).slice(0, 5).map((counter, index) => (
@@ -604,7 +606,7 @@ export function HeroDetailPage() {
                 >
                   <div className="flex items-center gap-2 mb-3 md:mb-4">
                     <Shield className="w-4 h-4 text-red-400" />
-                    <h2 className="text-base md:text-lg font-semibold text-white">Weak Against</h2>
+                    <h2 className="text-base md:text-lg font-semibold text-white">{t('heroDetail.counteredBy')}</h2>
                   </div>
                   <div className="space-y-2">
                     {Object.values(hero.suppressedHeroes).slice(0, 5).map((counter, index) => (
@@ -630,7 +632,7 @@ export function HeroDetailPage() {
         <section className="py-6 md:py-8 border-t border-white/5">
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
             <h2 className="text-xl md:text-2xl font-display font-bold mb-4 md:mb-6">
-              Balance History
+              {t('heroDetail.patchHistory')}
             </h2>
             <div className="space-y-3">
               {heroBalanceHistory.map(({ season, adjustment }) => (

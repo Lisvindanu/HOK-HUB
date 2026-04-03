@@ -4,6 +4,7 @@ import { useHeroes } from '../hooks/useHeroes';
 import { useAuth } from '../contexts/AuthContext';
 import { useUser } from '../hooks/useUser';
 import { useNavigate, Link } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 
 type ContributionType = 'skin' | 'hero' | 'series' | 'skin-edit';
 
@@ -152,6 +153,7 @@ function getAutoTier(series: string): string {
 }
 
 export function ContributePage() {
+  const { t } = useTranslation();
   const { data: heroes, isLoading } = useHeroes();
   const { token, contributorId } = useAuth();
   const { data: user } = useUser();
@@ -468,10 +470,10 @@ export function ContributePage() {
       {/* Header */}
       <div className="mb-6 md:mb-8">
         <h1 className="text-3xl md:text-5xl font-display font-bold mb-2 md:mb-4">
-          Contribute Data
+          {t('contribute.title')}
         </h1>
         <p className="text-gray-400 text-sm md:text-lg">
-          Help us complete the Honor of Kings database!
+          {t('contribute.subtitle')}
         </p>
       </div>
 
@@ -492,7 +494,7 @@ export function ContributePage() {
                 className="btn-primary inline-flex items-center gap-2"
               >
                 <LogIn className="w-4 h-4" />
-                Login / Register
+                {t('nav.loginRegister')}
               </Link>
             </div>
           </div>

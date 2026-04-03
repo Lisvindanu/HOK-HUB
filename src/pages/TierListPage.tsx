@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useHeroes } from '../hooks/useHeroes';
 import { Loading } from '../components/ui/Loading';
+import { useTranslation } from 'react-i18next';
 import { Link } from '@tanstack/react-router';
 import { Plus, Save, X, RotateCcw, Users, List as ListIcon, ThumbsUp, Calendar, TrendingUp, Share2, Check, Search, GripVertical, Download, Loader2, MessageCircle, Send, Trash2, BadgeCheck, ChevronDown, ChevronUp, Pencil } from 'lucide-react';
 import html2canvas from 'html2canvas';
@@ -431,6 +432,7 @@ function CommentSection({ tierListId }: { tierListId: string }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function TierListPage() {
+  const { t } = useTranslation();
   useEffect(() => {
     document.title = 'Tier List - Honor of Kings | HoK Hub';
     const desc = document.querySelector('meta[name="description"]');
@@ -799,7 +801,7 @@ export function TierListPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loading message="Loading tier list..." />
+        <Loading message={t('loading.tierList')} />
       </div>
     );
   }
@@ -815,12 +817,12 @@ export function TierListPage() {
             transition={{ duration: 0.5 }}
           >
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-2 md:mb-3">
-              Tier List
+              {t('tierList.title')}
             </h1>
             <p className="text-gray-400 text-sm md:text-lg">
               {mode === 'create'
-                ? 'Create your own tier list by dragging heroes'
-                : 'View meta rankings and community tier lists'}
+                ? t('tierList.dragHeroes')
+                : t('tierList.subtitle')}
             </p>
           </motion.div>
         </div>
@@ -839,7 +841,7 @@ export function TierListPage() {
                 }`}
               >
                 <ListIcon className="w-3.5 md:w-4 h-3.5 md:h-4" />
-                View
+                {t('tierList.myTierLists').includes('My') ? 'View' : 'View'}
               </button>
               <button
                 onClick={() => setMode('create')}
@@ -848,7 +850,7 @@ export function TierListPage() {
                 }`}
               >
                 <Plus className="w-3.5 md:w-4 h-3.5 md:h-4" />
-                Create
+                {t('tierList.createTierList')}
               </button>
             </div>
 
@@ -904,7 +906,7 @@ export function TierListPage() {
                   className="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg text-xs md:text-sm font-medium transition-colors"
                 >
                   <Save className="w-3.5 md:w-4 h-3.5 md:h-4" />
-                  Save
+                  {t('tierList.saveTierList')}
                 </button>
               </div>
             )}
@@ -1383,17 +1385,17 @@ export function TierListPage() {
                 </div>
 
                 {isLoadingTierLists ? (
-                  <Loading message="Loading community tier lists..." />
+                  <Loading message={t('loading.tierList')} />
                 ) : sortedTierLists.length === 0 ? (
                   <div className="text-center py-12 md:py-16 bg-dark-300/50 rounded-2xl border border-white/5">
                     <Users className="w-10 md:w-12 h-10 md:h-12 text-gray-600 mx-auto mb-3 md:mb-4" />
-                    <h3 className="text-base md:text-lg font-semibold text-white mb-2">No Tier Lists Yet</h3>
+                    <h3 className="text-base md:text-lg font-semibold text-white mb-2">{t('tierList.noTierLists')}</h3>
                     <p className="text-gray-400 text-xs md:text-sm mb-4 md:mb-6">Be the first to create one!</p>
                     <button
                       onClick={() => setMode('create')}
                       className="px-5 md:px-6 py-2 md:py-2.5 bg-white text-dark-400 rounded-xl text-sm font-medium hover:bg-gray-100 transition-colors"
                     >
-                      Create Tier List
+                      {t('tierList.createTierList')}
                     </button>
                   </div>
                 ) : (
@@ -1651,7 +1653,7 @@ export function TierListPage() {
             >
               {/* Modal Header */}
               <div className="p-4 md:p-6 border-b border-white/5">
-                <h2 className="text-lg md:text-xl font-bold text-white">{editingTierListId ? 'Update Tier List' : 'Save Tier List'}</h2>
+                <h2 className="text-lg md:text-xl font-bold text-white">{editingTierListId ? 'Update Tier List' : t('tierList.saveTierList')}</h2>
                 <p className="text-xs md:text-sm text-gray-400 mt-1">{editingTierListId ? 'Save your changes' : 'Share your tier list with the community'}</p>
               </div>
 
@@ -1720,14 +1722,14 @@ export function TierListPage() {
                   className="flex-1 flex items-center justify-center gap-1.5 md:gap-2 px-3 md:px-4 py-2.5 md:py-3 bg-white text-dark-400 rounded-xl text-sm font-medium hover:bg-gray-100 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
                 >
                   <Save className="w-3.5 md:w-4 h-3.5 md:h-4" />
-                  {isSaving ? 'Saving...' : editingTierListId ? 'Update Tier List' : 'Save Tier List'}
+                  {isSaving ? 'Saving...' : editingTierListId ? 'Update Tier List' : t('tierList.saveTierList')}
                 </button>
                 <button
                   onClick={() => setShowSaveModal(false)}
                   disabled={isSaving}
                   className="px-4 md:px-6 py-2.5 md:py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl text-sm transition-colors"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
               </div>
             </motion.div>
@@ -1752,7 +1754,7 @@ export function TierListPage() {
               className="bg-dark-300 rounded-2xl p-4 w-full max-w-sm"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-lg font-bold text-white mb-4">Share Tier List</h3>
+              <h3 className="text-lg font-bold text-white mb-4">{t('tierList.shareLink')}</h3>
               <div className="space-y-2">
                 {getShareLinks(selectedTierList).map((link) => (
                   <a
@@ -1775,14 +1777,14 @@ export function TierListPage() {
                   className="flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-colors w-full"
                 >
                   <span className="text-xl">🔗</span>
-                  <span className="text-white font-medium">Copy Link</span>
+                  <span className="text-white font-medium">{t('tierList.shareLink')}</span>
                 </button>
               </div>
               <button
                 onClick={() => setShowShareMenu(null)}
                 className="w-full mt-4 py-2 text-gray-400 hover:text-white transition-colors text-sm"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
             </motion.div>
           </motion.div>

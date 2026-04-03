@@ -1,8 +1,10 @@
 import { Link } from '@tanstack/react-router';
 import { ArrowRight, Shield, Users, TrendingUp, Code } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export function AboutPage() {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-dark-400 py-12 md:py-20">
       <div className="container mx-auto px-6 lg:px-8">
@@ -14,10 +16,10 @@ export function AboutPage() {
           transition={{ duration: 0.5 }}
         >
           <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">
-            About HoK Hub
+            {t('about.title')}
           </h1>
           <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            Your complete Honor of Kings resource hub, built by the community for the community
+            {t('about.subtitle')}
           </p>
         </motion.div>
 

@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useHeroes } from '../hooks/useHeroes';
 import { Loading } from '../components/ui/Loading';
+import { useTranslation } from 'react-i18next';
 import type { Hero } from '../types/hero';
 import { Search, X, RotateCcw, ChevronRight, Trophy, ArrowLeftRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -87,6 +88,7 @@ const SERIES_OPTIONS: DraftConfig['seriesType'][] = ['BO1', 'BO3', 'BO5', 'BO7']
 const BAN_OPTIONS = [3, 4, 5, 6];
 
 export function DraftPage() {
+  const { t } = useTranslation();
   useEffect(() => {
     document.title = 'Draft Pick Simulator - Honor of Kings | HoK Hub';
     const desc = document.querySelector('meta[name="description"]');
@@ -288,8 +290,8 @@ export function DraftPage() {
       <div className="min-h-screen bg-dark-400 py-10 px-4">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-display font-bold text-white mb-2">Draft Simulator</h1>
-            <p className="text-gray-400">Simulate the official Honor of Kings ban/pick phase</p>
+            <h1 className="text-4xl font-display font-bold text-white mb-2">{t('draft.title')}</h1>
+            <p className="text-gray-400">{t('draft.subtitle')}</p>
           </div>
 
           <div className="bg-dark-300 rounded-2xl border border-white/10 p-6 space-y-6">

@@ -1,0 +1,593 @@
+{
+  "nav": {
+    "heroes": "Hero",
+    "tierList": "Tier List",
+    "patchNotes": "Patch Notes",
+    "skins": "Skin",
+    "tournament": "Turnamen",
+    "community": "Komunitas",
+    "more": "Lainnya",
+    "home": "Beranda",
+    "patch": "Patch",
+    "quickAccess": "Akses Cepat",
+    "groups": {
+      "gameTools": "Alat Game",
+      "content": "Konten",
+      "community": "Komunitas"
+    },
+    "items": {
+      "counterPicks": "Counter Pick",
+      "draftPick": "Draft Pick",
+      "buildPlayground": "Build Playground",
+      "itemSynergy": "Sinergi Item",
+      "analytics": "Analitik",
+      "items": "Item",
+      "arcana": "Arkana",
+      "ost": "OST",
+      "contributors": "Kontributor",
+      "contribute": "Berkontribusi",
+      "roadmap": "Roadmap",
+      "topUp": "Top Up"
+    },
+    "signedInAs": "Masuk sebagai",
+    "dashboard": "Dasbor",
+    "logout": "Keluar",
+    "login": "Masuk",
+    "loginRegister": "Masuk / Daftar",
+    "joinCommunity": "Bergabung ke komunitas",
+    "contributor": "Kontributor",
+    "menu": "Menu"
+  },
+  "footer": {
+    "tagline": "Teman terbaik kamu di Honor of Kings. Jelajahi panduan hero, tier list, patch notes, dan alat komunitas.",
+    "quickLinks": "Tautan Cepat",
+    "resources": "Sumber Daya",
+    "support": "Dukungan",
+    "links": {
+      "heroes": "Hero",
+      "tierList": "Tier List",
+      "patchNotes": "Patch Notes",
+      "counters": "Counter",
+      "about": "Tentang",
+      "contribute": "Berkontribusi",
+      "contributors": "Kontributor",
+      "apiDocs": "Dokumentasi API",
+      "topUp": "Top Up Games"
+    },
+    "feedbackBtn": "Kritik & Saran",
+    "copyright": "© {{year}} HoK Hub. Hak cipta dilindungi.",
+    "disclaimer": "Situs ini tidak berafiliasi dengan atau didukung oleh Tencent Games atau Level Infinite.",
+    "trademark": "Honor of Kings™ adalah merek dagang Tencent Games."
+  },
+  "common": {
+    "loading": "Memuat...",
+    "search": "Cari...",
+    "noResults": "Tidak ada hasil",
+    "clear": "Hapus",
+    "clearFilters": "Hapus filter",
+    "filters": "Filter",
+    "all": "Semua",
+    "explore": "Jelajahi",
+    "getStarted": "Mulai",
+    "viewAll": "Lihat Semua",
+    "learnMore": "Pelajari Lebih",
+    "close": "Tutup",
+    "back": "Kembali",
+    "save": "Simpan",
+    "saved": "Tersimpan!",
+    "by": "oleh",
+    "cancel": "Batal",
+    "submit": "Kirim",
+    "delete": "Hapus",
+    "edit": "Edit",
+    "copy": "Salin",
+    "share": "Bagikan",
+    "export": "Ekspor",
+    "exportCsv": "Ekspor CSV",
+    "showing": "Menampilkan",
+    "of": "dari",
+    "heroes": "hero",
+    "role": "Peran",
+    "lane": "Lane",
+    "tier": "Tier",
+    "winRate": "Win Rate",
+    "pickRate": "Pick Rate",
+    "banRate": "Ban Rate",
+    "skills": "Skill",
+    "passive": "Pasif",
+    "ultimate": "Ultimate",
+    "cooldown": "Cooldown",
+    "cost": "Mana",
+    "stats": "Statistik",
+    "scrollToExplore": "Gulir untuk jelajahi",
+    "season": "Season",
+    "version": "Versi"
+  },
+  "home": {
+    "badge": "Teman Terbaik HoK Kamu",
+    "headline1": "Kuasai",
+    "headline2": "Meta",
+    "subtitle": "Semua yang kamu butuhkan untuk mendominasi Honor of Kings. Statistik hero, tier list, counter, dan banyak lagi.",
+    "exploreHeroes": "Jelajahi Hero",
+    "viewTierList": "Lihat Tier List",
+    "stats": {
+      "heroes": "Hero",
+      "skins": "Skin",
+      "roles": "Peran",
+      "updated": "Diperbarui"
+    },
+    "featuresTitle": "Semua yang kamu butuhkan",
+    "featuresSubtitle": "Semua alat untuk mendominasi Rift — panduan hero, tier list, draft & lainnya",
+    "features": {
+      "heroDatabase": {
+        "title": "Database Hero",
+        "desc": "111+ hero dengan statistik, skill, rekomendasi equipment & arkana"
+      },
+      "tierList": {
+        "title": "Tier List",
+        "desc": "Peringkat tier yang divoting komunitas dengan diskusi meta terkini"
+      },
+      "counterPicks": {
+        "title": "Counter Pick",
+        "desc": "Temukan counter, sinergi & matchup terbaik untuk setiap hero"
+      },
+      "skinGallery": {
+        "title": "Galeri Skin",
+        "desc": "Jelajahi 1000+ skin — eksklusif, terbatas, seri & kolaborasi"
+      },
+      "patchNotes": {
+        "title": "Patch Notes",
+        "desc": "Lacak setiap buff, nerf & penyesuaian hero di semua patch"
+      },
+      "draftSimulator": {
+        "title": "Simulasi Draft",
+        "desc": "Latih pick & ban sebelum ranked dengan mode draft lengkap"
+      },
+      "itemsArcana": {
+        "title": "Item & Arkana",
+        "desc": "Database lengkap semua item dan build arkana untuk setiap peran"
+      },
+      "analytics": {
+        "title": "Analitik",
+        "desc": "Win rate, pick rate & tren meta untuk mengasah strategi kamu"
+      }
+    },
+    "ost": {
+      "badge": "Soundtrack Resmi",
+      "title": "OST Honor of Kings",
+      "desc": "Streaming 34 lagu resmi — dari lagu global Joe Hisaishi hingga tema karakter, skor sinematik & kolaborasi. Semua dalam satu player.",
+      "categories": {
+        "global": "Global & Anniversary",
+        "cinematic": "Skor Sinematik",
+        "champion": "Tema Champion",
+        "events": "Event & Kolaborasi"
+      },
+      "tracks": "{{count}} lagu",
+      "listenNow": "Dengarkan Sekarang"
+    },
+    "support": {
+      "title": "Dukung HOK Hub",
+      "desc": "HOK Hub gratis untuk semua. Kalau kamu suka, traktir sebentar ya!",
+      "btn": "Traktir Sekarang"
+    },
+    "cta": {
+      "title": "Siap naik rank?",
+      "subtitle": "Bergabunglah dengan komunitas dan mulai tingkatkan gameplay kamu hari ini.",
+      "getStarted": "Mulai Sekarang",
+      "contribute": "Berkontribusi ke HoK Hub"
+    },
+    "incident": {
+      "title": "Pemberitahuan penting:",
+      "msg": "Terjadi kehilangan data tier list komunitas pada 26 Feb 2026.",
+      "readMore": "Baca selengkapnya →",
+      "dismiss": "Tutup"
+    }
+  },
+  "heroes": {
+    "title": "Hero",
+    "subtitle": "Jelajahi semua {{count}} hero dengan statistik, kemampuan, dan peringkat tier",
+    "searchPlaceholder": "Cari hero...",
+    "sortOptions": {
+      "nameAsc": "Nama (A-Z)",
+      "nameDesc": "Nama (Z-A)",
+      "winRateDesc": "Win Rate ↓",
+      "winRateAsc": "Win Rate ↑",
+      "pickRateDesc": "Pick Rate ↓",
+      "banRateDesc": "Ban Rate ↓",
+      "tierDesc": "Tier (Terbaik)"
+    },
+    "showingCount": "Menampilkan <1>{{count}}</1> hero",
+    "noHeroesFound": "Tidak ada hero yang ditemukan",
+    "clearFilters": "Hapus Filter",
+    "roles": {
+      "all": "Semua",
+      "tank": "Tank",
+      "fighter": "Fighter",
+      "assassin": "Assassin",
+      "mage": "Mage",
+      "marksman": "Marksman",
+      "support": "Support"
+    },
+    "lanes": {
+      "all": "Semua Lane",
+      "clashLane": "Clash",
+      "jungling": "Jungle",
+      "midLane": "Mid",
+      "farmLane": "Farm",
+      "roaming": "Roam"
+    }
+  },
+  "heroDetail": {
+    "skills": "Skill",
+    "topBuilds": "Build Terbaik",
+    "arcana": "Arkana",
+    "equipment": "Equipment",
+    "heroGuide": "Panduan Hero",
+    "skinGallery": "Galeri Skin",
+    "overview": "Ringkasan",
+    "counters": "Counter",
+    "counteredBy": "Dikalahkan Oleh",
+    "strongAgainst": "Kuat Melawan",
+    "patchHistory": "Riwayat Balance",
+    "winRate": "Win Rate",
+    "pickRate": "Pick Rate",
+    "banRate": "Ban Rate",
+    "tier": "Tier",
+    "role": "Peran",
+    "lane": "Lane",
+    "passive": "Pasif",
+    "ultimate": "Ultimate",
+    "skillLabel": "Skill {{n}}",
+    "cooldown": "CD",
+    "cost": "Mana",
+    "noSkillsAvailable": "Tidak ada skill tersedia",
+    "noBuildsAvailable": "Data build tidak tersedia",
+    "noGuide": "Belum ada panduan untuk hero ini",
+    "noSkins": "Tidak ada skin tersedia",
+    "season": "Season {{s}}",
+    "selectSkillSet": "Pilih set skill",
+    "weaponSkills": "Skill {{weapon}}"
+  },
+  "skins": {
+    "title": "Galeri Skin",
+    "subtitle": "Jelajahi semua {{count}} skin di Honor of Kings",
+    "searchPlaceholder": "Cari skin...",
+    "allSeries": "Semua Seri",
+    "series": "Seri",
+    "noSkins": "Tidak ada skin ditemukan",
+    "exclusive": "Eksklusif",
+    "limited": "Terbatas",
+    "collab": "Kolaborasi"
+  },
+  "patchNotes": {
+    "title": "Patch Notes",
+    "subtitle": "Perubahan balance hero per season",
+    "searchPlaceholder": "Cari hero...",
+    "loading": "Memuat patch notes...",
+    "error": "Gagal memuat patch notes. Coba lagi nanti.",
+    "totalChanges": "Total Perubahan",
+    "buffs": "Buff",
+    "nerfs": "Nerf",
+    "adjustments": "Penyesuaian",
+    "changes": "Perubahan",
+    "all": "Semua",
+    "showingOf": "Menampilkan {{shown}} dari {{total}} hero",
+    "noHeroesFound": "Tidak ada hero yang cocok dengan pencarian.",
+    "skillChanges": "Perubahan Skill",
+    "noSkillChanges": "Tidak ada detail perubahan skill",
+    "winRate": "Win Rate",
+    "pickRate": "Pick Rate",
+    "banRate": "Ban Rate"
+  },
+  "auth": {
+    "welcomeBack": "Selamat Datang Kembali",
+    "joinHub": "Bergabung ke HoK Hub",
+    "loginSubtitle": "Masuk untuk melacak kontribusi dan tier list kamu",
+    "registerSubtitle": "Buat akun untuk mulai berkontribusi",
+    "login": "Masuk",
+    "register": "Daftar",
+    "emailAddress": "Alamat Email",
+    "password": "Password",
+    "displayName": "Nama Tampilan",
+    "emailPlaceholder": "email@kamu.com",
+    "passwordPlaceholder": "Masukkan password kamu",
+    "namePlaceholder": "Nama kamu",
+    "minPasswordHint": "Minimal 6 karakter",
+    "minPasswordPlaceholder": "Minimal 6 karakter",
+    "loggingIn": "Sedang masuk...",
+    "creatingAccount": "Membuat akun...",
+    "createAccount": "Buat Akun",
+    "orContinueWith": "atau lanjutkan dengan",
+    "termsNotice": "Dengan melanjutkan, kamu setuju untuk melacak kontribusimu dan menampilkan namamu di leaderboard",
+    "errors": {
+      "enterEmail": "Masukkan email kamu",
+      "enterPassword": "Masukkan password kamu",
+      "enterName": "Masukkan nama kamu",
+      "passwordLength": "Password minimal 6 karakter",
+      "googleFailed": "Login Google gagal"
+    }
+  },
+  "tierList": {
+    "title": "Tier List",
+    "communityTitle": "Tier List Komunitas",
+    "subtitle": "Peringkat tier hero yang divoting komunitas",
+    "voteNow": "Vote Sekarang",
+    "createTierList": "Buat Tier List",
+    "myTierLists": "Tier List Saya",
+    "publicTierLists": "Tier List Publik",
+    "noTierLists": "Belum ada tier list",
+    "dragHeroes": "Seret hero untuk mengurutkannya",
+    "saveTierList": "Simpan Tier List",
+    "shareLink": "Bagikan Link",
+    "copied": "Tersalin!",
+    "tiers": {
+      "s_plus": "S+",
+      "s": "S",
+      "a": "A",
+      "b": "B",
+      "c": "C",
+      "d": "D"
+    }
+  },
+  "counters": {
+    "title": "Counter Pick",
+    "subtitle": "Temukan counter terbaik untuk setiap hero",
+    "searchPlaceholder": "Cari hero...",
+    "counteredBy": "Dikalahkan Oleh",
+    "strongAgainst": "Kuat Melawan",
+    "selectHero": "Pilih hero untuk melihat counter pick",
+    "noCounters": "Tidak ada data counter"
+  },
+  "analytics": {
+    "title": "Analitik",
+    "subtitle": "Win rate, pick rate & ban rate hero",
+    "winRate": "Win Rate",
+    "pickRate": "Pick Rate",
+    "banRate": "Ban Rate",
+    "tier": "Tier",
+    "allRoles": "Semua Peran",
+    "searchPlaceholder": "Cari hero..."
+  },
+  "draft": {
+    "title": "Draft Pick",
+    "subtitle": "Simulasi fase pick & ban",
+    "blueSide": "Tim Biru",
+    "redSide": "Tim Merah",
+    "bans": "Ban",
+    "picks": "Pick",
+    "startDraft": "Mulai Draft",
+    "resetDraft": "Reset Draft",
+    "yourTurn": "Giliran Kamu",
+    "banPhase": "Fase Ban",
+    "pickPhase": "Fase Pick",
+    "searchHero": "Cari hero..."
+  },
+  "playground": {
+    "title": "Build Playground",
+    "subtitle": "Bangun loadout sempurna kamu",
+    "selectHero": "Pilih Hero",
+    "items": "Item",
+    "arcana": "Arkana",
+    "stats": "Statistik",
+    "saveShare": "Simpan & Bagikan",
+    "loadBuild": "Muat Build",
+    "clearBuild": "Hapus Build",
+    "itemConflict": "Peringatan Konflik Pasif",
+    "noItemSelected": "Belum ada item dipilih",
+    "searchItem": "Cari item..."
+  },
+  "items": {
+    "title": "Item",
+    "subtitle": "Database item lengkap",
+    "searchPlaceholder": "Cari item...",
+    "allTypes": "Semua Tipe",
+    "physical": "Fisik",
+    "magical": "Magis",
+    "tank": "Tank",
+    "roaming": "Roaming",
+    "passive": "Pasif",
+    "active": "Aktif",
+    "noItems": "Tidak ada item ditemukan"
+  },
+  "itemSynergy": {
+    "title": "Panduan Sinergi Item",
+    "subtitle": "Cek konflik pasif antar item",
+    "addItem": "Tambah Item",
+    "clearAll": "Hapus Semua",
+    "noConflicts": "Tidak ada konflik terdeteksi",
+    "conflictWarning": "Konflik Pasif Terdeteksi",
+    "uniquePassive": "Pasif Unik"
+  },
+  "arcana": {
+    "title": "Arkana",
+    "subtitle": "Jelajahi semua arkana",
+    "searchPlaceholder": "Cari arkana...",
+    "allTiers": "Semua Tier",
+    "tier1": "Tier 1",
+    "tier2": "Tier 2",
+    "tier3": "Tier 3",
+    "noArcana": "Tidak ada arkana ditemukan"
+  },
+  "ost": {
+    "title": "OST Honor of Kings",
+    "subtitle": "Koleksi soundtrack resmi",
+    "playAll": "Putar Semua",
+    "nowPlaying": "Sedang Diputar",
+    "tracks": "lagu",
+    "categories": {
+      "all": "Semua",
+      "global": "Global & Anniversary",
+      "cinematic": "Skor Sinematik",
+      "champion": "Tema Champion",
+      "events": "Event & Kolaborasi"
+    }
+  },
+  "feedback": {
+    "title": "Kritik & Saran",
+    "subtitle": "Bantu kami berkembang lebih baik",
+    "name": "Nama",
+    "optional": "opsional",
+    "category": "Kategori",
+    "message": "Pesan",
+    "send": "Kirim Feedback",
+    "sending": "Mengirim...",
+    "thankYou": "Terima Kasih!",
+    "thankYouMsg": "Feedback kamu udah kami terima. Kami akan terus berusaha untuk meningkatkan HoK Hub.",
+    "categories": {
+      "bug": "Bug Report",
+      "feature": "Fitur Baru",
+      "suggestion": "Saran",
+      "criticism": "Kritik",
+      "compliment": "Pujian",
+      "other": "Lainnya"
+    }
+  },
+  "community": {
+    "title": "Komunitas",
+    "subtitle": "Postingan dan diskusi",
+    "newPost": "Postingan Baru",
+    "reply": "Balas",
+    "replies": "balasan",
+    "like": "Suka",
+    "devUpdates": "Update Developer",
+    "communityPosts": "Postingan Komunitas",
+    "noPostsYet": "Belum ada postingan. Jadilah yang pertama!",
+    "writePost": "Tulis postingan...",
+    "post": "Posting",
+    "deletePost": "Hapus Postingan",
+    "deleteReply": "Hapus Balasan",
+    "loginToPost": "Masuk untuk berpartisipasi dalam diskusi"
+  },
+  "contribute": {
+    "title": "Berkontribusi",
+    "subtitle": "Bantu tingkatkan data HOK Hub",
+    "heroData": "Data Hero",
+    "skinData": "Data Skin",
+    "seriesData": "Data Seri",
+    "selectHero": "Pilih Hero",
+    "selectField": "Pilih Field",
+    "currentValue": "Nilai Saat Ini",
+    "newValue": "Nilai Baru",
+    "source": "Sumber (URL)",
+    "submit": "Kirim Kontribusi",
+    "submitting": "Mengirim...",
+    "successMsg": "Kontribusi berhasil dikirim!",
+    "loginRequired": "Harap masuk untuk berkontribusi",
+    "thankYou": "Terima kasih atas kontribusimu!"
+  },
+  "contributors": {
+    "title": "Kontributor",
+    "subtitle": "Leaderboard komunitas",
+    "rank": "Peringkat",
+    "name": "Nama",
+    "contributions": "Kontribusi",
+    "approved": "Disetujui",
+    "points": "Poin",
+    "noContributors": "Belum ada kontributor",
+    "topContributors": "Kontributor Terbaik",
+    "joinNow": "Berkontribusi untuk masuk daftar!"
+  },
+  "dashboard": {
+    "title": "Dasbor",
+    "profile": "Profil",
+    "myContributions": "Kontribusi Saya",
+    "myTierLists": "Tier List Saya",
+    "stats": "Statistik",
+    "totalContributions": "Total Kontribusi",
+    "approved": "Disetujui",
+    "pending": "Menunggu",
+    "rejected": "Ditolak",
+    "changePassword": "Ganti Password",
+    "currentPassword": "Password Saat Ini",
+    "newPassword": "Password Baru",
+    "confirmPassword": "Konfirmasi Password",
+    "updatePassword": "Perbarui Password",
+    "displayName": "Nama Tampilan",
+    "email": "Email",
+    "saveChanges": "Simpan Perubahan",
+    "memberSince": "Bergabung sejak",
+    "noContributions": "Belum ada kontribusi",
+    "noTierLists": "Belum ada tier list",
+    "status": {
+      "pending": "Menunggu",
+      "approved": "Disetujui",
+      "rejected": "Ditolak"
+    }
+  },
+  "admin": {
+    "title": "Panel Admin",
+    "pendingContributions": "Kontribusi Pending",
+    "approve": "Setujui",
+    "reject": "Tolak",
+    "approving": "Menyetujui...",
+    "rejecting": "Menolak...",
+    "noPending": "Tidak ada kontribusi pending",
+    "heroField": "Hero / Field",
+    "newValue": "Nilai Baru",
+    "source": "Sumber",
+    "submittedBy": "Dikirim oleh",
+    "enterPassword": "Masukkan password admin",
+    "passwordPlaceholder": "Password admin",
+    "accessDenied": "Akses ditolak. Password salah."
+  },
+  "tournament": {
+    "title": "Turnamen",
+    "subtitle": "Turnamen komunitas",
+    "create": "Buat Turnamen",
+    "join": "Bergabung",
+    "leave": "Keluar",
+    "start": "Mulai",
+    "status": {
+      "open": "Terbuka",
+      "ongoing": "Berlangsung",
+      "finished": "Selesai"
+    },
+    "participants": "Peserta",
+    "bracket": "Bracket",
+    "winner": "Pemenang",
+    "noTournaments": "Tidak ada turnamen tersedia",
+    "maxParticipants": "Maks Peserta",
+    "format": "Format",
+    "singleElimination": "Single Elimination"
+  },
+  "roadmap": {
+    "title": "Roadmap",
+    "subtitle": "Perjalanan kami membangun HOK Hub",
+    "phases": {
+      "completed": "Selesai",
+      "inProgress": "Sedang Dikerjakan",
+      "upcoming": "Akan Datang"
+    }
+  },
+  "about": {
+    "title": "Tentang HoK Hub",
+    "subtitle": "Pusat referensi Honor of Kings lengkap, dibuat oleh komunitas untuk komunitas",
+    "mission": "Misi",
+    "faq": "FAQ",
+    "features": "Fitur"
+  },
+  "vote": {
+    "title": "Vote Fitur",
+    "subtitle": "Vote fitur favoritmu. Suara terbanyak yang akan kami prioritaskan.",
+    "votingOpen": "Voting Terbuka",
+    "votes": "suara sejauh ini",
+    "allImplemented": "Semua fitur sudah dibuat!",
+    "comingSoon": "Segera Hadir"
+  },
+  "incident": {
+    "title": "Laporan Insiden",
+    "subtitle": "Insiden kehilangan data — 26 Februari 2026",
+    "whatHappened": "Yang Terjadi",
+    "impact": "Dampak",
+    "resolution": "Penyelesaian",
+    "apology": "Kami Minta Maaf"
+  },
+  "loading": {
+    "heroes": "Memuat hero...",
+    "patchNotes": "Memuat patch notes...",
+    "skins": "Memuat skin...",
+    "tierList": "Memuat tier list...",
+    "data": "Memuat data...",
+    "default": "Memuat..."
+  }
+}

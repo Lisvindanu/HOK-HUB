@@ -7,10 +7,12 @@ import { StatsSection } from '../components/dashboard/StatsSection';
 import { PasswordSection } from '../components/dashboard/PasswordSection';
 import { ContributionsSection } from '../components/dashboard/ContributionsSection';
 import { TierListsSection } from '../components/dashboard/TierListsSection';
+import { useTranslation } from 'react-i18next';
 
 type ActiveSection = 'profile' | 'password' | 'contributions' | 'tierlists';
 
 export function DashboardPage() {
+  const { t } = useTranslation();
   const { data: user, isLoading } = useUser();
   const [activeSection, setActiveSection] = useState<ActiveSection>('profile');
 
@@ -29,10 +31,10 @@ export function DashboardPage() {
   }
 
   const menuItems = [
-    { id: 'profile' as const, label: 'Profile', icon: User },
-    { id: 'password' as const, label: 'Change Password', icon: Lock },
-    { id: 'contributions' as const, label: 'My Contributions', icon: FileText },
-    { id: 'tierlists' as const, label: 'My Tier Lists', icon: List },
+    { id: 'profile' as const, label: t('dashboard.profile'), icon: User },
+    { id: 'password' as const, label: t('dashboard.changePassword'), icon: Lock },
+    { id: 'contributions' as const, label: t('dashboard.myContributions'), icon: FileText },
+    { id: 'tierlists' as const, label: t('dashboard.myTierLists'), icon: List },
   ];
 
   return (
@@ -45,7 +47,7 @@ export function DashboardPage() {
             <span className="text-lg md:text-2xl font-bold">{user.name.charAt(0).toUpperCase()}</span>
           </div>
           <div>
-            <h1 className="text-2xl md:text-3xl font-display font-bold mb-0.5 md:mb-1">Dashboard</h1>
+            <h1 className="text-2xl md:text-3xl font-display font-bold mb-0.5 md:mb-1">{t('dashboard.title')}</h1>
             <p className="text-sm md:text-base text-gray-400">Welcome back, {user.name}!</p>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { CheckCircle2, Loader2, Users, Sparkles } from 'lucide-react';
 
 const API_BASE = import.meta.env.DEV ? '' : 'https://hokapi.project-n.site';
@@ -29,6 +30,7 @@ interface VoteData {
 }
 
 export function VotePage() {
+  const { t } = useTranslation();
   const [data, setData] = useState<VoteData | null>(null);
   const [loading, setLoading] = useState(true);
   const [voterId] = useState(() => getOrCreateVoterId());
@@ -65,13 +67,13 @@ export function VotePage() {
           >
             <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full mb-6">
               <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              <span className="text-sm text-white/80 font-medium">Voting Open</span>
+              <span className="text-sm text-white/80 font-medium">{t('vote.votingOpen')}</span>
             </div>
             <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">
-              Fitur apa yang kamu mau<br className="hidden md:block" /> kami buat selanjutnya?
+              {t('vote.title')}
             </h1>
             <p className="text-gray-400 max-w-xl mx-auto text-base">
-              Vote fitur favoritmu. Suara terbanyak yang akan kami prioritaskan di update berikutnya.
+              {t('vote.subtitle')}
             </p>
             {data && (
               <div className="mt-5 inline-flex items-center gap-2 text-sm text-gray-500">
@@ -149,9 +151,9 @@ export function VotePage() {
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-violet-600 flex items-center justify-center mx-auto mb-5 shadow-lg">
                 <Sparkles className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">Semua fitur sudah diimplementasi!</h3>
+              <h3 className="text-xl font-bold text-white mb-3">{t('vote.allImplemented')}</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
-                Semua usulan yang ada sudah berhasil kami wujudkan. Fitur baru untuk divoting akan segera hadir — pantau terus!
+                {t('vote.comingSoon')}
               </p>
             </motion.div>
           ) : (

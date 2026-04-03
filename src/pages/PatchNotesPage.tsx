@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { fetchAdjustments, fetchHeroById, type HeroAdjustment } from '../api/heroes';
 import { Loading } from '../components/ui/Loading';
+import { useTranslation } from 'react-i18next';
 import {
   TrendingUp,
   TrendingDown,
@@ -23,6 +24,7 @@ const FIRST_AVAILABLE_SEASON = 6;
 
 
 export function PatchNotesPage() {
+  const { t } = useTranslation();
   useEffect(() => {
     document.title = 'Patch Notes - Honor of Kings | HoK Hub';
     const desc = document.querySelector('meta[name="description"]');
@@ -66,7 +68,7 @@ export function PatchNotesPage() {
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 md:px-6 lg:px-8 pt-20 md:pt-28 pb-12">
-        <Loading message="Loading patch notes..." />
+        <Loading message={t('patchNotes.loading')} />
       </div>
     );
   }
@@ -76,7 +78,7 @@ export function PatchNotesPage() {
       <div className="min-h-screen bg-dark-400">
         <div className="container mx-auto px-4 md:px-6 lg:px-8 pt-20 md:pt-28 pb-12">
           <div className="text-center text-red-400">
-            Failed to load patch notes. Please try again later.
+            {t('patchNotes.error')}
           </div>
         </div>
       </div>
@@ -120,10 +122,10 @@ export function PatchNotesPage() {
             )}
           </div>
           <h1 className="text-3xl md:text-5xl font-display font-bold mb-2 md:mb-4">
-            Patch Notes
+            {t('patchNotes.title')}
           </h1>
           <p className="text-gray-400 text-sm md:text-lg mb-4">
-            Hero balance changes by season
+            {t('patchNotes.subtitle')}
           </p>
 
           {/* Season Selector */}
@@ -170,7 +172,7 @@ export function PatchNotesPage() {
               </div>
               <div>
                 <p className="text-2xl font-bold">{data.adjustments.length}</p>
-                <p className="text-sm text-gray-400">Total Changes</p>
+                <p className="text-sm text-gray-400">{t('patchNotes.totalChanges')}</p>
               </div>
             </div>
           </div>
@@ -181,7 +183,7 @@ export function PatchNotesPage() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-green-400">{buffCount}</p>
-                <p className="text-sm text-gray-400">Buffs</p>
+                <p className="text-sm text-gray-400">{t('patchNotes.buffs')}</p>
               </div>
             </div>
           </div>
@@ -192,7 +194,7 @@ export function PatchNotesPage() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-red-400">{nerfCount}</p>
-                <p className="text-sm text-gray-400">Nerfs</p>
+                <p className="text-sm text-gray-400">{t('patchNotes.nerfs')}</p>
               </div>
             </div>
           </div>
@@ -203,7 +205,7 @@ export function PatchNotesPage() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-blue-400">{changeCount}</p>
-                <p className="text-sm text-gray-400">Adjustments</p>
+                <p className="text-sm text-gray-400">{t('patchNotes.adjustments')}</p>
               </div>
             </div>
           </div>
@@ -214,17 +216,17 @@ export function PatchNotesPage() {
           <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-3 text-center">
             <TrendingUp className="w-5 h-5 text-green-400 mx-auto mb-1" />
             <p className="text-lg font-bold text-green-400">{buffCount}</p>
-            <p className="text-xs text-gray-400">Buffs</p>
+            <p className="text-xs text-gray-400">{t('patchNotes.buffs')}</p>
           </div>
           <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-center">
             <TrendingDown className="w-5 h-5 text-red-400 mx-auto mb-1" />
             <p className="text-lg font-bold text-red-400">{nerfCount}</p>
-            <p className="text-xs text-gray-400">Nerfs</p>
+            <p className="text-xs text-gray-400">{t('patchNotes.nerfs')}</p>
           </div>
           <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 text-center">
             <Minus className="w-5 h-5 text-blue-400 mx-auto mb-1" />
             <p className="text-lg font-bold text-blue-400">{changeCount}</p>
-            <p className="text-xs text-gray-400">Changes</p>
+            <p className="text-xs text-gray-400">{t('patchNotes.changes')}</p>
           </div>
         </div>
 
@@ -235,7 +237,7 @@ export function PatchNotesPage() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
             <input
               type="text"
-              placeholder="Search hero..."
+              placeholder={t('patchNotes.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-12 pr-4 py-3 bg-dark-200 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary-500/50 transition-colors"
@@ -248,14 +250,14 @@ export function PatchNotesPage() {
               active={filterType === 'all'}
               onClick={() => setFilterType('all')}
               icon={<Filter className="w-4 h-4" />}
-              label="All"
+              label={t('patchNotes.all')}
               count={data.adjustments.length}
             />
             <FilterButton
               active={filterType === 'buffs'}
               onClick={() => setFilterType('buffs')}
               icon={<TrendingUp className="w-4 h-4" />}
-              label="Buffs"
+              label={t('patchNotes.buffs')}
               count={buffCount}
               colorClass="text-green-400"
             />
@@ -263,7 +265,7 @@ export function PatchNotesPage() {
               active={filterType === 'nerfs'}
               onClick={() => setFilterType('nerfs')}
               icon={<TrendingDown className="w-4 h-4" />}
-              label="Nerfs"
+              label={t('patchNotes.nerfs')}
               count={nerfCount}
               colorClass="text-red-400"
             />
@@ -271,7 +273,7 @@ export function PatchNotesPage() {
               active={filterType === 'changes'}
               onClick={() => setFilterType('changes')}
               icon={<Minus className="w-4 h-4" />}
-              label="Changes"
+              label={t('patchNotes.changes')}
               count={changeCount}
               colorClass="text-blue-400"
             />
@@ -280,7 +282,7 @@ export function PatchNotesPage() {
 
         {/* Results count */}
         <p className="text-sm text-gray-500 mb-4">
-          Showing {filteredAdjustments.length} of {data.adjustments.length} heroes
+          {t('patchNotes.showingOf', { shown: filteredAdjustments.length, total: data.adjustments.length })}
         </p>
 
         {/* Hero Cards Grid */}
@@ -288,7 +290,7 @@ export function PatchNotesPage() {
         {filteredAdjustments.length === 0 ? (
           <div className="text-center py-12">
             <Search className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-            <p className="text-gray-400">No heroes found matching your search.</p>
+            <p className="text-gray-400">{t('patchNotes.noHeroesFound')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
@@ -447,6 +449,7 @@ interface HeroDetailModalProps {
 }
 
 function HeroDetailModal({ hero, onClose }: HeroDetailModalProps) {
+  const { t } = useTranslation();
   // Fetch hero data to build skill position labels
   const { data: heroData } = useQuery({
     queryKey: ['hero', hero.heroId],
@@ -568,17 +571,17 @@ function HeroDetailModal({ hero, onClose }: HeroDetailModalProps) {
             <div className="bg-dark-200 rounded-xl p-3 text-center">
               <Target className="w-5 h-5 text-gray-500 mx-auto mb-1" />
               <p className="text-lg font-bold text-white">{(hero.stats.winRate * 100).toFixed(1)}%</p>
-              <p className="text-xs text-gray-500">Win Rate</p>
+              <p className="text-xs text-gray-500">{t('patchNotes.winRate')}</p>
             </div>
             <div className="bg-dark-200 rounded-xl p-3 text-center">
               <Zap className="w-5 h-5 text-gray-500 mx-auto mb-1" />
               <p className="text-lg font-bold text-white">{(hero.stats.pickRate * 100).toFixed(1)}%</p>
-              <p className="text-xs text-gray-500">Pick Rate</p>
+              <p className="text-xs text-gray-500">{t('patchNotes.pickRate')}</p>
             </div>
             <div className="bg-dark-200 rounded-xl p-3 text-center">
               <Ban className="w-5 h-5 text-gray-500 mx-auto mb-1" />
               <p className="text-lg font-bold text-white">{(hero.stats.banRate * 100).toFixed(1)}%</p>
-              <p className="text-xs text-gray-500">Ban Rate</p>
+              <p className="text-xs text-gray-500">{t('patchNotes.banRate')}</p>
             </div>
           </div>
 
@@ -586,7 +589,7 @@ function HeroDetailModal({ hero, onClose }: HeroDetailModalProps) {
           {hero.skillChanges.length > 0 && (
             <div>
               <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
-                Skill Changes
+                {t('patchNotes.skillChanges')}
               </h3>
               <div className="space-y-4">
                 {hero.skillChanges.map((skill, idx) => {
@@ -642,7 +645,7 @@ function HeroDetailModal({ hero, onClose }: HeroDetailModalProps) {
 
           {hero.skillChanges.length === 0 && (
             <div className="text-center py-8 text-gray-500">
-              <p>No detailed skill changes available</p>
+              <p>{t('patchNotes.noSkillChanges')}</p>
             </div>
           )}
         </div>

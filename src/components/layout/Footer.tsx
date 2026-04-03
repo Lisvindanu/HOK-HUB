@@ -2,24 +2,26 @@ import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { Github, ExternalLink, Mail, MessageSquarePlus } from 'lucide-react';
 import { FeedbackModal } from './FeedbackModal';
+import { useTranslation } from 'react-i18next';
 
 export function Footer() {
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
   const [showFeedback, setShowFeedback] = useState(false);
 
   const quickLinks = [
-    { name: 'Heroes', path: '/heroes' },
-    { name: 'Tier List', path: '/tier-list' },
-    { name: 'Patch Notes', path: '/patch-notes' },
-    { name: 'Counters', path: '/counters' },
+    { name: t('footer.links.heroes'), path: '/heroes' },
+    { name: t('footer.links.tierList'), path: '/tier-list' },
+    { name: t('footer.links.patchNotes'), path: '/patch-notes' },
+    { name: t('footer.links.counters'), path: '/counters' },
   ];
 
   const resources = [
-    { name: 'About', path: '/about' },
-    { name: 'Contribute', path: '/contribute' },
-    { name: 'Contributors', path: '/contributors' },
-    { name: 'API Documentation', href: 'https://hokapi.project-n.site/', external: true },
-    { name: 'Top Up Games', href: 'https://magertopup.com', external: true },
+    { name: t('footer.links.about'), path: '/about' },
+    { name: t('footer.links.contribute'), path: '/contribute' },
+    { name: t('footer.links.contributors'), path: '/contributors' },
+    { name: t('footer.links.apiDocs'), href: 'https://hokapi.project-n.site/', external: true },
+    { name: t('footer.links.topUp'), href: 'https://magertopup.com', external: true },
   ];
 
   const community = [
@@ -46,8 +48,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-sm text-gray-400 leading-relaxed mb-4">
-              Your ultimate Honor of Kings companion. Explore hero guides, tier lists,
-              patch notes, and community tools.
+              {t('footer.tagline')}
             </p>
             <div className="flex items-center space-x-3">
               {community.map((item) => (
@@ -68,7 +69,7 @@ export function Footer() {
           {/* Quick Links */}
           <div>
             <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
-              Quick Links
+              {t('footer.quickLinks')}
             </h3>
             <ul className="space-y-3">
               {quickLinks.map((link) => (
@@ -87,7 +88,7 @@ export function Footer() {
           {/* Resources */}
           <div>
             <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
-              Resources
+              {t('footer.resources')}
             </h3>
             <ul className="space-y-3">
               {resources.map((link) => (
@@ -118,7 +119,7 @@ export function Footer() {
           {/* Contact & Support */}
           <div>
             <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
-              Support
+              {t('footer.support')}
             </h3>
             <ul className="space-y-3">
               <li>
@@ -136,7 +137,7 @@ export function Footer() {
                   className="text-sm text-gray-400 hover:text-primary-400 transition-colors inline-flex items-center gap-2"
                 >
                   <MessageSquarePlus className="w-4 h-4" />
-                  Kritik & Saran
+                  {t('footer.feedbackBtn')}
                 </button>
               </li>
             </ul>
@@ -147,13 +148,13 @@ export function Footer() {
         <div className="py-6 border-t border-white/5">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-xs text-gray-400 text-center md:text-left">
-              © {currentYear} HoK Hub. All rights reserved.
+              {t('footer.copyright', { year: currentYear })}
               <span className="hidden sm:inline"> • </span>
               <br className="sm:hidden" />
-              This site is not affiliated with or endorsed by Tencent Games or Level Infinite.
+              {t('footer.disclaimer')}
             </p>
             <p className="text-xs text-gray-400">
-              Honor of Kings™ is a trademark of Tencent Games.
+              {t('footer.trademark')}
             </p>
           </div>
         </div>

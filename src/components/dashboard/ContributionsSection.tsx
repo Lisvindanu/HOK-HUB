@@ -1,5 +1,6 @@
 import { FileText, CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react';
 import { useUserContributions, type Contribution } from '../../hooks/useContributions';
+import { useTranslation } from 'react-i18next';
 
 const STATUS_CONFIG = {
   pending: {
@@ -93,6 +94,7 @@ function ContributionCard({ contribution }: { contribution: Contribution }) {
 }
 
 export function ContributionsSection() {
+  const { t } = useTranslation();
   const { data: contributions, isLoading, error } = useUserContributions();
 
   if (isLoading) {
@@ -125,8 +127,8 @@ export function ContributionsSection() {
           <FileText className="w-6 h-6 text-blue-400" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold">My Contributions</h2>
-          <p className="text-gray-400 text-sm">Track your submitted heroes, skins, and series</p>
+          <h2 className="text-2xl font-bold">{t('dashboard.myContributions')}</h2>
+          <p className="text-gray-400 text-sm">{t('dashboard.myContributions')}</p>
         </div>
       </div>
 
@@ -134,19 +136,19 @@ export function ContributionsSection() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         <div className="p-3 bg-dark-50 rounded-lg text-center">
           <p className="text-2xl font-bold">{stats.total}</p>
-          <p className="text-xs text-gray-400">Total</p>
+          <p className="text-xs text-gray-400">{t('dashboard.totalContributions')}</p>
         </div>
         <div className="p-3 bg-yellow-500/10 rounded-lg text-center">
           <p className="text-2xl font-bold text-yellow-400">{stats.pending}</p>
-          <p className="text-xs text-gray-400">Pending</p>
+          <p className="text-xs text-gray-400">{t('dashboard.pending')}</p>
         </div>
         <div className="p-3 bg-green-500/10 rounded-lg text-center">
           <p className="text-2xl font-bold text-green-400">{stats.approved}</p>
-          <p className="text-xs text-gray-400">Approved</p>
+          <p className="text-xs text-gray-400">{t('dashboard.approved')}</p>
         </div>
         <div className="p-3 bg-red-500/10 rounded-lg text-center">
           <p className="text-2xl font-bold text-red-400">{stats.rejected}</p>
-          <p className="text-xs text-gray-400">Rejected</p>
+          <p className="text-xs text-gray-400">{t('dashboard.rejected')}</p>
         </div>
       </div>
 
@@ -154,8 +156,8 @@ export function ContributionsSection() {
       {!contributions || contributions.length === 0 ? (
         <div className="text-center py-12 bg-dark-50 rounded-lg">
           <FileText className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-          <p className="text-gray-400 mb-2">No contributions yet</p>
-          <p className="text-sm text-gray-500">Start contributing heroes, skins, or series to see them here!</p>
+          <p className="text-gray-400 mb-2">{t('dashboard.noContributions')}</p>
+          <p className="text-sm text-gray-500">{t('contribute.subtitle')}</p>
         </div>
       ) : (
         <div className="space-y-3">

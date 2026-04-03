@@ -1,6 +1,7 @@
 import { useMemo, useEffect } from 'react';
 import { useHeroes } from '../hooks/useHeroes';
 import { Loading } from '../components/ui/Loading';
+import { useTranslation } from 'react-i18next';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { TrendingUp, Users, Target, Ban, Award, BarChart3 } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
@@ -25,6 +26,7 @@ const TIER_COLORS: Record<string, string> = {
 };
 
 export function AnalyticsPage() {
+  const { t } = useTranslation();
   useEffect(() => {
     document.title = 'Hero Analytics - Win Rate & Pick Rate | HoK Hub';
     const desc = document.querySelector('meta[name="description"]');
@@ -154,7 +156,7 @@ export function AnalyticsPage() {
     return (
       <div className="min-h-screen bg-dark-400 pt-20 md:pt-28 pb-12">
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
-          <Loading message="Loading analytics..." />
+          <Loading message={t('loading.data')} />
         </div>
       </div>
     );
@@ -176,10 +178,10 @@ export function AnalyticsPage() {
               </div>
               <div>
                 <h1 className="text-2xl md:text-4xl font-display font-bold text-white">
-                  Analytics
+                  {t('analytics.title')}
                 </h1>
                 <p className="text-gray-400 text-xs md:text-sm">
-                  Comprehensive statistics across all heroes
+                  {t('analytics.subtitle')}
                 </p>
               </div>
             </div>
@@ -192,10 +194,10 @@ export function AnalyticsPage() {
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
             {[
-              { label: 'Total Heroes', value: overallStats.totalHeroes, icon: Users, color: 'blue' },
-              { label: 'Avg Win Rate', value: `${overallStats.avgWinRate}%`, icon: Award, color: 'green' },
-              { label: 'Avg Pick Rate', value: `${overallStats.avgPickRate}%`, icon: Target, color: 'yellow' },
-              { label: 'Avg Ban Rate', value: `${overallStats.avgBanRate}%`, icon: Ban, color: 'red' },
+              { label: t('common.heroes'), value: overallStats.totalHeroes, icon: Users, color: 'blue' },
+              { label: `Avg ${t('analytics.winRate')}`, value: `${overallStats.avgWinRate}%`, icon: Award, color: 'green' },
+              { label: `Avg ${t('analytics.pickRate')}`, value: `${overallStats.avgPickRate}%`, icon: Target, color: 'yellow' },
+              { label: `Avg ${t('analytics.banRate')}`, value: `${overallStats.avgBanRate}%`, icon: Ban, color: 'red' },
             ].map((stat, index) => (
               <motion.div
                 key={stat.label}
@@ -236,7 +238,7 @@ export function AnalyticsPage() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="bg-dark-300/50 border border-white/5 rounded-2xl p-6"
             >
-              <h3 className="text-lg font-semibold text-white mb-4">Hero Distribution by Role</h3>
+              <h3 className="text-lg font-semibold text-white mb-4">{t('common.heroes')} Distribution by {t('common.role')}</h3>
               <ResponsiveContainer width="100%" height={280}>
                 <PieChart>
                   <Pie
@@ -275,7 +277,7 @@ export function AnalyticsPage() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="bg-dark-300/50 border border-white/5 rounded-2xl p-6"
             >
-              <h3 className="text-lg font-semibold text-white mb-4">Hero Distribution by Tier</h3>
+              <h3 className="text-lg font-semibold text-white mb-4">{t('common.heroes')} Distribution by {t('common.tier')}</h3>
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={tierDistribution}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
@@ -311,7 +313,7 @@ export function AnalyticsPage() {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="bg-dark-300/50 border border-white/5 rounded-2xl p-6"
           >
-            <h3 className="text-lg font-semibold text-white mb-4">Average Statistics by Role</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">Average {t('common.stats')} by {t('common.role')}</h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={avgStatsByRole}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
@@ -348,6 +350,7 @@ export function AnalyticsPage() {
             Top Performers
           </motion.h2>
 
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Top Win Rate */}
             <motion.div
@@ -361,7 +364,7 @@ export function AnalyticsPage() {
                   <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
                     <Award className="w-4 h-4 text-green-400" />
                   </div>
-                  <h3 className="font-semibold text-white">Top Win Rate</h3>
+                  <h3 className="font-semibold text-white">Top {t('analytics.winRate')}</h3>
                 </div>
               </div>
               <div className="p-4 space-y-2">
@@ -397,7 +400,7 @@ export function AnalyticsPage() {
                   <div className="w-8 h-8 bg-yellow-500/20 rounded-lg flex items-center justify-center">
                     <TrendingUp className="w-4 h-4 text-yellow-400" />
                   </div>
-                  <h3 className="font-semibold text-white">Most Picked</h3>
+                  <h3 className="font-semibold text-white">Most {t('analytics.pickRate')}</h3>
                 </div>
               </div>
               <div className="p-4 space-y-2">
@@ -433,7 +436,7 @@ export function AnalyticsPage() {
                   <div className="w-8 h-8 bg-red-500/20 rounded-lg flex items-center justify-center">
                     <Ban className="w-4 h-4 text-red-400" />
                   </div>
-                  <h3 className="font-semibold text-white">Most Banned</h3>
+                  <h3 className="font-semibold text-white">Most {t('analytics.banRate')}</h3>
                 </div>
               </div>
               <div className="p-4 space-y-2">

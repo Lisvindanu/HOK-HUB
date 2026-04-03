@@ -7,6 +7,7 @@ import {
   LogIn, GitBranch, Gift, CalendarDays,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const API_BASE = import.meta.env.DEV ? '' : 'https://hokapi.project-n.site';
 
@@ -66,22 +67,15 @@ async function createTournament(data: CreateForm, token: string) {
   return res.json();
 }
 
-const STATUS_LABEL = {
-  registration: {
-    label: 'Pendaftaran',
-    color: 'text-blue-400 bg-blue-500/15 border-blue-500/30',
-    icon: <Clock className="w-3 h-3" />,
-  },
-  ongoing: {
-    label: 'Berlangsung',
-    color: 'text-green-400 bg-green-500/15 border-green-500/30',
-    icon: <PlayCircle className="w-3 h-3" />,
-  },
-  completed: {
-    label: 'Selesai',
-    color: 'text-gray-400 bg-gray-500/15 border-gray-500/30',
-    icon: <CheckCircle className="w-3 h-3" />,
-  },
+const STATUS_COLOR = {
+  registration: 'text-blue-400 bg-blue-500/15 border-blue-500/30',
+  ongoing: 'text-green-400 bg-green-500/15 border-green-500/30',
+  completed: 'text-gray-400 bg-gray-500/15 border-gray-500/30',
+};
+const STATUS_ICON = {
+  registration: <Clock className="w-3 h-3" />,
+  ongoing: <PlayCircle className="w-3 h-3" />,
+  completed: <CheckCircle className="w-3 h-3" />,
 };
 
 function formatScheduled(iso: string): string {
@@ -110,9 +104,10 @@ const BLANK_FORM: CreateForm = {
 };
 
 export function TournamentPage() {
+  const { t } = useTranslation();
   useEffect(() => {
     document.title = 'Turnamen - HOK Hub';
-    return () => { document.title = 'HOK Hub - Mobile Legends: Bang Bang Community Hub'; };
+    return () => { document.title = 'HOK Hub - Honor of Kings Community Hub'; };
   }, []);
 
   const { token, isAuthenticated } = useAuth();
@@ -154,23 +149,23 @@ export function TournamentPage() {
           <div>
             <h1 className="text-3xl font-display font-bold text-white flex items-center gap-3">
               <Trophy className="w-8 h-8 text-yellow-400" />
-              Turnamen Komunitas
+              {t('tournament.title')}
             </h1>
-            <p className="text-gray-400 mt-1">Buat & kelola bracket turnamen MLBB untuk tim kamu</p>
+            <p className="text-gray-400 mt-1">{t('tournament.subtitle')}</p>
           </div>
           {isAuthenticated ? (
             <button
               onClick={openCreate}
               className="flex items-center gap-2 px-4 py-2.5 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-medium transition-colors"
             >
-              <Plus className="w-4 h-4" /> Buat Turnamen
+              <Plus className="w-4 h-4" /> {t('tournament.create')}
             </button>
           ) : (
             <Link
               to="/auth"
               className="flex items-center gap-2 px-4 py-2.5 bg-dark-300 hover:bg-dark-200 text-gray-300 rounded-xl font-medium border border-white/10 transition-colors text-sm"
             >
-              <LogIn className="w-4 h-4" /> Login untuk membuat
+              <LogIn className="w-4 h-4" /> {t('nav.loginRegister')}
             </Link>
           )}
         </div>
@@ -181,13 +176,13 @@ export function TournamentPage() {
             initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
             className="mb-6 p-4 rounded-2xl bg-green-500/10 border border-green-500/30 flex items-center justify-between"
           >
-            <p className="text-green-300 font-medium text-sm">Turnamen berhasil dibuat!</p>
+            <p className="text-green-300 font-medium text-sm">{t('tournament.create')} ✓</p>
             <div className="flex items-center gap-3">
               <Link
                 to="/tournament/$id" params={{ id: String(createdId) }}
                 className="text-sm text-primary-400 hover:text-primary-300 underline"
               >
-                Buka bracket →
+                {t('tournament.bracket')} →
               </Link>
               <button onClick={() => setCreatedId(null)}>
                 <X className="w-4 h-4 text-gray-500 hover:text-white" />
@@ -206,22 +201,27 @@ export function TournamentPage() {
         ) : tournaments.length === 0 ? (
           <div className="text-center py-20 text-gray-500">
             <Trophy className="w-12 h-12 mx-auto mb-3 opacity-20" />
-            <p>Belum ada turnamen. Jadilah yang pertama buat!</p>
+            <p>{t('tournament.noTournaments')}</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {tournaments.map((t, i) => {
-              const s = STATUS_LABEL[t.status];
+            {tournaments.map((tour, i) => {
+              const statusKey = tour.status as keyof typeof STATUS_COLOR;
+              const statusLabel = tour.status === 'registration' ? t('tournament.status.open')
+                : tour.status === 'ongoing' ? t('tournament.status.ongoing')
+                : t('tournament.status.finished');
+              const statusColor = STATUS_COLOR[statusKey] ?? STATUS_COLOR.completed;
+              const statusIcon = STATUS_ICON[statusKey] ?? STATUS_ICON.completed;
               return (
                 <motion.div
-                  key={t.id}
+                  key={tour.id}
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.04 }}
                 >
                   <Link
                     to="/tournament/$id"
-                    params={{ id: String(t.id) }}
+                    params={{ id: String(tour.id) }}
                     className="flex items-center gap-4 p-4 rounded-2xl border border-white/8 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/15 transition-all group"
                   >
                     <div className="w-12 h-12 rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center flex-shrink-0">
@@ -230,47 +230,47 @@ export function TournamentPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-semibold text-white group-hover:text-primary-300 transition-colors truncate">
-                          {t.name}
+                          {tour.name}
                         </h3>
-                        <span className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border ${s.color}`}>
-                          {s.icon} {s.label}
+                        <span className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border ${statusColor}`}>
+                          {statusIcon} {statusLabel}
                         </span>
-                        {t.bracket_type === 'double' && (
+                        {tour.bracket_type === 'double' && (
                           <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border text-purple-400 bg-purple-500/15 border-purple-500/30">
                             <GitBranch className="w-2.5 h-2.5" /> DE
                           </span>
                         )}
-                        {t.bo_format && (
+                        {tour.bo_format && (
                           <span className="text-xs px-2 py-0.5 rounded-full border text-cyan-400 bg-cyan-500/10 border-cyan-500/25">
-                            {t.bo_format}
+                            {tour.bo_format}
                           </span>
                         )}
                       </div>
 
-                      {t.description && (
-                        <p className="text-xs text-gray-500 mt-0.5 truncate">{t.description}</p>
+                      {tour.description && (
+                        <p className="text-xs text-gray-500 mt-0.5 truncate">{tour.description}</p>
                       )}
 
                       <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-500 flex-wrap">
                         <span className="flex items-center gap-1">
-                          <Users className="w-3 h-3" /> {t.joined_teams}/{t.team_count} tim
+                          <Users className="w-3 h-3" /> {tour.joined_teams}/{tour.team_count} tim
                         </span>
-                        <span>oleh {t.created_by_name}</span>
-                        {t.scheduled_at && (
+                        <span>{t('common.by')} {tour.created_by_name}</span>
+                        {tour.scheduled_at && (
                           <span className="flex items-center gap-1 text-blue-400/70">
                             <CalendarDays className="w-3 h-3" />
-                            {formatScheduled(t.scheduled_at)}
+                            {formatScheduled(tour.scheduled_at)}
                           </span>
                         )}
-                        {t.prize && (
+                        {tour.prize && (
                           <span className="flex items-center gap-1 text-yellow-400/80">
-                            <Gift className="w-3 h-3" /> {t.prize}
+                            <Gift className="w-3 h-3" /> {tour.prize}
                           </span>
                         )}
                       </div>
                     </div>
                     <div className="text-gray-600 text-xs text-right shrink-0">
-                      {new Date(t.created_at).toLocaleDateString('id-ID')}
+                      {new Date(tour.created_at).toLocaleDateString('id-ID')}
                     </div>
                   </Link>
                 </motion.div>
@@ -297,7 +297,7 @@ export function TournamentPage() {
             <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-white/8 shrink-0">
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
                 <Trophy className="w-5 h-5 text-yellow-400" />
-                Buat Turnamen Baru
+                {t('tournament.create')}
               </h2>
               <button
                 onClick={() => setShowCreate(false)}
@@ -320,7 +320,7 @@ export function TournamentPage() {
                     <label className="text-xs text-gray-400 mb-1.5 block">Nama Turnamen *</label>
                     <input
                       className="w-full bg-dark-400 border border-white/10 rounded-xl px-3 py-2.5 text-white placeholder-gray-600 text-sm focus:outline-none focus:border-primary-500/50 transition-colors"
-                      placeholder="Contoh: MLBB Cup Season 1"
+                      placeholder="Contoh: HOK Cup Season 1"
                       value={form.name}
                       onChange={e => setField('name', e.target.value)}
                     />
@@ -424,7 +424,7 @@ export function TournamentPage() {
                     </label>
                     <input
                       className="w-full bg-dark-400 border border-white/10 rounded-xl px-3 py-2.5 text-white placeholder-gray-600 text-sm focus:outline-none focus:border-primary-500/50 transition-colors"
-                      placeholder="Contoh: Rp 500.000 + Diamonds"
+                      placeholder="Contoh: Rp 500.000 + Token"
                       value={form.prize}
                       onChange={e => setField('prize', e.target.value)}
                     />
@@ -490,14 +490,14 @@ export function TournamentPage() {
                   onClick={() => setShowCreate(false)}
                   className="flex-1 py-2.5 bg-dark-400 text-gray-400 rounded-xl text-sm hover:text-white transition-colors border border-white/8"
                 >
-                  Batal
+                  {t('common.cancel')}
                 </button>
                 <button
                   onClick={() => mutation.mutate(form)}
                   disabled={!form.name.trim() || mutation.isPending}
                   className="flex-1 py-2.5 bg-primary-500 hover:bg-primary-600 disabled:opacity-50 text-white rounded-xl text-sm font-medium transition-colors"
                 >
-                  {mutation.isPending ? 'Membuat...' : 'Buat Turnamen'}
+                  {mutation.isPending ? t('loading.default') : t('tournament.create')}
                 </button>
               </div>
             </div>

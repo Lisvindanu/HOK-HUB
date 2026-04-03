@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Lock, Loader2, Check, Eye, EyeOff } from 'lucide-react';
 import { useChangePassword } from '../../hooks/useUser';
+import { useTranslation } from 'react-i18next';
 
 export function PasswordSection() {
+  const { t } = useTranslation();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -63,22 +65,22 @@ export function PasswordSection() {
           <Lock className="w-6 h-6 text-primary-400" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold">Change Password</h2>
-          <p className="text-gray-400 text-sm">Update your password to keep your account secure</p>
+          <h2 className="text-2xl font-bold">{t('dashboard.changePassword')}</h2>
+          <p className="text-gray-400 text-sm">{t('dashboard.changePassword')}</p>
         </div>
       </div>
 
       {success && (
         <div className="mb-4 p-4 bg-green-500/10 border border-green-500/20 rounded-lg flex items-center gap-3">
           <Check className="w-5 h-5 text-green-400" />
-          <p className="text-green-400">Password changed successfully!</p>
+          <p className="text-green-400">{t('common.saved')}</p>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label className="block text-sm font-semibold text-gray-300 mb-2">
-            Current Password
+            {t('dashboard.currentPassword')}
           </label>
           <div className="relative">
             <input
@@ -101,7 +103,7 @@ export function PasswordSection() {
 
         <div>
           <label className="block text-sm font-semibold text-gray-300 mb-2">
-            New Password
+            {t('dashboard.newPassword')}
           </label>
           <div className="relative">
             <input
@@ -125,7 +127,7 @@ export function PasswordSection() {
 
         <div>
           <label className="block text-sm font-semibold text-gray-300 mb-2">
-            Confirm New Password
+            {t('dashboard.confirmPassword')}
           </label>
           <div className="relative">
             <input
@@ -160,12 +162,12 @@ export function PasswordSection() {
           {changePassword.isPending ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
-              Changing Password...
+              {t('loading.default')}
             </>
           ) : (
             <>
               <Lock className="w-5 h-5" />
-              Change Password
+              {t('dashboard.updatePassword')}
             </>
           )}
         </button>

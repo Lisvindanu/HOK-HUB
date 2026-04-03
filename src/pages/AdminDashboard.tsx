@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { CheckCircle, XCircle, Eye, Clock, AlertCircle, LogIn, History, Filter, Users, User, Calendar, Square, CheckSquare, Loader2, MessageSquare, Newspaper, Trash2, X, ImageIcon } from 'lucide-react';
 import { fetchFeedbacks, markFeedbackRead, type FeedbackItem, type FeedbackCategory } from '../api/tierLists';
+import { useTranslation } from 'react-i18next';
 
 interface Contribution {
   id: string;
@@ -34,6 +35,7 @@ interface Contributor {
 type TypeFilter = 'all' | 'skin' | 'hero' | 'series' | 'counter';
 
 export function AdminDashboard() {
+  const { t } = useTranslation();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [token, setToken] = useState<string | null>(localStorage.getItem('adminToken'));
@@ -366,8 +368,8 @@ export function AdminDashboard() {
             <div className="flex items-center justify-center mb-6">
               <LogIn className="w-12 h-12 text-primary-400" />
             </div>
-            <h1 className="text-3xl font-display font-bold mb-2 text-center">Admin Login</h1>
-            <p className="text-gray-400 text-center mb-6">Enter password to access admin dashboard</p>
+            <h1 className="text-3xl font-display font-bold mb-2 text-center">{t('admin.title')}</h1>
+            <p className="text-gray-400 text-center mb-6">{t('admin.enterPassword')}</p>
 
             <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }} className="space-y-4">
               <input
@@ -375,7 +377,7 @@ export function AdminDashboard() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 bg-dark-50 border border-white/10 rounded-lg focus:outline-none focus:border-primary-500 text-white"
-                placeholder="Enter admin password"
+                placeholder={t('admin.passwordPlaceholder')}
                 autoFocus
               />
 
@@ -411,8 +413,8 @@ export function AdminDashboard() {
       {/* Header */}
       <div className="mb-8 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div>
-          <h1 className="text-4xl md:text-5xl font-display font-bold mb-2">Admin Dashboard</h1>
-          <p className="text-gray-400">Review and manage community contributions</p>
+          <h1 className="text-4xl md:text-5xl font-display font-bold mb-2">{t('admin.title')}</h1>
+          <p className="text-gray-400">{t('admin.pendingContributions')}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <button

@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import {
   Search, X, RotateCcw, ChevronLeft, Flame, Droplets, Leaf,
   Plus, Minus, Check, Swords, Shield, Wind, TreePine, Compass,
@@ -184,6 +185,7 @@ function HexIcon({
 // ─── Main Component ────────────────────────────────────────────────────────────
 
 export function PlaygroundPage() {
+  const { t } = useTranslation();
   useEffect(() => {
     document.title = 'Build Playground - Honor of Kings | HoK Hub';
     const desc = document.querySelector('meta[name="description"]');
@@ -446,7 +448,7 @@ export function PlaygroundPage() {
         <div className="container mx-auto px-4 md:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
-              <h1 className="text-2xl font-display font-bold text-white">Hero Build Playground</h1>
+              <h1 className="text-2xl font-display font-bold text-white">{t('playground.title')}</h1>
               <p className="text-gray-400 text-sm mt-0.5">Pilih hero, atur item & arcana, lihat stats real-time</p>
             </div>
             {selectedHero && (

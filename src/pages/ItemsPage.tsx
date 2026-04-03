@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { Search, Filter, Coins, Swords, Sparkles, Shield, Footprints, Trees, Users, List, GitBranch, ArrowRight } from 'lucide-react';
 import { useItems } from '../hooks/useItems';
 import { Loading } from '../components/ui/Loading';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import type { Item } from '../types/hero';
 
@@ -25,6 +26,7 @@ const ITEM_LEVELS = [
 ];
 
 export function ItemsPage() {
+  const { t } = useTranslation();
   useEffect(() => {
     document.title = 'Items Guide - Honor of Kings | HoK Hub';
     const desc = document.querySelector('meta[name="description"]');
@@ -78,8 +80,8 @@ export function ItemsPage() {
         {/* Header */}
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-display font-bold text-white mb-1">Equipment</h1>
-            <p className="text-gray-400 text-sm">Browse all {items?.length || 0} items in Honor of Kings</p>
+            <h1 className="text-3xl font-display font-bold text-white mb-1">{t('heroDetail.equipment')}</h1>
+            <p className="text-gray-400 text-sm">{t('items.subtitle')} ({items?.length || 0})</p>
           </div>
 
           {/* View Toggle */}
@@ -116,7 +118,7 @@ export function ItemsPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
             <input
               type="text"
-              placeholder="Search items..."
+              placeholder={t('items.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-3 bg-dark-300 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary-500"

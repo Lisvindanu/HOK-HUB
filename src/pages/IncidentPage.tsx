@@ -1,7 +1,9 @@
 import { Link } from '@tanstack/react-router';
 import { AlertTriangle, CheckCircle, Heart, Home, List } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function IncidentPage() {
+  const { t } = useTranslation();
   return (
     <div style={{ background: '#0a0f1e', minHeight: '100vh' }} className="py-12 px-4">
       <div className="max-w-2xl mx-auto">
@@ -13,7 +15,7 @@ export function IncidentPage() {
           style={{ color: '#94a3b8' }}
         >
           <Home className="w-4 h-4" />
-          Kembali ke Halaman Utama
+          {t('common.back')}
         </Link>
 
         {/* Header */}
@@ -25,7 +27,7 @@ export function IncidentPage() {
             <AlertTriangle className="w-8 h-8" style={{ color: '#ef4444' }} />
           </div>
           <h1 className="text-3xl font-bold mb-2" style={{ color: '#ffffff' }}>
-            Kami Minta Maaf
+            {t('incident.apology')}
           </h1>
           <p style={{ color: '#94a3b8' }} className="text-base">
             Terjadi kesalahan pada tanggal <strong style={{ color: '#e2e8f0' }}>26 Februari 2026</strong> yang menyebabkan hilangnya data tier list komunitas.

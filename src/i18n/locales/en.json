@@ -1,0 +1,593 @@
+{
+  "nav": {
+    "heroes": "Heroes",
+    "tierList": "Tier List",
+    "patchNotes": "Patch Notes",
+    "skins": "Skins",
+    "tournament": "Tournament",
+    "community": "Community",
+    "more": "More",
+    "home": "Home",
+    "patch": "Patch",
+    "quickAccess": "Quick Access",
+    "groups": {
+      "gameTools": "Game Tools",
+      "content": "Content",
+      "community": "Community"
+    },
+    "items": {
+      "counterPicks": "Counter Picks",
+      "draftPick": "Draft Pick",
+      "buildPlayground": "Build Playground",
+      "itemSynergy": "Item Synergy",
+      "analytics": "Analytics",
+      "items": "Items",
+      "arcana": "Arcana",
+      "ost": "OST",
+      "contributors": "Contributors",
+      "contribute": "Contribute",
+      "roadmap": "Roadmap",
+      "topUp": "Top Up"
+    },
+    "signedInAs": "Signed in as",
+    "dashboard": "Dashboard",
+    "logout": "Logout",
+    "login": "Login",
+    "loginRegister": "Login / Register",
+    "joinCommunity": "Join the community",
+    "contributor": "Contributor",
+    "menu": "Menu"
+  },
+  "footer": {
+    "tagline": "Your ultimate Honor of Kings companion. Explore hero guides, tier lists, patch notes, and community tools.",
+    "quickLinks": "Quick Links",
+    "resources": "Resources",
+    "support": "Support",
+    "links": {
+      "heroes": "Heroes",
+      "tierList": "Tier List",
+      "patchNotes": "Patch Notes",
+      "counters": "Counters",
+      "about": "About",
+      "contribute": "Contribute",
+      "contributors": "Contributors",
+      "apiDocs": "API Documentation",
+      "topUp": "Top Up Games"
+    },
+    "feedbackBtn": "Feedback & Suggestions",
+    "copyright": "© {{year}} HoK Hub. All rights reserved.",
+    "disclaimer": "This site is not affiliated with or endorsed by Tencent Games or Level Infinite.",
+    "trademark": "Honor of Kings™ is a trademark of Tencent Games."
+  },
+  "common": {
+    "loading": "Loading...",
+    "search": "Search...",
+    "noResults": "No results found",
+    "clear": "Clear",
+    "clearFilters": "Clear filters",
+    "filters": "Filters",
+    "all": "All",
+    "explore": "Explore",
+    "getStarted": "Get Started",
+    "viewAll": "View All",
+    "learnMore": "Learn More",
+    "close": "Close",
+    "back": "Back",
+    "save": "Save",
+    "saved": "Saved!",
+    "by": "by",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "delete": "Delete",
+    "edit": "Edit",
+    "copy": "Copy",
+    "share": "Share",
+    "export": "Export",
+    "exportCsv": "Export CSV",
+    "showing": "Showing",
+    "of": "of",
+    "heroes": "heroes",
+    "role": "Role",
+    "lane": "Lane",
+    "tier": "Tier",
+    "winRate": "Win Rate",
+    "pickRate": "Pick Rate",
+    "banRate": "Ban Rate",
+    "skills": "Skills",
+    "passive": "Passive",
+    "ultimate": "Ultimate",
+    "cooldown": "Cooldown",
+    "cost": "Cost",
+    "stats": "Stats",
+    "scrollToExplore": "Scroll to explore",
+    "season": "Season",
+    "version": "Version"
+  },
+  "home": {
+    "badge": "Your Ultimate HoK Companion",
+    "headline1": "Master the",
+    "headline2": "Meta",
+    "subtitle": "Everything you need to dominate Honor of Kings. Hero stats, tier lists, counters, and more.",
+    "exploreHeroes": "Explore Heroes",
+    "viewTierList": "View Tier List",
+    "stats": {
+      "heroes": "Heroes",
+      "skins": "Skins",
+      "roles": "Roles",
+      "updated": "Updated"
+    },
+    "featuresTitle": "Everything you need",
+    "featuresSubtitle": "All the tools to dominate the Rift — hero guides, tier lists, drafts & more",
+    "features": {
+      "heroDatabase": {
+        "title": "Hero Database",
+        "desc": "111+ heroes with stats, skills, equipment & arcana recommendations"
+      },
+      "tierList": {
+        "title": "Tier List",
+        "desc": "Community-voted tier rankings with voting, comments & meta discussions"
+      },
+      "counterPicks": {
+        "title": "Counter Picks",
+        "desc": "Find the best counters, synergies & strong-against matchups for any hero"
+      },
+      "skinGallery": {
+        "title": "Skin Gallery",
+        "desc": "Browse 1000+ skins — exclusive, limited, series & collaboration filters"
+      },
+      "patchNotes": {
+        "title": "Patch Notes",
+        "desc": "Track every hero buff, nerf & adjustment across all patches"
+      },
+      "draftSimulator": {
+        "title": "Draft Simulator",
+        "desc": "Practice picks & bans before ranked matches with full draft mode"
+      },
+      "itemsArcana": {
+        "title": "Items & Arcana",
+        "desc": "Complete database of all items and arcana builds for every role"
+      },
+      "analytics": {
+        "title": "Analytics",
+        "desc": "Win rates, pick rates & meta trends to sharpen your strategy"
+      }
+    },
+    "ost": {
+      "badge": "Official Soundtrack",
+      "title": "Honor of Kings OST",
+      "desc": "Stream 34 official tracks — from global anthems by Joe Hisaishi to character themes, cinematic scores & collab soundtracks. All in one player.",
+      "categories": {
+        "global": "Global & Anniversary",
+        "cinematic": "Cinematic Scores",
+        "champion": "Champion Themes",
+        "events": "Events & Collabs"
+      },
+      "tracks": "{{count}} tracks",
+      "listenNow": "Listen Now"
+    },
+    "support": {
+      "title": "Support HOK Hub",
+      "desc": "HOK Hub is free for everyone. If you like it, treat us a cup of coffee!",
+      "btn": "Support Now"
+    },
+    "cta": {
+      "title": "Ready to climb the ranks?",
+      "subtitle": "Join our community and start improving your gameplay today.",
+      "getStarted": "Get Started",
+      "contribute": "Contribute to HoK Hub"
+    },
+    "incident": {
+      "title": "Important notice:",
+      "msg": "Community tier list data loss occurred on Feb 26, 2026.",
+      "readMore": "Read more →",
+      "dismiss": "Dismiss"
+    }
+  },
+  "heroes": {
+    "title": "Heroes",
+    "subtitle": "Explore all {{count}} heroes with stats, abilities, and tier rankings",
+    "searchPlaceholder": "Search heroes...",
+    "sortOptions": {
+      "nameAsc": "Name (A-Z)",
+      "nameDesc": "Name (Z-A)",
+      "winRateDesc": "Win Rate ↓",
+      "winRateAsc": "Win Rate ↑",
+      "pickRateDesc": "Pick Rate ↓",
+      "banRateDesc": "Ban Rate ↓",
+      "tierDesc": "Tier (Best)"
+    },
+    "showingCount": "Showing <1>{{count}}</1> heroes",
+    "noHeroesFound": "No heroes found",
+    "clearFilters": "Clear Filters",
+    "roles": {
+      "all": "All",
+      "tank": "Tank",
+      "fighter": "Fighter",
+      "assassin": "Assassin",
+      "mage": "Mage",
+      "marksman": "Marksman",
+      "support": "Support"
+    },
+    "lanes": {
+      "all": "All Lanes",
+      "clashLane": "Clash",
+      "jungling": "Jungle",
+      "midLane": "Mid",
+      "farmLane": "Farm",
+      "roaming": "Roam"
+    }
+  },
+  "heroDetail": {
+    "skills": "Skills",
+    "topBuilds": "Top Builds",
+    "arcana": "Arcana",
+    "equipment": "Equipment",
+    "heroGuide": "Hero Guide",
+    "skinGallery": "Skin Gallery",
+    "overview": "Overview",
+    "counters": "Counters",
+    "counteredBy": "Countered By",
+    "strongAgainst": "Strong Against",
+    "patchHistory": "Balance History",
+    "winRate": "Win Rate",
+    "pickRate": "Pick Rate",
+    "banRate": "Ban Rate",
+    "tier": "Tier",
+    "role": "Role",
+    "lane": "Lane",
+    "passive": "Passive",
+    "ultimate": "Ultimate",
+    "skillLabel": "Skill {{n}}",
+    "cooldown": "CD",
+    "cost": "Cost",
+    "noSkillsAvailable": "No skills available",
+    "noBuildsAvailable": "No build data available",
+    "noGuide": "No guide available for this hero yet",
+    "noSkins": "No skins available",
+    "season": "Season {{s}}",
+    "selectSkillSet": "Select skill set",
+    "weaponSkills": "{{weapon}} Skills"
+  },
+  "skins": {
+    "title": "Skin Gallery",
+    "subtitle": "Browse all {{count}} skins in Honor of Kings",
+    "searchPlaceholder": "Search skins...",
+    "allSeries": "All Series",
+    "series": "Series",
+    "noSkins": "No skins found",
+    "exclusive": "Exclusive",
+    "limited": "Limited",
+    "collab": "Collaboration"
+  },
+  "patchNotes": {
+    "title": "Patch Notes",
+    "subtitle": "Hero balance changes by season",
+    "searchPlaceholder": "Search hero...",
+    "loading": "Loading patch notes...",
+    "error": "Failed to load patch notes. Please try again later.",
+    "totalChanges": "Total Changes",
+    "buffs": "Buffs",
+    "nerfs": "Nerfs",
+    "adjustments": "Adjustments",
+    "changes": "Changes",
+    "all": "All",
+    "showingOf": "Showing {{shown}} of {{total}} heroes",
+    "noHeroesFound": "No heroes found matching your search.",
+    "skillChanges": "Skill Changes",
+    "noSkillChanges": "No detailed skill changes available",
+    "winRate": "Win Rate",
+    "pickRate": "Pick Rate",
+    "banRate": "Ban Rate"
+  },
+  "auth": {
+    "welcomeBack": "Welcome Back",
+    "joinHub": "Join HoK Hub",
+    "loginSubtitle": "Login to track your contributions and tier lists",
+    "registerSubtitle": "Create an account to start contributing",
+    "login": "Login",
+    "register": "Register",
+    "emailAddress": "Email Address",
+    "password": "Password",
+    "displayName": "Display Name",
+    "emailPlaceholder": "your@email.com",
+    "passwordPlaceholder": "Enter your password",
+    "namePlaceholder": "Your name",
+    "minPasswordHint": "Minimum 6 characters required",
+    "minPasswordPlaceholder": "At least 6 characters",
+    "loggingIn": "Logging in...",
+    "creatingAccount": "Creating account...",
+    "createAccount": "Create Account",
+    "orContinueWith": "or continue with",
+    "termsNotice": "By continuing, you agree to track your contributions and allow your name to appear on the leaderboard",
+    "errors": {
+      "enterEmail": "Please enter your email",
+      "enterPassword": "Please enter your password",
+      "enterName": "Please enter your name",
+      "passwordLength": "Password must be at least 6 characters",
+      "googleFailed": "Google login failed"
+    }
+  },
+  "tierList": {
+    "title": "Tier List",
+    "communityTitle": "Community Tier List",
+    "subtitle": "Community-voted hero tier rankings",
+    "voteNow": "Vote Now",
+    "createTierList": "Create Tier List",
+    "myTierLists": "My Tier Lists",
+    "publicTierLists": "Public Tier Lists",
+    "noTierLists": "No tier lists yet",
+    "dragHeroes": "Drag heroes to rank them",
+    "saveTierList": "Save Tier List",
+    "shareLink": "Share Link",
+    "copied": "Copied!",
+    "tiers": {
+      "s_plus": "S+",
+      "s": "S",
+      "a": "A",
+      "b": "B",
+      "c": "C",
+      "d": "D"
+    }
+  },
+  "counters": {
+    "title": "Counter Picks",
+    "subtitle": "Find the best counters for every hero",
+    "searchPlaceholder": "Search hero...",
+    "counteredBy": "Countered By",
+    "strongAgainst": "Strong Against",
+    "selectHero": "Select a hero to see counter picks",
+    "noCounters": "No counter data available"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "subtitle": "Hero win rates, pick rates & ban rates",
+    "winRate": "Win Rate",
+    "pickRate": "Pick Rate",
+    "banRate": "Ban Rate",
+    "tier": "Tier",
+    "allRoles": "All Roles",
+    "searchPlaceholder": "Search hero..."
+  },
+  "draft": {
+    "title": "Draft Pick",
+    "subtitle": "Simulate pick & ban phase",
+    "blueSide": "Blue Side",
+    "redSide": "Red Side",
+    "bans": "Bans",
+    "picks": "Picks",
+    "startDraft": "Start Draft",
+    "resetDraft": "Reset Draft",
+    "yourTurn": "Your Turn",
+    "banPhase": "Ban Phase",
+    "pickPhase": "Pick Phase",
+    "searchHero": "Search hero..."
+  },
+  "playground": {
+    "title": "Build Playground",
+    "subtitle": "Build your perfect loadout",
+    "selectHero": "Select Hero",
+    "items": "Items",
+    "arcana": "Arcana",
+    "stats": "Stats",
+    "saveShare": "Save & Share",
+    "loadBuild": "Load Build",
+    "clearBuild": "Clear Build",
+    "itemConflict": "Passive Conflict Warning",
+    "noItemSelected": "No item selected",
+    "searchItem": "Search item..."
+  },
+  "items": {
+    "title": "Items",
+    "subtitle": "Complete item database",
+    "searchPlaceholder": "Search items...",
+    "allTypes": "All Types",
+    "physical": "Physical",
+    "magical": "Magical",
+    "tank": "Tank",
+    "roaming": "Roaming",
+    "passive": "Passive",
+    "active": "Active",
+    "noItems": "No items found"
+  },
+  "itemSynergy": {
+    "title": "Item Synergy Guide",
+    "subtitle": "Check for passive conflicts between items",
+    "addItem": "Add Item",
+    "clearAll": "Clear All",
+    "noConflicts": "No conflicts detected",
+    "conflictWarning": "Passive Conflict Detected",
+    "uniquePassive": "Unique Passive"
+  },
+  "arcana": {
+    "title": "Arcana",
+    "subtitle": "Browse all arcana",
+    "searchPlaceholder": "Search arcana...",
+    "allTiers": "All Tiers",
+    "tier1": "Tier 1",
+    "tier2": "Tier 2",
+    "tier3": "Tier 3",
+    "noArcana": "No arcana found"
+  },
+  "ost": {
+    "title": "Honor of Kings OST",
+    "subtitle": "Official soundtrack collection",
+    "playAll": "Play All",
+    "nowPlaying": "Now Playing",
+    "tracks": "tracks",
+    "categories": {
+      "all": "All",
+      "global": "Global & Anniversary",
+      "cinematic": "Cinematic Scores",
+      "champion": "Champion Themes",
+      "events": "Events & Collabs"
+    }
+  },
+  "feedback": {
+    "title": "Feedback",
+    "subtitle": "Help us improve",
+    "name": "Name",
+    "optional": "optional",
+    "category": "Category",
+    "message": "Message",
+    "send": "Send Feedback",
+    "sending": "Sending...",
+    "thankYou": "Thank You!",
+    "thankYouMsg": "Your feedback has been received. We will keep improving HoK Hub.",
+    "categories": {
+      "bug": "Bug Report",
+      "feature": "New Feature",
+      "suggestion": "Suggestion",
+      "criticism": "Criticism",
+      "compliment": "Compliment",
+      "other": "Other"
+    }
+  },
+  "community": {
+    "title": "Community",
+    "subtitle": "Posts and discussions",
+    "newPost": "New Post",
+    "reply": "Reply",
+    "replies": "replies",
+    "like": "Like",
+    "devUpdates": "Dev Updates",
+    "communityPosts": "Community Posts",
+    "noPostsYet": "No posts yet. Be the first to post!",
+    "writePost": "Write a post...",
+    "post": "Post",
+    "deletePost": "Delete Post",
+    "deleteReply": "Delete Reply",
+    "loginToPost": "Login to participate in discussions"
+  },
+  "contribute": {
+    "title": "Contribute",
+    "subtitle": "Help improve HOK Hub data",
+    "heroData": "Hero Data",
+    "skinData": "Skin Data",
+    "seriesData": "Series Data",
+    "selectHero": "Select Hero",
+    "selectField": "Select Field",
+    "currentValue": "Current Value",
+    "newValue": "New Value",
+    "source": "Source (URL)",
+    "submit": "Submit Contribution",
+    "submitting": "Submitting...",
+    "successMsg": "Contribution submitted successfully!",
+    "loginRequired": "Please login to contribute",
+    "thankYou": "Thank you for contributing!"
+  },
+  "contributors": {
+    "title": "Contributors",
+    "subtitle": "Community leaderboard",
+    "rank": "Rank",
+    "name": "Name",
+    "contributions": "Contributions",
+    "approved": "Approved",
+    "points": "Points",
+    "noContributors": "No contributors yet",
+    "topContributors": "Top Contributors",
+    "joinNow": "Contribute to earn your spot!"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "profile": "Profile",
+    "myContributions": "My Contributions",
+    "myTierLists": "My Tier Lists",
+    "stats": "Stats",
+    "totalContributions": "Total Contributions",
+    "approved": "Approved",
+    "pending": "Pending",
+    "rejected": "Rejected",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "updatePassword": "Update Password",
+    "displayName": "Display Name",
+    "email": "Email",
+    "saveChanges": "Save Changes",
+    "memberSince": "Member since",
+    "noContributions": "No contributions yet",
+    "noTierLists": "No tier lists created yet",
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    }
+  },
+  "admin": {
+    "title": "Admin Dashboard",
+    "pendingContributions": "Pending Contributions",
+    "approve": "Approve",
+    "reject": "Reject",
+    "approving": "Approving...",
+    "rejecting": "Rejecting...",
+    "noPending": "No pending contributions",
+    "heroField": "Hero / Field",
+    "newValue": "New Value",
+    "source": "Source",
+    "submittedBy": "Submitted by",
+    "enterPassword": "Enter admin password",
+    "passwordPlaceholder": "Admin password",
+    "accessDenied": "Access denied. Wrong password."
+  },
+  "tournament": {
+    "title": "Tournament",
+    "subtitle": "Community tournaments",
+    "create": "Create Tournament",
+    "join": "Join",
+    "leave": "Leave",
+    "start": "Start",
+    "status": {
+      "open": "Open",
+      "ongoing": "Ongoing",
+      "finished": "Finished"
+    },
+    "participants": "Participants",
+    "bracket": "Bracket",
+    "winner": "Winner",
+    "noTournaments": "No tournaments available",
+    "maxParticipants": "Max Participants",
+    "format": "Format",
+    "singleElimination": "Single Elimination"
+  },
+  "roadmap": {
+    "title": "Roadmap",
+    "subtitle": "Our journey building HOK Hub",
+    "phases": {
+      "completed": "Completed",
+      "inProgress": "In Progress",
+      "upcoming": "Coming Soon"
+    }
+  },
+  "about": {
+    "title": "About HoK Hub",
+    "subtitle": "Your complete Honor of Kings resource hub, built by the community for the community",
+    "mission": "Mission",
+    "faq": "FAQ",
+    "features": "Features"
+  },
+  "vote": {
+    "title": "Vote for Features",
+    "subtitle": "Vote for your favorite features. The most voted will be our next priority.",
+    "votingOpen": "Voting Open",
+    "votes": "votes so far",
+    "allImplemented": "All features implemented!",
+    "comingSoon": "Coming Soon"
+  },
+  "incident": {
+    "title": "Incident Report",
+    "subtitle": "Data loss incident — February 26, 2026",
+    "whatHappened": "What Happened",
+    "impact": "Impact",
+    "resolution": "Resolution",
+    "apology": "We're Sorry"
+  },
+  "loading": {
+    "heroes": "Loading heroes...",
+    "patchNotes": "Loading patch notes...",
+    "skins": "Loading skins...",
+    "tierList": "Loading tier list...",
+    "data": "Loading data...",
+    "default": "Loading..."
+  }
+}

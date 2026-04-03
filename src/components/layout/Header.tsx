@@ -3,62 +3,63 @@ import { Menu, X, ChevronDown, LogOut, LogIn, LayoutDashboard, BarChart3, Shield
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useUser } from '../../hooks/useUser';
-
-const mainNav = [
-  { name: 'Heroes', href: '/heroes' },
-  { name: 'Tier List', href: '/tier-list' },
-  { name: 'Patch Notes', href: '/patch-notes' },
-  { name: 'Skins', href: '/skins' },
-  { name: 'Tournament', href: '/tournament' },
-  { name: 'Community', href: '/community' },
-];
-
-const moreNavGroups = [
-  {
-    label: 'Game Tools',
-    items: [
-      { name: 'Counter Picks', href: '/counters', icon: Shield },
-      { name: 'Draft Pick', href: '/draft', icon: Target },
-      { name: 'Build Playground', href: '/playground', icon: Layers },
-      { name: 'Item Synergy', href: '/item-synergy', icon: Combine },
-      { name: 'Analytics', href: '/analytics', icon: BarChart3 },
-    ],
-  },
-  {
-    label: 'Content',
-    items: [
-      { name: 'Skins', href: '/skins', icon: Sparkles },
-      { name: 'Items', href: '/items', icon: Swords },
-      { name: 'Arcana', href: '/arcana', icon: Gem },
-      { name: 'OST', href: '/ost', icon: Music2 },
-    ],
-  },
-  {
-    label: 'Community',
-    items: [
-      { name: 'Tournament', href: '/tournament', icon: Trophy },
-      { name: 'Contributors', href: '/contributors', icon: UserPlus },
-      { name: 'Contribute', href: '/contribute', icon: UserPlus },
-      { name: 'Roadmap', href: '/roadmap', icon: Map },
-    ],
-  },
-];
-
-// flat list reused for mobile menu (OST included via moreNavGroups spread)
-const moreNav = [
-  ...moreNavGroups.flatMap(g => g.items),
-  { name: 'Top Up', href: 'https://magertopup.com', icon: CreditCard, external: true },
-];
-
-// Mobile bottom navigation
-const mobileBottomNav = [
-  { name: 'Home', href: '/', icon: Home },
-  { name: 'Heroes', href: '/heroes', icon: Users },
-  { name: 'Tier List', href: '/tier-list', icon: Layers },
-  { name: 'Patch', href: '/patch-notes', icon: Zap },
-];
+import { useTranslation } from 'react-i18next';
 
 export function Header() {
+  const { t, i18n } = useTranslation();
+
+  const mainNav = [
+    { name: t('nav.heroes'), href: '/heroes' },
+    { name: t('nav.tierList'), href: '/tier-list' },
+    { name: t('nav.patchNotes'), href: '/patch-notes' },
+    { name: t('nav.skins'), href: '/skins' },
+    { name: t('nav.tournament'), href: '/tournament' },
+    { name: t('nav.community'), href: '/community' },
+  ];
+
+  const moreNavGroups = [
+    {
+      label: t('nav.groups.gameTools'),
+      items: [
+        { name: t('nav.items.counterPicks'), href: '/counters', icon: Shield },
+        { name: t('nav.items.draftPick'), href: '/draft', icon: Target },
+        { name: t('nav.items.buildPlayground'), href: '/playground', icon: Layers },
+        { name: t('nav.items.itemSynergy'), href: '/item-synergy', icon: Combine },
+        { name: t('nav.items.analytics'), href: '/analytics', icon: BarChart3 },
+      ],
+    },
+    {
+      label: t('nav.groups.content'),
+      items: [
+        { name: t('nav.skins'), href: '/skins', icon: Sparkles },
+        { name: t('nav.items.items'), href: '/items', icon: Swords },
+        { name: t('nav.items.arcana'), href: '/arcana', icon: Gem },
+        { name: t('nav.items.ost'), href: '/ost', icon: Music2 },
+      ],
+    },
+    {
+      label: t('nav.groups.community'),
+      items: [
+        { name: t('nav.tournament'), href: '/tournament', icon: Trophy },
+        { name: t('nav.items.contributors'), href: '/contributors', icon: UserPlus },
+        { name: t('nav.items.contribute'), href: '/contribute', icon: UserPlus },
+        { name: t('nav.items.roadmap'), href: '/roadmap', icon: Map },
+      ],
+    },
+  ];
+
+  const moreNav = [
+    ...moreNavGroups.flatMap(g => g.items),
+    { name: t('nav.items.topUp'), href: 'https://magertopup.com', icon: CreditCard, external: true },
+  ];
+
+  const mobileBottomNav = [
+    { name: t('nav.home'), href: '/', icon: Home },
+    { name: t('nav.heroes'), href: '/heroes', icon: Users },
+    { name: t('nav.tierList'), href: '/tier-list', icon: Layers },
+    { name: t('nav.patch'), href: '/patch-notes', icon: Zap },
+  ];
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -121,7 +122,7 @@ export function Header() {
           <div className="hidden md:flex items-center space-x-1">
             {mainNav.map((item) => (
               <Link
-                key={item.name}
+                key={item.href}
                 to={item.href}
                 className="px-5 py-2.5 text-[15px] text-gray-300 hover:text-white transition-colors duration-200"
                 activeProps={{
@@ -138,7 +139,7 @@ export function Header() {
                 onClick={() => setMoreMenuOpen(!moreMenuOpen)}
                 className="flex items-center gap-1.5 px-5 py-2.5 text-[15px] text-gray-300 hover:text-white transition-colors duration-200"
               >
-                <span>More</span>
+                <span>{t('nav.more')}</span>
                 <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${moreMenuOpen ? 'rotate-180' : ''}`} />
               </button>
 
@@ -153,7 +154,7 @@ export function Header() {
                         <div className="space-y-0.5">
                           {group.items.map((item) => (
                             <Link
-                              key={item.name}
+                              key={item.href}
                               to={item.href}
                               className="flex items-center gap-2.5 px-2 py-2 rounded-lg text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
                               onClick={() => setMoreMenuOpen(false)}
@@ -176,7 +177,7 @@ export function Header() {
                       onClick={() => setMoreMenuOpen(false)}
                     >
                       <CreditCard className="w-4 h-4 shrink-0" />
-                      <span>Top Up Games</span>
+                      <span>{t('nav.items.topUp')}</span>
                     </a>
                   </div>
                 </div>
@@ -184,8 +185,18 @@ export function Header() {
             </div>
           </div>
 
-          {/* Right Side - Auth */}
+          {/* Right Side - Language Switcher + Auth */}
           <div className="hidden md:flex items-center">
+            {/* Language Switcher */}
+            <button
+              onClick={() => i18n.changeLanguage(i18n.language.startsWith('id') ? 'en' : 'id')}
+              className="flex items-center gap-1.5 px-3 py-2 bg-white/10 hover:bg-white/15 rounded-xl text-sm font-semibold text-gray-300 hover:text-white transition-colors mr-2"
+              title="Switch language"
+            >
+              <span>{i18n.language.startsWith('id') ? '🇮🇩' : '🇺🇸'}</span>
+              <span className="text-xs uppercase">{i18n.language.startsWith('id') ? 'ID' : 'EN'}</span>
+            </button>
+
             {isAuthenticated && user ? (
               <div className="relative">
                 <button
@@ -206,7 +217,7 @@ export function Header() {
                     <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
                     <div className="absolute right-0 mt-2 w-56 bg-dark-300/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
                       <div className="px-4 py-3 border-b border-white/10">
-                        <p className="text-xs text-gray-500 uppercase tracking-wide">Signed in as</p>
+                        <p className="text-xs text-gray-500 uppercase tracking-wide">{t('nav.signedInAs')}</p>
                         <p className="font-medium text-white truncate mt-1">{user.name}</p>
                       </div>
                       <div className="py-2">
@@ -216,14 +227,14 @@ export function Header() {
                           onClick={() => setUserMenuOpen(false)}
                         >
                           <LayoutDashboard className="w-4 h-4 text-gray-500" />
-                          <span>Dashboard</span>
+                          <span>{t('nav.dashboard')}</span>
                         </Link>
                         <button
                           onClick={handleLogout}
                           className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
                         >
                           <LogOut className="w-4 h-4" />
-                          <span>Logout</span>
+                          <span>{t('nav.logout')}</span>
                         </button>
                       </div>
                     </div>
@@ -236,7 +247,7 @@ export function Header() {
                 className="flex items-center gap-2 px-5 py-2.5 bg-white text-dark-400 rounded-xl text-[15px] font-medium hover:bg-gray-100 transition-colors duration-200"
               >
                 <LogIn className="w-4 h-4" />
-                <span>Login</span>
+                <span>{t('nav.login')}</span>
               </Link>
             )}
           </div>
@@ -262,7 +273,7 @@ export function Header() {
             <div className="md:hidden fixed inset-0 z-[101]">
               {/* Header */}
               <div className="flex items-center justify-between px-4 h-16 border-b border-white/10 bg-[#0a0e27]">
-                <span className="text-lg font-semibold text-white">Menu</span>
+                <span className="text-lg font-semibold text-white">{t('nav.menu')}</span>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
                   className="p-2 rounded-full hover:bg-white/10 transition-colors"
@@ -283,7 +294,7 @@ export function Header() {
                         </div>
                         <div>
                           <p className="font-semibold text-white text-lg">{user.name}</p>
-                          <p className="text-sm text-gray-400">Contributor</p>
+                          <p className="text-sm text-gray-400">{t('nav.contributor')}</p>
                         </div>
                       </div>
                     </div>
@@ -297,18 +308,32 @@ export function Header() {
                         <LogIn className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <p className="font-semibold text-white">Login / Register</p>
-                        <p className="text-sm text-white/70">Join the community</p>
+                        <p className="font-semibold text-white">{t('nav.loginRegister')}</p>
+                        <p className="text-sm text-white/70">{t('nav.joinCommunity')}</p>
                       </div>
                     </Link>
                   )}
 
+                  {/* Language Switcher */}
+                  <button
+                    onClick={() => i18n.changeLanguage(i18n.language.startsWith('id') ? 'en' : 'id')}
+                    className="flex items-center gap-3 p-4 bg-[#0d1229] rounded-xl border border-white/5 hover:border-primary-500/30 transition-all w-full"
+                  >
+                    <div className="w-10 h-10 bg-[#1a1f3a] rounded-xl flex items-center justify-center text-lg">
+                      {i18n.language.startsWith('id') ? '🇮🇩' : '🇺🇸'}
+                    </div>
+                    <div className="text-left">
+                      <p className="text-white font-medium">{i18n.language.startsWith('id') ? 'Bahasa Indonesia' : 'English'}</p>
+                      <p className="text-xs text-gray-400">{i18n.language.startsWith('id') ? 'Tap untuk ganti ke English' : 'Tap to switch to Indonesian'}</p>
+                    </div>
+                  </button>
+
                   {/* Quick Actions */}
-                  <p className="text-xs text-gray-500 uppercase tracking-wider px-2 pt-4 pb-2">Quick Access</p>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider px-2 pt-4 pb-2">{t('nav.quickAccess')}</p>
                   <div className="grid grid-cols-2 gap-2">
-                    {[...mainNav, { name: 'Analytics', href: '/analytics' }].map((item) => (
+                    {[...mainNav, { name: t('nav.items.analytics'), href: '/analytics' }].map((item) => (
                       <Link
-                        key={item.name}
+                        key={item.href}
                         to={item.href}
                         className="flex items-center justify-center p-4 bg-[#111631] rounded-xl border border-white/5 hover:border-primary-500/30 transition-all"
                         onClick={() => setMobileMenuOpen(false)}
@@ -319,12 +344,12 @@ export function Header() {
                   </div>
 
                   {/* More Options */}
-                  <p className="text-xs text-gray-500 uppercase tracking-wider px-2 pt-6 pb-2">More</p>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider px-2 pt-6 pb-2">{t('nav.more')}</p>
                   <div className="space-y-1">
                     {moreNav.map((item) => (
                       'external' in item && item.external ? (
                         <a
-                          key={item.name}
+                          key={item.href}
                           href={item.href}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -338,7 +363,7 @@ export function Header() {
                         </a>
                       ) : (
                         <Link
-                          key={item.name}
+                          key={item.href}
                           to={item.href}
                           className="flex items-center gap-4 p-4 bg-[#0d1229] rounded-xl border border-white/5 hover:border-primary-500/30 transition-all"
                           onClick={() => setMobileMenuOpen(false)}
@@ -365,7 +390,7 @@ export function Header() {
                           <div className="w-10 h-10 bg-[#1a1f3a] rounded-xl flex items-center justify-center">
                             <LayoutDashboard className="w-5 h-5 text-blue-400" />
                           </div>
-                          <span className="text-white font-medium">Dashboard</span>
+                          <span className="text-white font-medium">{t('nav.dashboard')}</span>
                         </Link>
                         <button
                           onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
@@ -374,7 +399,7 @@ export function Header() {
                           <div className="w-10 h-10 bg-red-900/50 rounded-xl flex items-center justify-center">
                             <LogOut className="w-5 h-5 text-red-400" />
                           </div>
-                          <span className="text-red-400 font-medium">Logout</span>
+                          <span className="text-red-400 font-medium">{t('nav.logout')}</span>
                         </button>
                       </div>
                     </>
@@ -395,7 +420,7 @@ export function Header() {
             (item.href !== '/' && location.pathname.startsWith(item.href));
           return (
             <Link
-              key={item.name}
+              key={item.href}
               to={item.href}
               className={`flex flex-col items-center justify-center flex-1 py-2 transition-colors ${
                 isActive ? 'text-primary-500' : 'text-gray-500'
@@ -414,7 +439,7 @@ export function Header() {
           className="flex flex-col items-center justify-center flex-1 py-2 text-gray-500"
         >
           <Menu className="w-5 h-5" />
-          <span className="text-[10px] mt-1 font-medium">More</span>
+          <span className="text-[10px] mt-1 font-medium">{t('nav.more')}</span>
         </button>
       </div>
     </nav>

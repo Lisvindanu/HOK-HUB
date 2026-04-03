@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { Save, X, Loader2, Check } from 'lucide-react';
 import type { Contributor } from '../../hooks/useUser';
 import { useUpdateProfile } from '../../hooks/useUser';
+import { useTranslation } from 'react-i18next';
 
 interface ProfileSectionProps {
   user: Contributor;
 }
 
 export function ProfileSection({ user }: ProfileSectionProps) {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(user.name);
   const [email, setEmail] = useState(user.email);
@@ -52,13 +54,13 @@ export function ProfileSection({ user }: ProfileSectionProps) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">Profile Information</h2>
+        <h2 className="text-2xl font-bold">{t('dashboard.profile')}</h2>
         {!isEditing && (
           <button
             onClick={() => setIsEditing(true)}
             className="btn-secondary"
           >
-            Edit Profile
+            {t('common.edit')}
           </button>
         )}
       </div>
@@ -66,14 +68,14 @@ export function ProfileSection({ user }: ProfileSectionProps) {
       {success && (
         <div className="mb-4 p-4 bg-green-500/10 border border-green-500/20 rounded-lg flex items-center gap-3">
           <Check className="w-5 h-5 text-green-400" />
-          <p className="text-green-400">Profile updated successfully!</p>
+          <p className="text-green-400">{t('common.saved')}</p>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label className="block text-sm font-semibold text-gray-300 mb-2">
-            Display Name
+            {t('dashboard.displayName')}
           </label>
           <input
             type="text"
@@ -86,7 +88,7 @@ export function ProfileSection({ user }: ProfileSectionProps) {
 
         <div>
           <label className="block text-sm font-semibold text-gray-300 mb-2">
-            Email Address
+            {t('dashboard.email')}
           </label>
           <input
             type="email"
@@ -99,7 +101,7 @@ export function ProfileSection({ user }: ProfileSectionProps) {
 
         <div>
           <label className="block text-sm font-semibold text-gray-300 mb-2">
-            Member Since
+            {t('dashboard.memberSince')}
           </label>
           <input
             type="text"
@@ -129,12 +131,12 @@ export function ProfileSection({ user }: ProfileSectionProps) {
               {updateProfile.isPending ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  Saving...
+                  {t('loading.default')}
                 </>
               ) : (
                 <>
                   <Save className="w-5 h-5" />
-                  Save Changes
+                  {t('dashboard.saveChanges')}
                 </>
               )}
             </button>
@@ -145,7 +147,7 @@ export function ProfileSection({ user }: ProfileSectionProps) {
               className="flex-1 btn-secondary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <X className="w-5 h-5" />
-              Cancel
+              {t('common.cancel')}
             </button>
           </div>
         )}

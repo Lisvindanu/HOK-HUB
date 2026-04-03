@@ -1,6 +1,7 @@
 import { List, ThumbsUp, Calendar, Loader2, ExternalLink } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 import { useUserTierLists, type TierList } from '../../hooks/useTierLists';
+import { useTranslation } from 'react-i18next';
 
 function TierListCard({ tierList }: { tierList: TierList }) {
   const heroCount = Object.values(tierList.tiers || {}).flat().length;
@@ -40,6 +41,7 @@ function TierListCard({ tierList }: { tierList: TierList }) {
 }
 
 export function TierListsSection() {
+  const { t } = useTranslation();
   const { data: tierLists, isLoading, error } = useUserTierLists();
 
   if (isLoading) {
@@ -67,8 +69,8 @@ export function TierListsSection() {
           <List className="w-6 h-6 text-purple-400" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold">My Tier Lists</h2>
-          <p className="text-gray-400 text-sm">Your created hero tier rankings</p>
+          <h2 className="text-2xl font-bold">{t('dashboard.myTierLists')}</h2>
+          <p className="text-gray-400 text-sm">{t('dashboard.myTierLists')}</p>
         </div>
       </div>
 
@@ -76,11 +78,11 @@ export function TierListsSection() {
       <div className="grid grid-cols-2 gap-3 mb-6">
         <div className="p-3 bg-dark-50 rounded-lg text-center">
           <p className="text-2xl font-bold">{tierLists?.length || 0}</p>
-          <p className="text-xs text-gray-400">Total Tier Lists</p>
+          <p className="text-xs text-gray-400">{t('dashboard.myTierLists')}</p>
         </div>
         <div className="p-3 bg-green-500/10 rounded-lg text-center">
           <p className="text-2xl font-bold text-green-400">{totalVotes}</p>
-          <p className="text-xs text-gray-400">Total Votes</p>
+          <p className="text-xs text-gray-400">{t('vote.votes')}</p>
         </div>
       </div>
 
@@ -88,14 +90,14 @@ export function TierListsSection() {
       {!tierLists || tierLists.length === 0 ? (
         <div className="text-center py-12 bg-dark-50 rounded-lg">
           <List className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-          <p className="text-gray-400 mb-2">No tier lists yet</p>
-          <p className="text-sm text-gray-500 mb-4">Create your first hero tier ranking!</p>
+          <p className="text-gray-400 mb-2">{t('dashboard.noTierLists')}</p>
+          <p className="text-sm text-gray-500 mb-4">{t('tierList.createTierList')}</p>
           <Link
             to="/tier-list"
             className="inline-flex items-center gap-2 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors"
           >
             <List className="w-4 h-4" />
-            Create Tier List
+            {t('tierList.createTierList')}
           </Link>
         </div>
       ) : (

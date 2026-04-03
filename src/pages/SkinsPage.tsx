@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Search, X, ChevronLeft, ChevronRight, ChevronDown, AlertCircle, Users, Grid3x3, List, Download } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Link } from '@tanstack/react-router';
 import { useHeroes } from '../hooks/useHeroes';
 import { Loading } from '../components/ui/Loading';
@@ -26,6 +27,7 @@ const TIER_ORDER = ['Flawless', 'Mythic', 'Precious', 'Legend', 'Epic', 'Rare', 
 const ITEMS_PER_PAGE = 48;
 
 export function SkinsPage() {
+  const { t } = useTranslation();
   useEffect(() => {
     document.title = 'Skin Gallery - Honor of Kings | HoK Hub';
     const desc = document.querySelector('meta[name="description"]');
@@ -224,7 +226,7 @@ export function SkinsPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loading message="Loading skins..." />
+        <Loading message={t('loading.skins')} />
       </div>
     );
   }
@@ -242,12 +244,12 @@ export function SkinsPage() {
             <div className="flex items-start justify-between mb-3 md:mb-4">
               <div>
                 <h1 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-2 md:mb-3">
-                  Skins
+                  {t('skins.title')}
                 </h1>
                 <p className="text-gray-400 text-sm md:text-lg">
                   {viewMode === 'series'
-                    ? `Explore ${seriesData.length} skin collections`
-                    : `Browse all ${stats.total} skins`
+                    ? t('skins.subtitle', { count: seriesData.length })
+                    : t('skins.subtitle', { count: stats.total })
                   }
                 </p>
               </div>
@@ -314,7 +316,7 @@ export function SkinsPage() {
                 }`}
               >
                 <Grid3x3 className="w-3.5 md:w-4 h-3.5 md:h-4" />
-                Series
+                {t('skins.series')}
               </button>
               <button
                 onClick={() => setViewMode('all')}
@@ -325,7 +327,7 @@ export function SkinsPage() {
                 }`}
               >
                 <List className="w-3.5 md:w-4 h-3.5 md:h-4" />
-                All Skins
+                {t('common.all')} {t('skins.title')}
               </button>
             </div>
 
@@ -334,7 +336,7 @@ export function SkinsPage() {
               <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 md:w-5 h-4 md:h-5 text-gray-500" />
               <input
                 type="text"
-                placeholder={viewMode === 'series' ? 'Search series...' : 'Search skins...'}
+                placeholder={viewMode === 'series' ? t('skins.searchPlaceholder') : t('skins.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 md:pl-12 pr-4 py-2.5 md:py-3 bg-dark-300/50 border border-white/10 rounded-xl focus:outline-none focus:border-primary-500/50 focus:bg-dark-300 text-white text-sm placeholder-gray-500 transition-all"
@@ -358,7 +360,7 @@ export function SkinsPage() {
                     onChange={(e) => setSelectedHero(e.target.value)}
                     className="appearance-none px-4 py-3 pr-10 bg-dark-300/50 border border-white/10 rounded-xl focus:outline-none focus:border-primary-500/50 text-white text-sm cursor-pointer"
                   >
-                    <option value="">All Heroes</option>
+                    <option value="">{t('common.all')} Heroes</option>
                     {heroOptions.map((hero) => (
                       <option key={hero} value={hero}>{hero}</option>
                     ))}
@@ -372,7 +374,7 @@ export function SkinsPage() {
                     onChange={(e) => setSelectedTier(e.target.value)}
                     className="appearance-none px-4 py-3 pr-10 bg-dark-300/50 border border-white/10 rounded-xl focus:outline-none focus:border-primary-500/50 text-white text-sm cursor-pointer"
                   >
-                    <option value="">All Tiers</option>
+                    <option value="">{t('common.all')} Tiers</option>
                     {TIER_ORDER.map((tier) => (
                       <option key={tier} value={tier}>{tier}</option>
                     ))}
@@ -386,7 +388,7 @@ export function SkinsPage() {
                     onChange={(e) => setSelectedSeriesFilter(e.target.value)}
                     className="appearance-none px-4 py-3 pr-10 bg-dark-300/50 border border-white/10 rounded-xl focus:outline-none focus:border-primary-500/50 text-white text-sm cursor-pointer"
                   >
-                    <option value="">All Series</option>
+                    <option value="">{t('skins.allSeries')}</option>
                     {seriesOptions.map((series) => (
                       <option key={series} value={series}>{series}</option>
                     ))}
@@ -400,7 +402,7 @@ export function SkinsPage() {
                     className="flex items-center gap-1.5 px-3 py-2.5 text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
                   >
                     <X className="w-3 h-3" />
-                    <span>Clear</span>
+                    <span>{t('common.clear')}</span>
                   </button>
                 )}
               </div>
@@ -469,7 +471,7 @@ export function SkinsPage() {
                   <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
                     <h2 className="text-lg md:text-xl font-semibold text-white">{tierGroup.tier}</h2>
                     <div className="h-px flex-1 bg-white/5" />
-                    <span className="text-xs md:text-sm text-gray-500">{tierGroup.skins.length} skins</span>
+                    <span className="text-xs md:text-sm text-gray-500">{tierGroup.skins.length} {t('skins.title').toLowerCase()}</span>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
@@ -590,7 +592,7 @@ export function SkinsPage() {
                   </button>
 
                   <span className="ml-4 text-sm text-gray-500">
-                    Page {currentPage} of {totalPages}
+                    {currentPage} / {totalPages}
                   </span>
                 </div>
               )}
@@ -602,14 +604,14 @@ export function SkinsPage() {
             (viewMode === 'all' && filteredSkinsByTier.length === 0)) && (
             <div className="text-center py-20">
               <p className="text-gray-400 text-lg mb-4">
-                No {viewMode === 'series' ? 'series' : 'skins'} found
+                {t('skins.noSkins')}
               </p>
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
                   className="px-6 py-3 bg-white text-dark-400 rounded-xl font-medium hover:bg-gray-100 transition-colors"
                 >
-                  Clear Filters
+                  {t('common.clearFilters')}
                 </button>
               )}
             </div>

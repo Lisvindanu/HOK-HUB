@@ -3,8 +3,10 @@ import { ArrowRight, ArrowDown, Users, Crown, Palette, Shield, Zap, Layers, Pack
 import { useHeroes } from '../hooks/useHeroes';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 function TrakteerMobileSection() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -25,9 +27,9 @@ function TrakteerMobileSection() {
               style={{ aspectRatio: '1/1' }}
             />
             <div>
-              <h3 className="text-white font-bold text-lg mb-1">Dukung HOK Hub</h3>
+              <h3 className="text-white font-bold text-lg mb-1">{t('home.support.title')}</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
-                HOK Hub gratis untuk semua. Kalau kamu suka, traktir sebentar ya!
+                {t('home.support.desc')}
               </p>
             </div>
             <button
@@ -41,7 +43,7 @@ function TrakteerMobileSection() {
                 className="w-4 h-4 object-contain"
                 style={{ aspectRatio: '1/1' }}
               />
-              Traktir Sekarang
+              {t('home.support.btn')}
             </button>
           </motion.div>
         </div>
@@ -76,6 +78,7 @@ function TrakteerMobileSection() {
 }
 
 export function HomePage() {
+  const { t } = useTranslation();
   const { data: heroes } = useHeroes();
   const [bannerDismissed, setBannerDismissed] = useState(
     () => localStorage.getItem('incident-banner-dismissed') === '1'
@@ -89,57 +92,57 @@ export function HomePage() {
   const features = [
     {
       icon: Users,
-      title: 'Hero Database',
-      description: '111+ heroes with stats, skills, equipment & arcana recommendations',
+      title: t('home.features.heroDatabase.title'),
+      description: t('home.features.heroDatabase.desc'),
       href: '/heroes',
       color: 'from-blue-500 to-blue-700',
     },
     {
       icon: Crown,
-      title: 'Tier List',
-      description: 'Community-voted tier rankings with voting, comments & meta discussions',
+      title: t('home.features.tierList.title'),
+      description: t('home.features.tierList.desc'),
       href: '/tier-list',
       color: 'from-amber-400 to-orange-600',
     },
     {
       icon: Shield,
-      title: 'Counter Picks',
-      description: 'Find the best counters, synergies & strong-against matchups for any hero',
+      title: t('home.features.counterPicks.title'),
+      description: t('home.features.counterPicks.desc'),
       href: '/counters',
       color: 'from-red-500 to-rose-700',
     },
     {
       icon: Palette,
-      title: 'Skin Gallery',
-      description: 'Browse 1000+ skins — exclusive, limited, series & collaboration filters',
+      title: t('home.features.skinGallery.title'),
+      description: t('home.features.skinGallery.desc'),
       href: '/skins',
       color: 'from-pink-500 to-purple-600',
     },
     {
       icon: Zap,
-      title: 'Patch Notes',
-      description: 'Track every hero buff, nerf & adjustment across all patches',
+      title: t('home.features.patchNotes.title'),
+      description: t('home.features.patchNotes.desc'),
       href: '/patch-notes',
       color: 'from-green-500 to-emerald-700',
     },
     {
       icon: Layers,
-      title: 'Draft Simulator',
-      description: 'Practice picks & bans before ranked matches with full draft mode',
+      title: t('home.features.draftSimulator.title'),
+      description: t('home.features.draftSimulator.desc'),
       href: '/draft',
       color: 'from-violet-500 to-indigo-700',
     },
     {
       icon: Package,
-      title: 'Items & Arcana',
-      description: 'Complete database of all items and arcana builds for every role',
+      title: t('home.features.itemsArcana.title'),
+      description: t('home.features.itemsArcana.desc'),
       href: '/items',
       color: 'from-cyan-500 to-teal-700',
     },
     {
       icon: BarChart2,
-      title: 'Analytics',
-      description: 'Win rates, pick rates & meta trends to sharpen your strategy',
+      title: t('home.features.analytics.title'),
+      description: t('home.features.analytics.desc'),
       href: '/analytics',
       color: 'from-orange-400 to-rose-600',
     },
@@ -161,10 +164,10 @@ export function HomePage() {
           <div className="flex items-start gap-2.5 flex-1">
             <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#f87171' }} />
             <p className="text-sm leading-snug" style={{ color: '#fca5a5' }}>
-              <strong style={{ color: '#fecaca' }}>Pemberitahuan penting:</strong>{' '}
-              Terjadi kehilangan data tier list komunitas pada 26 Feb 2026.{' '}
+              <strong style={{ color: '#fecaca' }}>{t('home.incident.title')}</strong>{' '}
+              {t('home.incident.msg')}{' '}
               <span className="underline underline-offset-2 font-medium" style={{ color: '#fb923c' }}>
-                Baca selengkapnya →
+                {t('home.incident.readMore')}
               </span>
             </p>
           </div>
@@ -172,7 +175,7 @@ export function HomePage() {
             onClick={e => { e.preventDefault(); dismissBanner(); }}
             className="shrink-0 p-1 rounded"
             style={{ color: '#f87171' }}
-            aria-label="Tutup"
+            aria-label={t('home.incident.dismiss')}
           >
             <X className="w-4 h-4" />
           </button>
@@ -202,21 +205,20 @@ export function HomePage() {
           >
             {/* Badge */}
             <div className="inline-flex items-center px-3 md:px-4 py-1.5 md:py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full mb-6 md:mb-8">
-              <span className="text-xs md:text-sm text-white/90 font-medium">Your Ultimate HoK Companion</span>
+              <span className="text-xs md:text-sm text-white/90 font-medium">{t('home.badge')}</span>
             </div>
 
             {/* Main Headline */}
             <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-display font-bold text-white mb-4 md:mb-6 tracking-tight">
-              <span className="block">Master the</span>
+              <span className="block">{t('home.headline1')}</span>
               <span className="block bg-gradient-to-r from-primary-400 via-primary-300 to-blue-400 bg-clip-text text-transparent">
-                Meta
+                {t('home.headline2')}
               </span>
             </h1>
 
             {/* Subtitle */}
             <p className="text-base md:text-lg lg:text-xl text-white/70 max-w-2xl mx-auto mb-8 md:mb-10 leading-relaxed px-4">
-              Everything you need to dominate Honor of Kings.
-              Hero stats, tier lists, counters, and more.
+              {t('home.subtitle')}
             </p>
 
             {/* CTAs - Stack on mobile */}
@@ -225,7 +227,7 @@ export function HomePage() {
                 to="/heroes"
                 className="group w-full sm:w-auto flex items-center justify-center gap-2 md:gap-3 px-6 md:px-8 py-3.5 md:py-4 bg-white text-dark-400 rounded-xl md:rounded-2xl text-base md:text-lg font-semibold hover:bg-gray-100 transition-all duration-300"
               >
-                <span>Explore Heroes</span>
+                <span>{t('home.exploreHeroes')}</span>
                 <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
@@ -233,7 +235,7 @@ export function HomePage() {
                 className="w-full sm:w-auto flex items-center justify-center gap-2 md:gap-3 px-6 md:px-8 py-3.5 md:py-4 bg-white/10 backdrop-blur-sm text-white border border-white/20 rounded-xl md:rounded-2xl text-base md:text-lg font-medium hover:bg-white/20 transition-all duration-300"
               >
                 <Crown className="w-4 h-4 md:w-5 md:h-5" />
-                <span>View Tier List</span>
+                <span>{t('home.viewTierList')}</span>
               </Link>
             </div>
           </motion.div>
@@ -247,7 +249,7 @@ export function HomePage() {
           transition={{ delay: 1, duration: 0.5 }}
         >
           <div className="flex flex-col items-center gap-3 text-white/50">
-            <span className="text-sm tracking-wide uppercase">Scroll to explore</span>
+            <span className="text-sm tracking-wide uppercase">{t('common.scrollToExplore')}</span>
             <ArrowDown className="w-5 h-5 animate-bounce" />
           </div>
         </motion.div>
@@ -267,7 +269,7 @@ export function HomePage() {
               <div className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-white mb-1 md:mb-2">
                 {heroCount}
               </div>
-              <p className="text-gray-500 text-xs md:text-sm uppercase tracking-wide">Heroes</p>
+              <p className="text-gray-500 text-xs md:text-sm uppercase tracking-wide">{t('home.stats.heroes')}</p>
             </motion.div>
             <motion.div
               className="text-center p-4 md:p-0"
@@ -279,7 +281,7 @@ export function HomePage() {
               <div className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-white mb-1 md:mb-2">
                 {skinCount}+
               </div>
-              <p className="text-gray-500 text-xs md:text-sm uppercase tracking-wide">Skins</p>
+              <p className="text-gray-500 text-xs md:text-sm uppercase tracking-wide">{t('home.stats.skins')}</p>
             </motion.div>
             <motion.div
               className="text-center p-4 md:p-0"
@@ -291,7 +293,7 @@ export function HomePage() {
               <div className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-white mb-1 md:mb-2">
                 6
               </div>
-              <p className="text-gray-500 text-xs md:text-sm uppercase tracking-wide">Roles</p>
+              <p className="text-gray-500 text-xs md:text-sm uppercase tracking-wide">{t('home.stats.roles')}</p>
             </motion.div>
             <motion.div
               className="text-center p-4 md:p-0"
@@ -303,7 +305,7 @@ export function HomePage() {
               <div className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-white mb-1 md:mb-2">
                 24/7
               </div>
-              <p className="text-gray-500 text-xs md:text-sm uppercase tracking-wide">Updated</p>
+              <p className="text-gray-500 text-xs md:text-sm uppercase tracking-wide">{t('home.stats.updated')}</p>
             </motion.div>
           </div>
         </div>
@@ -328,10 +330,10 @@ export function HomePage() {
             transition={{ duration: 0.5 }}
           >
             <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-4">
-              Everything you need
+              {t('home.featuresTitle')}
             </h2>
             <p className="text-gray-400 max-w-xl mx-auto">
-              All the tools to dominate the Rift — hero guides, tier lists, drafts & more
+              {t('home.featuresSubtitle')}
             </p>
           </motion.div>
 
@@ -339,7 +341,7 @@ export function HomePage() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
             {features.map((feature, index) => (
               <motion.div
-                key={feature.title}
+                key={feature.href}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -373,7 +375,7 @@ export function HomePage() {
 
                   {/* Explore link */}
                   <div className="mt-4 flex items-center gap-1 text-xs text-gray-600 group-hover:text-primary-400 transition-all">
-                    <span>Explore</span>
+                    <span>{t('common.explore')}</span>
                     <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                   </div>
                 </Link>
@@ -472,28 +474,27 @@ export function HomePage() {
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-5"
                 style={{ background: 'rgba(168,85,247,0.12)', border: '1px solid rgba(168,85,247,0.25)' }}>
                 <Music2 className="w-3.5 h-3.5" style={{ color: '#c084fc' }} />
-                <span className="text-xs font-semibold tracking-wide uppercase" style={{ color: '#c084fc' }}>Official Soundtrack</span>
+                <span className="text-xs font-semibold tracking-wide uppercase" style={{ color: '#c084fc' }}>{t('home.ost.badge')}</span>
               </div>
 
               <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-3">
-                Honor of Kings OST
+                {t('home.ost.title')}
               </h2>
               <p className="text-gray-400 leading-relaxed mb-8 max-w-md mx-auto lg:mx-0">
-                Stream 34 official tracks — from global anthems by Joe Hisaishi to character themes,
-                cinematic scores & collab soundtracks. All in one player.
+                {t('home.ost.desc')}
               </p>
 
               {/* Album category pills */}
               <div className="grid grid-cols-2 gap-2 mb-8 max-w-sm mx-auto lg:mx-0">
                 {[
-                  { label: 'Global & Anniversary', count: '8 tracks', c: 'rgba(251,191,36,0.1)', b: 'rgba(251,191,36,0.2)', t: '#fbbf24' },
-                  { label: 'Cinematic Scores',      count: '8 tracks', c: 'rgba(99,102,241,0.1)',  b: 'rgba(99,102,241,0.2)',  t: '#818cf8' },
-                  { label: 'Champion Themes',       count: '8 tracks', c: 'rgba(34,197,94,0.1)',   b: 'rgba(34,197,94,0.2)',   t: '#4ade80' },
-                  { label: 'Events & Collabs',      count: '10 tracks', c: 'rgba(236,72,153,0.1)', b: 'rgba(236,72,153,0.2)',  t: '#f472b6' },
-                ].map(({ label, count, c, b, t }) => (
+                  { label: t('home.ost.categories.global'), count: t('home.ost.tracks', { count: 8 }), c: 'rgba(251,191,36,0.1)', b: 'rgba(251,191,36,0.2)', t2: '#fbbf24' },
+                  { label: t('home.ost.categories.cinematic'), count: t('home.ost.tracks', { count: 8 }), c: 'rgba(99,102,241,0.1)', b: 'rgba(99,102,241,0.2)', t2: '#818cf8' },
+                  { label: t('home.ost.categories.champion'), count: t('home.ost.tracks', { count: 8 }), c: 'rgba(34,197,94,0.1)', b: 'rgba(34,197,94,0.2)', t2: '#4ade80' },
+                  { label: t('home.ost.categories.events'), count: t('home.ost.tracks', { count: 10 }), c: 'rgba(236,72,153,0.1)', b: 'rgba(236,72,153,0.2)', t2: '#f472b6' },
+                ].map(({ label, count, c, b, t2 }) => (
                   <div key={label} className="flex flex-col px-3 py-2.5 rounded-xl text-left"
                     style={{ background: c, border: `1px solid ${b}` }}>
-                    <span className="text-[11px] font-semibold" style={{ color: t }}>{count}</span>
+                    <span className="text-[11px] font-semibold" style={{ color: t2 }}>{count}</span>
                     <span className="text-xs font-medium text-white/80 mt-0.5 leading-tight">{label}</span>
                   </div>
                 ))}
@@ -505,7 +506,7 @@ export function HomePage() {
                 style={{ background: 'linear-gradient(135deg, #9333ea, #ec4899)', boxShadow: '0 8px 28px rgba(147,51,234,0.35)' }}
               >
                 <Music2 className="w-4 h-4" />
-                Listen Now
+                {t('home.ost.listenNow')}
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </motion.div>
@@ -526,24 +527,24 @@ export function HomePage() {
             transition={{ duration: 0.5 }}
           >
             <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-6">
-              Ready to climb the ranks?
+              {t('home.cta.title')}
             </h2>
             <p className="text-gray-400 text-lg mb-10">
-              Join our community and start improving your gameplay today.
+              {t('home.cta.subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 to="/heroes"
                 className="group flex items-center gap-3 px-8 py-4 bg-primary-500 text-white rounded-2xl text-lg font-semibold hover:bg-primary-600 transition-all duration-300"
               >
-                <span>Get Started</span>
+                <span>{t('home.cta.getStarted')}</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 to="/contribute"
                 className="flex items-center gap-3 px-8 py-4 text-gray-300 hover:text-white transition-colors"
               >
-                <span>Contribute to HoK Hub</span>
+                <span>{t('home.cta.contribute')}</span>
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </div>

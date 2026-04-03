@@ -1,21 +1,23 @@
 import { FileText, List, ThumbsUp, TrendingUp } from 'lucide-react';
 import type { Contributor } from '../../hooks/useUser';
+import { useTranslation } from 'react-i18next';
 
 interface StatsSectionProps {
   user: Contributor;
 }
 
 export function StatsSection({ user }: StatsSectionProps) {
+  const { t } = useTranslation();
   const stats = [
     {
-      label: 'Total Contributions',
+      label: t('dashboard.totalContributions'),
       value: user.totalContributions || 0,
       icon: FileText,
       color: 'from-blue-500 to-cyan-500',
       bgColor: 'bg-blue-500/10',
     },
     {
-      label: 'Tier Lists Created',
+      label: t('dashboard.myTierLists'),
       value: user.totalTierLists || 0,
       icon: List,
       color: 'from-purple-500 to-pink-500',
@@ -29,7 +31,7 @@ export function StatsSection({ user }: StatsSectionProps) {
       bgColor: 'bg-green-500/10',
     },
     {
-      label: 'Total Score',
+      label: t('contributors.points'),
       value: (user.totalContributions || 0) * 5 + (user.totalTierLists || 0) * 10 + (user.totalVotes || 0),
       icon: TrendingUp,
       color: 'from-orange-500 to-yellow-500',

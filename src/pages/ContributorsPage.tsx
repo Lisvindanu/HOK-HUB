@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchContributors } from '../api/tierLists';
 import { Loading } from '../components/ui/Loading';
+import { useTranslation } from 'react-i18next';
 import { Trophy, Users, ListChecks, ThumbsUp, X, Loader2, Clock, CheckCircle, XCircle } from 'lucide-react';
 
 const RANK_TIERS = [
@@ -70,6 +71,7 @@ interface ContributorDetail {
 }
 
 export function ContributorsPage() {
+  const { t } = useTranslation();
   const [selectedContributor, setSelectedContributor] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
 
@@ -101,7 +103,7 @@ export function ContributorsPage() {
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 md:px-6 lg:px-8 pt-20 md:pt-28 pb-12">
-        <Loading message="Loading contributors..." />
+        <Loading message={t('loading.data')} />
       </div>
     );
   }
@@ -112,10 +114,10 @@ export function ContributorsPage() {
       {/* Header */}
       <div className="mb-6 md:mb-8">
         <h1 className="text-3xl md:text-5xl font-display font-bold mb-2 md:mb-4">
-          Top Contributors
+          {t('contributors.topContributors')}
         </h1>
         <p className="text-gray-400 text-sm md:text-lg">
-          Community members who help keep HoK Hub up-to-date
+          {t('contributors.subtitle')}
         </p>
       </div>
 

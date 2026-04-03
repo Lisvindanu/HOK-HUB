@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useUser } from '../hooks/useUser';
+import { useTranslation } from 'react-i18next';
 
 const API_BASE = import.meta.env.DEV ? '' : 'https://hokapi.project-n.site';
 
@@ -175,6 +176,7 @@ interface WinnerModalProps {
   onClose: () => void;
 }
 function WinnerModal({ match, teamId, isTeam1, teams, tournamentId, token, boFormat, onSuccess, onClose }: WinnerModalProps) {
+  const { t } = useTranslation();
   const maxWins = boFormat === 'BO5' ? 3 : boFormat === 'BO1' ? 1 : 2;
   const [scores, setScores] = useState({
     s1: match.score1 || (isTeam1 ? maxWins : 0),
@@ -224,7 +226,7 @@ function WinnerModal({ match, teamId, isTeam1, teams, tournamentId, token, boFor
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <p className="text-xs text-gray-500">Set pemenang pertandingan</p>
+              <p className="text-xs text-gray-500">{t('tournament.winner')}</p>
               <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-cyan-500/15 border border-cyan-500/25 text-cyan-400 font-bold">
                 {boFormat}
               </span>
@@ -245,7 +247,7 @@ function WinnerModal({ match, teamId, isTeam1, teams, tournamentId, token, boFor
         {/* Score inputs */}
         <div className="bg-dark-400/60 rounded-xl p-4 mb-4">
           <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-3">
-            Skor Akhir (jumlah game menang)
+            {t('tournament.format')}
           </p>
           <div className="flex items-center gap-3">
             <div className="flex-1 text-center">
@@ -287,7 +289,7 @@ function WinnerModal({ match, teamId, isTeam1, teams, tournamentId, token, boFor
         <div className="flex items-center gap-2 bg-green-500/8 border border-green-500/20 rounded-xl px-4 py-2.5 mb-4">
           <Trophy className="w-3.5 h-3.5 text-green-400 shrink-0" />
           <p className="text-sm text-green-300">
-            <span className="text-gray-400 font-normal">Pemenang: </span>
+            <span className="text-gray-400 font-normal">{t('tournament.winner')}: </span>
             <span className="font-semibold">{winnerTeam?.name}</span>
           </p>
         </div>
@@ -300,7 +302,7 @@ function WinnerModal({ match, teamId, isTeam1, teams, tournamentId, token, boFor
             onClick={onClose}
             className="flex-1 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-sm font-medium transition-all"
           >
-            Batal
+            {t('common.cancel')}
           </button>
           <button
             onClick={confirm}
@@ -309,7 +311,7 @@ function WinnerModal({ match, teamId, isTeam1, teams, tournamentId, token, boFor
           >
             {loading
               ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              : <><Trophy className="w-3.5 h-3.5" /> Konfirmasi</>}
+              : <><Trophy className="w-3.5 h-3.5" /> {t('common.submit')}</>}
           </button>
         </div>
       </motion.div>
@@ -506,11 +508,12 @@ function BracketSection({
 
 // ─── Status badge ─────────────────────────────────────────────────────────────
 function StatusBadge({ status }: { status: string }) {
+  const { t } = useTranslation();
   if (status === 'registration') {
     return (
       <span className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border text-blue-400 bg-blue-500/15 border-blue-500/30">
         <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-        Pendaftaran
+        {t('tournament.status.open')}
       </span>
     );
   }
@@ -518,14 +521,14 @@ function StatusBadge({ status }: { status: string }) {
     return (
       <span className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border text-green-400 bg-green-500/15 border-green-500/30">
         <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-        Berlangsung
+        {t('tournament.status.ongoing')}
       </span>
     );
   }
   return (
     <span className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border text-gray-400 bg-gray-500/15 border-gray-500/30">
       <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
-      Selesai
+      {t('tournament.status.finished')}
     </span>
   );
 }
@@ -624,6 +627,7 @@ function TeamAvatar({ name, logoUrl, size = 'md' }: { name: string; logoUrl?: st
 function JoinModal({ tournamentId, token, onSuccess, onClose }: {
   tournamentId: string; token: string; onSuccess: () => void; onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const EMPTY_PLAYERS: JoinPlayer[] = Array.from({ length: 5 }, (_, i) => ({
     player_name: '', role: '', is_captain: i === 0,
   }));
@@ -684,7 +688,7 @@ function JoinModal({ tournamentId, token, onSuccess, onClose }: {
         <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-white/8 shrink-0">
           <h3 className="font-bold text-white flex items-center gap-2">
             <Shield className="w-4 h-4 text-primary-400" />
-            Daftarkan Tim
+            {t('tournament.join')}
           </h3>
           <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors">
             <X className="w-4 h-4" />
@@ -799,7 +803,7 @@ function JoinModal({ tournamentId, token, onSuccess, onClose }: {
             onClick={onClose}
             className="flex-1 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 text-sm transition-all"
           >
-            Batal
+            {t('common.cancel')}
           </button>
           <button
             onClick={submit}
@@ -808,7 +812,7 @@ function JoinModal({ tournamentId, token, onSuccess, onClose }: {
           >
             {loading
               ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              : <><Shield className="w-3.5 h-3.5" /> Daftar Tim</>}
+              : <><Shield className="w-3.5 h-3.5" /> {t('tournament.join')}</>}
           </button>
         </div>
       </motion.div>
@@ -888,6 +892,7 @@ function TeamList({ teams }: { teams: Team[] }) {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 export function TournamentDetailPage() {
+  const { t: tr } = useTranslation();
   const { id } = useParams({ strict: false }) as { id: string };
   const queryClient = useQueryClient();
   const { token, isAuthenticated } = useAuth();
@@ -950,7 +955,7 @@ export function TournamentDetailPage() {
   );
   if (error || !t) return (
     <div className="min-h-screen bg-dark-400 flex items-center justify-center text-red-400">
-      Tournament tidak ditemukan
+      {tr('tournament.noTournaments')}
     </div>
   );
 
@@ -977,7 +982,7 @@ export function TournamentDetailPage() {
             to="/tournament"
             className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors mb-4"
           >
-            <ChevronLeft className="w-3.5 h-3.5" /> Semua Turnamen
+            <ChevronLeft className="w-3.5 h-3.5" /> {tr('tournament.title')}
           </Link>
 
           <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -1003,7 +1008,7 @@ export function TournamentDetailPage() {
                 {t.description && (
                   <p className="text-sm text-gray-400 truncate">{t.description}</p>
                 )}
-                <p className="text-xs text-gray-600 mt-1">oleh {t.created_by_name}</p>
+                <p className="text-xs text-gray-600 mt-1">{tr('common.by')} {t.created_by_name}</p>
               </div>
             </div>
             <button
@@ -1011,8 +1016,8 @@ export function TournamentDetailPage() {
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-400 border border-white/10 rounded-lg hover:text-white hover:border-white/20 transition-all shrink-0"
             >
               {copied
-                ? <><Check className="w-3 h-3 text-green-400" /> Disalin!</>
-                : <><Copy className="w-3 h-3" /> Salin Link</>}
+                ? <><Check className="w-3 h-3 text-green-400" /> {tr('common.copied')}</>
+                : <><Copy className="w-3 h-3" /> {tr('common.copy')}</>}
             </button>
           </div>
         </div>
@@ -1027,19 +1032,19 @@ export function TournamentDetailPage() {
             className="rounded-2xl p-6 bg-gradient-to-r from-yellow-500/20 to-amber-500/10 border border-yellow-500/30 text-center"
           >
             <Trophy className="w-10 h-10 text-yellow-400 mx-auto mb-2" />
-            <p className="text-gray-400 text-sm">Juara Turnamen</p>
+            <p className="text-gray-400 text-sm">{tr('tournament.winner')}</p>
             <p className="text-2xl font-bold text-yellow-300 mt-1">{champion.name}</p>
           </motion.div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className={`grid grid-cols-1 gap-6 ${isDouble && t.status !== 'registration' ? 'lg:grid-cols-5' : 'lg:grid-cols-4'}`}>
           {/* ── Left sidebar ─────────────────────────────────────────────── */}
           <div className="space-y-4 lg:col-span-1">
 
             {/* Info card (registration phase) */}
             {(t.scheduled_at || t.prize || t.contact || t.rules || t.bo_format) && (
               <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4 space-y-3">
-                <p className="text-xs text-gray-500 uppercase tracking-wider">Info Turnamen</p>
+                <p className="text-xs text-gray-500 uppercase tracking-wider">{tr('tournament.title')}</p>
 
                 {t.bo_format && (
                   <div className="flex items-center justify-between bg-dark-400/50 rounded-lg px-3 py-2">
@@ -1139,7 +1144,7 @@ export function TournamentDetailPage() {
               )}
 
               {t.teams.length === 0 ? (
-                <p className="text-xs text-gray-600 text-center py-3">Belum ada tim</p>
+                <p className="text-xs text-gray-600 text-center py-3">{tr('tournament.noTournaments')}</p>
               ) : (
                 <TeamList teams={t.teams} />
               )}
@@ -1152,14 +1157,14 @@ export function TournamentDetailPage() {
                       onClick={() => setShowJoinModal(true)}
                       className="w-full py-2.5 bg-primary-500 hover:bg-primary-600 text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors"
                     >
-                      <Shield className="w-3.5 h-3.5" /> Daftarkan Tim
+                      <Shield className="w-3.5 h-3.5" /> {tr('tournament.join')}
                     </button>
                   ) : (
                     <Link
                       to="/auth"
                       className="flex items-center justify-center gap-2 w-full py-2 text-sm text-gray-400 border border-white/10 rounded-lg hover:text-white hover:border-white/20 transition-all"
                     >
-                      <LogIn className="w-3.5 h-3.5" /> Login untuk daftar
+                      <LogIn className="w-3.5 h-3.5" /> {tr('nav.loginRegister')}
                     </Link>
                   )}
                 </div>
@@ -1195,7 +1200,7 @@ export function TournamentDetailPage() {
                       className="w-full py-2 bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors"
                     >
                       <Play className="w-4 h-4" />
-                      {startMut.isPending ? 'Memulai...' : 'Mulai Turnamen'}
+                      {startMut.isPending ? tr('loading.default') : tr('tournament.start')}
                     </button>
                     {t.teams.length < 2 && (
                       <p className="text-xs text-gray-600 text-center">Min 2 tim</p>
@@ -1232,56 +1237,59 @@ export function TournamentDetailPage() {
                         className="w-full py-2 bg-primary-500 hover:bg-primary-600 disabled:opacity-50 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors"
                       >
                         {roomSaved
-                          ? <><Check className="w-3.5 h-3.5" /> Tersimpan!</>
+                          ? <><Check className="w-3.5 h-3.5" /> {tr('common.saved')}</>
                           : roomMut.isPending
-                            ? 'Menyimpan...'
-                            : 'Simpan Room'}
+                            ? tr('loading.default')
+                            : tr('common.save')}
                       </button>
                     </div>
                   </div>
                 )}
 
                 {t.status === 'completed' && (
-                  <p className="text-xs text-green-400 text-center">Turnamen selesai</p>
+                  <p className="text-xs text-green-400 text-center">{tr('tournament.status.finished')}</p>
                 )}
               </div>
             )}
           </div>
 
           {/* ── Right: Bracket ───────────────────────────────────────────── */}
-          <div className="lg:col-span-3">
+          <div className={isDouble && t.status !== 'registration' ? 'lg:col-span-4' : 'lg:col-span-3'}>
             {t.status === 'registration' ? (
               <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-8 text-center text-gray-500">
                 <Trophy className="w-10 h-10 mx-auto mb-3 opacity-20" />
-                <p>Bracket akan tampil setelah turnamen dimulai</p>
-                <p className="text-xs mt-1 text-gray-600">{t.teams.length}/{t.team_count} tim terdaftar</p>
+                <p>{tr('tournament.bracket')}</p>
+                <p className="text-xs mt-1 text-gray-600">{t.teams.length}/{t.team_count} {tr('tournament.participants')}</p>
               </div>
-            ) : (
-              <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
-                <BracketSection
-                  label={isDouble ? '🏆 Winners Bracket' : 'Bracket'}
-                  labelColor={isDouble ? 'text-blue-400' : 'text-gray-400'}
-                  matches={winnerMatches}
-                  teams={t.teams}
-                  isCreator={isCreator}
-                  onRequestWinner={(match, teamId, isTeam1) => setWinnerModal({ match, teamId, isTeam1 })}
-                />
-                {isDouble && loserMatches.length > 0 && (
-                  <>
-                    <div className="border-t border-white/8 my-4" />
+            ) : isDouble ? (
+              <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4 space-y-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div>
                     <BracketSection
-                      label="💀 Losers Bracket"
-                      labelColor="text-red-400"
-                      matches={loserMatches}
+                      label="🏆 Winners Bracket"
+                      labelColor="text-blue-400"
+                      matches={winnerMatches}
                       teams={t.teams}
                       isCreator={isCreator}
                       onRequestWinner={(match, teamId, isTeam1) => setWinnerModal({ match, teamId, isTeam1 })}
                     />
-                  </>
-                )}
-                {isDouble && grandFinalMatches.length > 0 && (
+                  </div>
+                  {loserMatches.length > 0 && (
+                    <div>
+                      <BracketSection
+                        label="💀 Losers Bracket"
+                        labelColor="text-red-400"
+                        matches={loserMatches}
+                        teams={t.teams}
+                        isCreator={isCreator}
+                        onRequestWinner={(match, teamId, isTeam1) => setWinnerModal({ match, teamId, isTeam1 })}
+                      />
+                    </div>
+                  )}
+                </div>
+                {grandFinalMatches.length > 0 && (
                   <>
-                    <div className="border-t border-white/8 my-4" />
+                    <div className="border-t border-white/8" />
                     <div className="mb-2 text-xs font-bold uppercase tracking-widest text-yellow-400">
                       🎖 Grand Final
                     </div>
@@ -1298,6 +1306,17 @@ export function TournamentDetailPage() {
                     </div>
                   </>
                 )}
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
+                <BracketSection
+                  label="Bracket"
+                  labelColor="text-gray-400"
+                  matches={winnerMatches}
+                  teams={t.teams}
+                  isCreator={isCreator}
+                  onRequestWinner={(match, teamId, isTeam1) => setWinnerModal({ match, teamId, isTeam1 })}
+                />
               </div>
             )}
           </div>

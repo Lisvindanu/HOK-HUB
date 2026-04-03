@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from '@tanstack/react-router';
 import {
@@ -906,6 +907,7 @@ function PostCard({
 // ─── CommunityPage ────────────────────────────────────────────────────────────
 
 export function CommunityPage() {
+  const { t } = useTranslation();
   useEffect(() => {
     document.title = 'Community - Honor of Kings | HoK Hub';
     const desc = document.querySelector('meta[name="description"]');
@@ -976,9 +978,9 @@ export function CommunityPage() {
         style={{ background: 'linear-gradient(135deg, rgba(10,25,55,0.8), rgba(5,15,35,0.9))' }}
       >
         <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 50% 50%, #1d7fd4 0%, transparent 70%)' }} />
-        <h1 className="relative text-3xl font-bold text-white tracking-tight">Community Board</h1>
+        <h1 className="relative text-3xl font-bold text-white tracking-tight">{t('community.title')}</h1>
         <p className="relative text-white/45 mt-1 text-sm max-w-lg mx-auto">
-          Bagikan build, strategi, dan diskusi dengan pemain lain
+          {t('community.subtitle')}
         </p>
       </div>
 
@@ -1007,7 +1009,7 @@ export function CommunityPage() {
             className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 transition-colors"
           >
             <span className="text-lg leading-none">+</span>
-            <span>Buat Post</span>
+            <span>{t('community.newPost')}</span>
           </button>
         </div>
 
@@ -1018,7 +1020,7 @@ export function CommunityPage() {
           </div>
         ) : posts.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-white/30 text-sm">Belum ada post. Jadilah yang pertama berbagi!</p>
+            <p className="text-white/30 text-sm">{t('community.noPostsYet')}</p>
           </div>
         ) : (
           <div className="space-y-4">
